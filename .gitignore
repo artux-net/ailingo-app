@@ -13,6 +13,6 @@ xcuserdata/
 Pods/
 *.jks
 *yarn.lock
-/app/karma.config.d/moko-resources-generated.js
-/app/webpack.config.d/moko-resources-generated.js
-/app/dictionary_database.db
+/composeApp/karma.config.d/moko-resources-generated.js
+/composeApp/webpack.config.d/moko-resources-generated.js
+/composeApp/dictionary_database.db
