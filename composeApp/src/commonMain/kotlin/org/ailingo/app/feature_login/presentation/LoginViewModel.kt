@@ -2,7 +2,11 @@ package org.ailingo.app.feature_login.presentation
 
 import AiLingo.composeApp.BuildConfig.API_ENDPOINT_USER
 import AiLingo.composeApp.BuildConfig.BASE_URL
-import com.arkivanov.decompose.ComponentContext
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -19,25 +23,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.ailingo.app.core.helper_auth.auth.basicAuthHeader
-import org.ailingo.app.core.util.componentCoroutineScope
 
-class LoginScreenComponent(
-    componentContext: ComponentContext,
-    private val onNavigateToChatScreen: () -> Unit,
-    private val onNavigateToResetPasswordScreen: () -> Unit,
-    private val onNavigateToRegisterScreen: () -> Unit
-) : ComponentContext by componentContext {
-
+class LoginViewModel: ViewModel() {
     private val _loginState = MutableStateFlow<LoginUiState>(LoginUiState.Empty)
     val loginState: StateFlow<LoginUiState> = _loginState.asStateFlow()
 
-    private val coroutineScope = componentCoroutineScope()
+    var login by mutableStateOf("admin")
+    var password by mutableStateOf("pass")
 
     fun onEvent(event: LoginScreenEvent) {
         when (event) {
-            LoginScreenEvent.OnNavigateToChatScreen -> onNavigateToChatScreen()
-            LoginScreenEvent.OnNavigateToResetPasswordScreen -> onNavigateToResetPasswordScreen()
-            LoginScreenEvent.OnNavigateToRegisterScreen -> onNavigateToRegisterScreen()
             LoginScreenEvent.OnBackToEmptyState -> {
                 _loginState.value = LoginUiState.Empty
             }
@@ -51,7 +46,7 @@ class LoginScreenComponent(
         login: String,
         password: String
     ) {
-        coroutineScope.launch {
+        viewModelScope.launch {
             val httpClient = HttpClient {
                 install(ContentNegotiation) {
                     json(Json {

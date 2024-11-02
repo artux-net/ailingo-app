@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
@@ -38,7 +37,7 @@ import kotlinx.coroutines.launch
 import org.ailingo.app.core.helper_voice.VoiceStates
 import org.ailingo.app.feature_topics.data.Topic
 import org.ailingo.app.feature_topics.presentation.TopicCard
-import org.ailingo.app.feature_upload_avatar.UploadAvatarComponent
+import org.ailingo.app.feature_upload_avatar.UploadAvatarViewModel
 import org.ailingo.composeApp.database.HistoryDictionaryDatabase
 import java.awt.Desktop
 import java.io.BufferedInputStream
@@ -109,7 +108,7 @@ fun recordAudio(
     }
 
     voiceState.update {
-        VoiceStates(spokenText = TextFieldValue("Wait for transcripts..."))
+        VoiceStates(spokenText = "Wait for transcripts...")
     }
 
     byteArrayOutputStream.close()
@@ -250,11 +249,12 @@ actual fun TopicsForDesktopAndWeb(topics: List<Topic>) {
 
 @Composable
 actual fun UploadAvatarForPhone(
-    uploadAvatarComponent: UploadAvatarComponent,
+    uploadAvatarViewModel: UploadAvatarViewModel,
     login: String,
     password: String,
     email: String,
     name: String,
     onNavigateToRegisterScreen: () -> Unit
 ) {
+
 }

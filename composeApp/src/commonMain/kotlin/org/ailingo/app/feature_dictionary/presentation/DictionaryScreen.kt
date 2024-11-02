@@ -3,10 +3,12 @@ package org.ailingo.app.feature_dictionary.presentation
 import ailingo.composeapp.generated.resources.Res
 import ailingo.composeapp.generated.resources.definitions
 import ailingo.composeapp.generated.resources.no_definitions
+import ailingo.composeapp.generated.resources.history_of_search
 import ailingo.composeapp.generated.resources.usage_examples
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,18 +31,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.ailingo.app.feature_dictionary.presentation.utils.ErrorDictionaryScreen
 import org.ailingo.app.feature_dictionary.presentation.utils.LoadingDictionaryScreen
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalResourceApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DictionaryScreen(
-    component: DictionaryScreenComponent
+    dictionaryViewModel: DictionaryViewModel
 ) {
-    val uiState = component.uiState.collectAsState()
+    val uiState = dictionaryViewModel.uiState.collectAsState()
 
-    val historyState = component.historyOfDictionaryState.collectAsState()
+    val historyState = dictionaryViewModel.historyOfDictionaryState.collectAsState()
     val textFieldValue = rememberSaveable { mutableStateOf("") }
     val active = remember {
         mutableStateOf(false)
@@ -48,19 +49,20 @@ fun DictionaryScreen(
     val searchBarHeight = remember { mutableStateOf(0) }
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(top = 16.dp, start = 16.dp, end = 16.dp)
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp)
         ) {
             stickyHeader {
                 SearchTextFieldDictionary(
-                    component = component,
+                    dictionaryViewModel = dictionaryViewModel,
                     textFieldValue = textFieldValue,
                     onTextFieldValueChange = { newTextFieldValue ->
                         textFieldValue.value = newTextFieldValue
                     },
                     active = active,
-                    searchBarHeight
+                    searchBarHeight = searchBarHeight
                 ) { searchWord ->
-                    component.onEvent(DictionaryScreenEvents.SearchWordDefinition(searchWord))
+                    dictionaryViewModel.onEvent(DictionaryScreenEvents.SearchWordDefinition(searchWord))
                 }
             }
             if (uiState.value is DictionaryUiState.Empty) {
@@ -69,7 +71,7 @@ fun DictionaryScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(14.dp).clickable {
                             textFieldValue.value = it.text
-                            component.onEvent(DictionaryScreenEvents.SearchWordDefinition(it.text))
+                            dictionaryViewModel.onEvent(DictionaryScreenEvents.SearchWordDefinition(it.text))
                             active.value = false
                         }) {
                         Icon(
@@ -144,7 +146,7 @@ fun DictionaryScreen(
                                 .padding(top = searchBarHeight.value.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("Here will be the search history of your words")
+                            Text(stringResource(Res.string.history_of_search))
                         }
                     }
                 }

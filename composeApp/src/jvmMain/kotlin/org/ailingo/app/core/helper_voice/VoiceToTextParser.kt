@@ -1,6 +1,5 @@
 package org.ailingo.app.core.helper_voice
 
-import androidx.compose.ui.text.input.TextFieldValue
 import com.google.api.gax.core.FixedCredentialsProvider
 import com.google.api.gax.rpc.PermissionDeniedException
 import com.google.auth.oauth2.GoogleCredentials
@@ -67,7 +66,7 @@ actual class VoiceToTextParser {
                 if (transcripts.isNotBlank()) {
                     _voiceState.update {
                         VoiceStates(
-                            spokenText = TextFieldValue(transcripts),
+                            spokenText = transcripts,
                             isSpeaking = false,
                             error = null
                         )
@@ -75,7 +74,7 @@ actual class VoiceToTextParser {
                 } else {
                     _voiceState.update {
                         VoiceStates(
-                            spokenText = TextFieldValue("Empty message, please check your microphone"),
+                            spokenText = "Empty message, please check your microphone",
                             isSpeaking = false,
                             error = null
                         )
@@ -83,7 +82,7 @@ actual class VoiceToTextParser {
                     delay(2000L)
                     _voiceState.update {
                         VoiceStates(
-                            spokenText = TextFieldValue(" "),
+                            spokenText = " ",
                             isSpeaking = false,
                             error = null
                         )
@@ -93,7 +92,7 @@ actual class VoiceToTextParser {
                 //need to find new google account to work with desktop
                 _voiceState.update {
                     VoiceStates(
-                        spokenText = TextFieldValue("Status payment error"),
+                        spokenText = "Status payment error",
                         isSpeaking = false,
                         error = "Status payment error"
                     )
@@ -101,7 +100,7 @@ actual class VoiceToTextParser {
                 delay(2000L)
                 _voiceState.update {
                     VoiceStates(
-                        spokenText = TextFieldValue(" "),
+                        spokenText = " ",
                         isSpeaking = false,
                         error = null
                     )
@@ -109,7 +108,7 @@ actual class VoiceToTextParser {
             } catch (e: Exception) {
                 _voiceState.update {
                     VoiceStates(
-                        spokenText = TextFieldValue("Something goes wrong ${e.message.toString()}"),
+                        spokenText = "Something goes wrong ${e.message.toString()}",
                         isSpeaking = false,
                         error = e.message.toString()
                     )
@@ -117,7 +116,7 @@ actual class VoiceToTextParser {
                 delay(2000L)
                 _voiceState.update {
                     VoiceStates(
-                        spokenText = TextFieldValue(" "),
+                        spokenText = " ",
                         isSpeaking = false,
                         error = null
                     )

@@ -23,7 +23,8 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun GetStartedScreen(
-    component: GetStartedScreenComponent
+    onNavigateToLoginScreen: () -> Unit,
+    onNavigateToRegisterScreen: () -> Unit,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -37,13 +38,13 @@ fun GetStartedScreen(
         Spacer(modifier = Modifier.height(8.dp))
         Row {
             Button(shape = MaterialTheme.shapes.small, onClick = {
-                component.onEvent(GetStartedScreenEvent.OnNavigateToLoginScreen)
+                onNavigateToLoginScreen()
             }) {
                 Text(stringResource(Res.string.log_in))
             }
             Spacer(modifier = Modifier.width(16.dp))
             Button(shape = MaterialTheme.shapes.small, onClick = {
-                component.onEvent(GetStartedScreenEvent.OnNavigateToRegisterScreen)
+                onNavigateToRegisterScreen()
             }) {
                 Text(stringResource(Res.string.sign_up))
             }

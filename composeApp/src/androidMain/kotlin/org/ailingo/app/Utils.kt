@@ -59,11 +59,11 @@ import androidx.compose.ui.unit.dp
 import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
-import com.seiko.imageloader.rememberImagePainter
+import coil3.compose.AsyncImage
 import org.ailingo.app.feature_register.data.model.UserRegistrationData
 import org.ailingo.app.feature_register.data.model_upload_image.UploadImageUiState
 import org.ailingo.app.feature_topics.data.Topic
-import org.ailingo.app.feature_upload_avatar.UploadAvatarComponent
+import org.ailingo.app.feature_upload_avatar.UploadAvatarViewModel
 import org.ailingo.composeApp.database.HistoryDictionaryDatabase
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -108,7 +108,7 @@ actual class DriverFactory(private val context: Context) {
 
 @Composable
 actual fun UploadAvatarForPhone(
-    uploadAvatarComponent: UploadAvatarComponent,
+    uploadAvatarViewModel: UploadAvatarViewModel,
     login: String,
     password: String,
     email: String,
@@ -133,10 +133,10 @@ actual fun UploadAvatarForPhone(
         }
     )
 
-    val imageState = uploadAvatarComponent.imageState.collectAsState()
+    val imageState = uploadAvatarViewModel.imageState.collectAsState()
     LaunchedEffect(base64Image) {
         if (base64Image?.isNotEmpty() == true) {
-            uploadAvatarComponent.uploadImage(base64Image!!)
+            uploadAvatarViewModel.uploadImage(base64Image!!)
         }
     }
     Box(modifier = Modifier.fillMaxSize()) {
@@ -178,13 +178,13 @@ actual fun UploadAvatarForPhone(
                             when (imageState.value) {
                                 UploadImageUiState.EmptyImage -> {
                                     if (savedPhoto.isNotEmpty()) {
-                                        Image(
-                                            painter = rememberImagePainter(savedPhoto),
+                                        AsyncImage(
+                                            model = savedPhoto,
                                             contentDescription = null,
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .aspectRatio(1f),
-                                            contentScale = ContentScale.Crop,
+                                            contentScale = ContentScale.Crop
                                         )
                                     } else {
                                         Image(
@@ -226,8 +226,8 @@ actual fun UploadAvatarForPhone(
                                 is UploadImageUiState.Success -> {
                                     savedPhoto =
                                         (imageState.value as UploadImageUiState.Success).uploadImageResponse.data.image.url
-                                    Image(
-                                        painter = rememberImagePainter(savedPhoto),
+                                    AsyncImage(
+                                        model = savedPhoto,
                                         contentDescription = null,
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -269,7 +269,6 @@ actual fun UploadAvatarForPhone(
                             onClick = {
                                 savedPhoto = ""
                                 base64Image = null
-                                //uploadAvatarComponent.backToEmptyUploadAvatar()
                             },
                             shape = MaterialTheme.shapes.small
                         ) {
@@ -301,7 +300,7 @@ actual fun UploadAvatarForPhone(
                     if (imageState.value !is UploadImageUiState.LoadingImage) {
                         OutlinedButton(onClick = {
                             if (imageState.value is UploadImageUiState.Success && savedPhoto.isNotEmpty()) {
-                                uploadAvatarComponent.registerUser(
+                                uploadAvatarViewModel.registerUser(
                                     UserRegistrationData(
                                         login = login,
                                         password = password,
@@ -311,7 +310,7 @@ actual fun UploadAvatarForPhone(
                                     )
                                 )
                             } else {
-                                uploadAvatarComponent.registerUser(
+                                uploadAvatarViewModel.registerUser(
                                     UserRegistrationData(
                                         login = login,
                                         password = password,

@@ -1,5 +1,7 @@
 package org.ailingo.app.feature_dictionary.presentation
 
+import ailingo.composeapp.generated.resources.Res
+import ailingo.composeapp.generated.resources.search
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -12,6 +14,7 @@ import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,34 +29,37 @@ import compose.icons.feathericons.Search
 import kotlinx.coroutines.delay
 import org.ailingo.app.feature_dicitionary_predictor.data.PredictorRequest
 import org.ailingo.app.feature_dictionary_history.domain.HistoryDictionary
+import org.jetbrains.compose.resources.stringResource
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchTextFieldDictionary(
-    component: DictionaryScreenComponent,
+    dictionaryViewModel: DictionaryViewModel,
     textFieldValue: MutableState<String>,
     onTextFieldValueChange: (String) -> Unit,
     active: MutableState<Boolean>,
     searchBarHeight: MutableState<Int>,
     onSearchClick: (String) -> Unit
 ) {
-    val items = component.items.collectAsState()
+    val items = dictionaryViewModel.items.collectAsState()
     LaunchedEffect(textFieldValue.value) {
         val trimmedText = textFieldValue.value.trim()
         if (trimmedText.isNotBlank()) {
             delay(250)
             println(trimmedText)
             if (active.value) {
-                 component.onEvent(DictionaryScreenEvents.PredictNextWords(
-                    PredictorRequest(
-                        false,
-                        listOf("en"),
-                        5,
-                        trimmedText,
-                        "string"
+                dictionaryViewModel.onEvent(
+                    DictionaryScreenEvents.PredictNextWords(
+                        PredictorRequest(
+                            false,
+                            listOf("en"),
+                            5,
+                            trimmedText,
+                            "string"
+                        )
                     )
-                ))
+                )
             }
         }
     }
@@ -62,34 +68,42 @@ fun SearchTextFieldDictionary(
             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp).onGloballyPositioned {
                 searchBarHeight.value = it.size.height
             },
-            query = textFieldValue.value,
-            onQueryChange = onTextFieldValueChange,
-            onSearch = {
-                onSearchClick(it)
-                component.onEvent(DictionaryScreenEvents.SaveSearchedWord(HistoryDictionary(null,it)))
-                active.value = false
+            inputField = {
+                SearchBarDefaults.InputField(
+                    query = textFieldValue.value,
+                    onQueryChange = {
+                        onTextFieldValueChange(it)
+                    },
+                    onSearch = {
+                        onSearchClick(it)
+                        dictionaryViewModel.onEvent(
+                            DictionaryScreenEvents.SaveSearchedWord(
+                                HistoryDictionary(null, it)
+                            )
+                        )
+                        active.value = false
+                    },
+                    expanded = active.value,
+                    onExpandedChange = { active.value = it },
+                    placeholder = { Text(stringResource(Res.string.search)) },
+                    leadingIcon = { Icon(FeatherIcons.Search, contentDescription = null) },
+                    trailingIcon = {
+                        if (active.value) {
+                            Icon(modifier = Modifier.clickable {
+                                if (textFieldValue.value.isNotEmpty()) {
+                                    textFieldValue.value = ""
+                                } else {
+                                    active.value = false
+                                }
+                            }, imageVector = Icons.Filled.Close, contentDescription = null)
+                        }
+                    }
+                )
             },
-            active = active.value,
-            onActiveChange = {
+            expanded = active.value,
+            onExpandedChange = {
                 active.value = it
             },
-            placeholder = {
-                Text("Search")
-            },
-            leadingIcon = {
-                Icon(imageVector = FeatherIcons.Search, contentDescription = null)
-            },
-            trailingIcon = {
-                if (active.value) {
-                    Icon(modifier = Modifier.clickable {
-                        if (textFieldValue.value.isNotEmpty()) {
-                            textFieldValue.value = ""
-                        } else {
-                            active.value = false
-                        }
-                    }, imageVector = Icons.Filled.Close, contentDescription = null)
-                }
-            }
         ) {
             items.value?.predictions?.let { predictions ->
                 val uniqueWords = predictions
@@ -101,9 +115,11 @@ fun SearchTextFieldDictionary(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(14.dp).clickable {
                             textFieldValue.value = uniqueWord
-                            component.onEvent(DictionaryScreenEvents.SaveSearchedWord(
-                                HistoryDictionary(null,uniqueWord)
-                            ))
+                            dictionaryViewModel.onEvent(
+                                DictionaryScreenEvents.SaveSearchedWord(
+                                    HistoryDictionary(null, uniqueWord)
+                                )
+                            )
                             onSearchClick(uniqueWord)
                             active.value = false
                         }) {

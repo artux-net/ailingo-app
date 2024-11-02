@@ -37,7 +37,7 @@ fun MessageItemDesktop(message: Message) {
             Box(modifier = Modifier.weight(2f)) {
                 Surface(
                     modifier = Modifier
-                        .padding(8.dp)
+                        .padding(bottom = 8.dp)
                         .then(
                             if (isSentByUser) Modifier.align(Alignment.CenterEnd) else Modifier.align(
                                 Alignment.CenterStart

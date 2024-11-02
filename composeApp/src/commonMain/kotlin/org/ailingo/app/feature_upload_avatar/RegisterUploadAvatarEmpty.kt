@@ -43,9 +43,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.seiko.imageloader.rememberImagePainter
+import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
-import org.ailingo.app.UploadAvatarForPhone
 import org.ailingo.app.feature_register.data.model.UserRegistrationData
 import org.ailingo.app.feature_register.data.model_upload_image.UploadImageUiState
 import org.ailingo.app.getPlatformName
@@ -56,34 +55,35 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun RegisterUploadAvatarEmpty(
-    registerComponent: UploadAvatarComponent,
     login: String,
     password: String,
     email: String,
     name: String,
-    onNavigateToRegisterScreen: () -> Unit
+    onNavigateToRegisterScreen: () -> Unit,
+    uploadAvatarViewModel: UploadAvatarViewModel
 ) {
     var savedPhoto by remember {
         mutableStateOf("")
     }
     if (getPlatformName() == "Android") {
-        UploadAvatarForPhone(
-            registerComponent,
-            login,
-            password,
-            email,
-            name,
-            onNavigateToRegisterScreen = onNavigateToRegisterScreen
-        )
+        //TODO
+//        UploadAvatarForPhone(
+//            registerComponent,
+//            login,
+//            password,
+//            email,
+//            name,
+//            onNavigateToRegisterScreen = onNavigateToRegisterScreen
+//        )
     } else {
-        val imageState = registerComponent.imageState.collectAsState()
+        val imageState = uploadAvatarViewModel.imageState.collectAsState()
         var base64Image by remember {
             mutableStateOf<String?>(null)
         }
         val scope = rememberCoroutineScope()
         LaunchedEffect(base64Image) {
             if (base64Image?.isNotEmpty() == true) {
-                registerComponent.onEvent(UploadAvatarEvent.OnUploadImage(base64Image!!))
+                uploadAvatarViewModel.onEvent(UploadAvatarEvent.OnUploadImage(base64Image!!))
             }
         }
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -122,8 +122,8 @@ fun RegisterUploadAvatarEmpty(
                                     when (imageState.value) {
                                         UploadImageUiState.EmptyImage -> {
                                             if (savedPhoto.isNotEmpty()) {
-                                                Image(
-                                                    painter = rememberImagePainter(savedPhoto),
+                                                AsyncImage(
+                                                    model = savedPhoto,
                                                     contentDescription = null,
                                                     modifier = Modifier.fillMaxSize(),
                                                     contentScale = ContentScale.Crop
@@ -165,8 +165,8 @@ fun RegisterUploadAvatarEmpty(
                                         is UploadImageUiState.Success -> {
                                             savedPhoto =
                                                 ((imageState.value as UploadImageUiState.Success).uploadImageResponse.data.image.url)
-                                            Image(
-                                                painter = rememberImagePainter(savedPhoto),
+                                            AsyncImage(
+                                                model = savedPhoto,
                                                 contentDescription = null,
                                                 modifier = Modifier.fillMaxSize(),
                                                 contentScale = ContentScale.Crop
@@ -206,7 +206,7 @@ fun RegisterUploadAvatarEmpty(
                                     onClick = {
                                         savedPhoto = ""
                                         base64Image = null
-                                        registerComponent.onEvent(UploadAvatarEvent.OnBackToEmptyUploadAvatar)
+                                        uploadAvatarViewModel.onEvent(UploadAvatarEvent.OnBackToEmptyUploadAvatar)
                                     },
                                     shape = MaterialTheme.shapes.small
                                 ) {
@@ -238,7 +238,7 @@ fun RegisterUploadAvatarEmpty(
                             if (imageState.value !is UploadImageUiState.LoadingImage) {
                                 OutlinedButton(onClick = {
                                     if (imageState.value is UploadImageUiState.Success && savedPhoto.isNotEmpty()) {
-                                        registerComponent.onEvent(
+                                        uploadAvatarViewModel.onEvent(
                                             UploadAvatarEvent.RegisterUser(
                                                 UserRegistrationData(
                                                     login = login,
@@ -250,7 +250,7 @@ fun RegisterUploadAvatarEmpty(
                                             )
                                         )
                                     } else {
-                                        registerComponent.onEvent(
+                                        uploadAvatarViewModel.onEvent(
                                             UploadAvatarEvent.RegisterUser(
                                                 UserRegistrationData(
                                                     login = login,

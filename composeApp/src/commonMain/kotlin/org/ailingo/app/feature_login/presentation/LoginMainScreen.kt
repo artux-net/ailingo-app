@@ -19,20 +19,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun LoginMainScreen(
     onLoginUser: () -> Unit,
-    login: TextFieldValue,
-    onLoginChange: (TextFieldValue) -> Unit,
-    password: TextFieldValue,
-    onPasswordChange: (TextFieldValue) -> Unit,
+    login: String,
+    onLoginChange: (String) -> Unit,
+    password: String,
+    onPasswordChange: (String) -> Unit,
     passwordVisible: Boolean,
     onPasswordVisibleChange: () -> Unit,
     isLoading: MutableState<Boolean>,
-    component: LoginScreenComponent
+    onNavigateToRegisterScreen: () -> Unit,
+    onNavigateToResetPasswordScreen: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val passwordFieldFocusRequester = rememberUpdatedState(FocusRequester())
@@ -79,20 +79,20 @@ fun LoginMainScreen(
             )
             Spacer(modifier = Modifier.height(12.dp))
             LoginForgotPasswordLink(onClick = {
-                component.onEvent(LoginScreenEvent.OnNavigateToResetPasswordScreen)
+                onNavigateToResetPasswordScreen()
             })
             Spacer(modifier = Modifier.height(16.dp))
             LoginButton(
                 onClick = onLoginUser,
-                login.text,
-                password.text,
+                login,
+                password,
                 showLoginIsEmpty,
                 showPasswordIsEmpty,
                 isLoading
             )
             Spacer(modifier = Modifier.height(8.dp))
             LoginSignUpSection(onClick = {
-                component.onEvent(LoginScreenEvent.OnNavigateToRegisterScreen)
+                onNavigateToRegisterScreen()
             })
         }
     }

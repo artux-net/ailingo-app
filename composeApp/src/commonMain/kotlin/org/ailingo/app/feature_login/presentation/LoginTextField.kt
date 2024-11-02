@@ -14,15 +14,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 
 
 @Composable
 fun LoginTextField(
-    textValue: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
+    textValue: String,
+    onValueChange: (String) -> Unit,
     onNext: (KeyboardActionScope.() -> Unit),
     showErrorText: Boolean
 ) {

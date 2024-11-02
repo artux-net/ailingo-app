@@ -1,6 +1,6 @@
 # Client of ailingo project
-# Compose Multiplatform Application
-Web demo: https://ailingos.github.io/ailigo-app/
+# AiLingo
+Web demo: http://ailingo.artux.net/ 
 
 ## Before running!
 - check your system with [KDoctor](https://github.com/Kotlin/kdoctor)
@@ -27,5 +27,6 @@ To run the application on iPhone device/simulator:
   Run iOS simulator UI tests: `./gradlew :composeApp:iosSimulatorArm64Test`
 
 ### JS Browser (Experimental)
-Run the browser application: `./gradlew :composeApp:jsBrowserDevelopmentRun --continue`
+
+Run the browser application: `./gradlew :composeApp:jsBrowserDevelopmentRun --continuous`
 Run browser UI tests: `./gradlew :composeApp:jsBrowserTest`

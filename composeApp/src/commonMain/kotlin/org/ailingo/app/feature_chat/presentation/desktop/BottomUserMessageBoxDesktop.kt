@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Mic
@@ -26,19 +25,17 @@ import kotlinx.coroutines.launch
 import org.ailingo.app.core.helper_voice.VoiceStates
 import org.ailingo.app.core.helper_voice.VoiceToTextParser
 import org.ailingo.app.feature_chat.data.model.Message
-import org.ailingo.app.feature_chat.presentation.ChatScreenComponent
-import org.ailingo.app.feature_chat.presentation.ChatScreenEvents
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun BottomUserMessageBox(
-    chatTextField: TextFieldValue,
-    onChatTextField: (TextFieldValue) -> Unit,
+    chatTextField: String,
+    onChatTextField: (String) -> Unit,
     voiceToTextParser: VoiceToTextParser,
     voiceState: State<VoiceStates>,
     messages: List<Message>,
     listState: LazyListState,
-    chatComponent: ChatScreenComponent,
+    onMessageSent: (String) -> Unit,
     isActiveJob: Boolean,
 ) {
     val scope = rememberCoroutineScope()
@@ -76,9 +73,8 @@ fun BottomUserMessageBox(
                     Spacer(modifier = Modifier.width(8.dp))
                     if (!isActiveJob) {
                         IconButton(onClick = {
-                            if (chatTextField.text.isNotBlank()) {
-                                chatComponent.onEvent(ChatScreenEvents.MessageSent(chatTextField.text))
-                                onChatTextField(TextFieldValue(""))
+                            if (chatTextField.isNotBlank()) {
+                                onMessageSent(chatTextField)
                                 scope.launch {
                                     listState.scrollToItem(messages.size - 1)
                                 }

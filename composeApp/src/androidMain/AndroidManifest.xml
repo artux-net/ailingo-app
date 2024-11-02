@@ -5,13 +5,12 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name=".AndroidApp"
+        android:name="org.ailingo.app.AndroidApp"
 
         android:icon="@android:drawable/ic_menu_compass"
-        android:label="ailingo"
-        android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
+        android:label="ailingo">
         <activity
-            android:name=".AppActivity"
+            android:name="org.ailingo.app.AppActivity"
 
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:launchMode="singleInstance"

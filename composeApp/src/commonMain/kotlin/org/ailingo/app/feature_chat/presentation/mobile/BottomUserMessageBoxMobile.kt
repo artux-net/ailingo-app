@@ -27,8 +27,8 @@ import kotlinx.coroutines.launch
 import org.ailingo.app.core.helper_voice.VoiceStates
 import org.ailingo.app.core.helper_voice.VoiceToTextParser
 import org.ailingo.app.feature_chat.data.model.Message
-import org.ailingo.app.feature_chat.presentation.ChatScreenComponent
 import org.ailingo.app.feature_chat.presentation.ChatScreenEvents
+import org.ailingo.app.feature_chat.presentation.ChatScreenViewModel
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -38,7 +38,7 @@ fun BottomUserMessageBoxMobile(
     voiceState: State<VoiceStates>,
     messages: List<Message>,
     listState: LazyListState,
-    component: ChatScreenComponent,
+    viewModel: ChatScreenViewModel,
     isActiveJob: Boolean,
     onChatTextField: (TextFieldValue) -> Unit
 ) {
@@ -76,8 +76,8 @@ fun BottomUserMessageBoxMobile(
                     if (!isActiveJob) {
                         IconButton(onClick = {
                             if (chatField.text.isNotBlank()) {
-                                component.onEvent(ChatScreenEvents.MessageSent(chatField.text))
-                                onChatTextField(TextFieldValue(""))
+                                viewModel.onEvent(ChatScreenEvents.MessageSent(chatField.text))
+                                onChatTextField(TextFieldValue(chatField.text))
                                 scope.launch {
                                     listState.scrollToItem(messages.size - 1)
                                 }

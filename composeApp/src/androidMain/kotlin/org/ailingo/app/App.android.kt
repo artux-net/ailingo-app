@@ -12,8 +12,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.arkivanov.decompose.ExperimentalDecomposeApi
-import com.arkivanov.decompose.retainedComponent
 import org.ailingo.app.core.helper_voice.VoiceToTextParser
 import org.ailingo.app.feature_dictionary_history.di.AppModule
 
@@ -30,10 +28,10 @@ class AndroidApp : Application() {
 }
 
 class AppActivity : ComponentActivity() {
-    @OptIn(ExperimentalDecomposeApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+
             var canRecord by remember {
                 mutableStateOf(false)
             }
@@ -49,17 +47,11 @@ class AppActivity : ComponentActivity() {
                 recordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
             }
 
-            val root = retainedComponent { component ->
-                RootComponent(
-                    component,
-                    AppModule(this).dictionaryRepository
-                )
-            }
-
             App(
                 voiceToTextParser,
-                root
+                AppModule(this).dictionaryRepository
             )
         }
     }
 }
+

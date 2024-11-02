@@ -54,4 +54,6 @@
     <string name="private_police">Private Police</string>
     <string name="press_kit">Press Kit</string>
     <string name="new_Test">New Test value</string>
+    <string name="search">Search</string>
+    <string name="history_of_search">Here will be the search history of your words</string>
 </resources>

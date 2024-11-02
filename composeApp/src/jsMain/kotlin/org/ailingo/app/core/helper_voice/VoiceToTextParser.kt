@@ -1,6 +1,5 @@
 package org.ailingo.app.core.helper_voice
 
-import androidx.compose.ui.text.input.TextFieldValue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.ailingo.app.VoiceToText
@@ -11,7 +10,7 @@ actual class VoiceToTextParser {
 
     init {
         VoiceToText.setRecognitionCallback { recognizedText ->
-            _voiceState.value = _voiceState.value.copy(spokenText = TextFieldValue(recognizedText))
+            _voiceState.value = _voiceState.value.copy(spokenText = recognizedText)
         }
         VoiceToText.setListeningCallback { isSpeaking ->
             _voiceState.value = _voiceState.value.copy(isSpeaking = isSpeaking)

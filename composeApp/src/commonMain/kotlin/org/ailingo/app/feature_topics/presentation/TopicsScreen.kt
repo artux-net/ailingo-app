@@ -25,22 +25,40 @@ import ailingo.composeapp.generated.resources.sport
 import ailingo.composeapp.generated.resources.technologies
 import ailingo.composeapp.generated.resources.technology
 import ailingo.composeapp.generated.resources.trips
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import org.ailingo.app.TopicsForDesktopAndWeb
 import org.ailingo.app.core.helper_window_info.WindowInfo
 import org.ailingo.app.core.helper_window_info.rememberWindowInfo
 import org.ailingo.app.feature_topics.data.Topic
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun TopicsScreen(
-    component: TopicsScreenComponent
-) {
+fun TopicsScreen() {
     val topics = listOf(
         Topic(Res.string.trips, Res.drawable.trips),
         Topic(Res.string.food_and_drinks, Res.drawable.food),
@@ -58,10 +76,48 @@ fun TopicsScreen(
         Topic(Res.string.history, Res.drawable.history),
         Topic(Res.string.business, Res.drawable.business)
     )
+    val gradient = Brush.verticalGradient(
+        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.4f), Color.Transparent)
+    )
 
     val screenInfo = rememberWindowInfo()
     if (screenInfo.screenWidthInfo is WindowInfo.WindowType.DesktopWindowInfo) {
-        TopicsForDesktopAndWeb(topics)
+        LazyVerticalStaggeredGrid(
+            columns = StaggeredGridCells.Adaptive(350.dp),
+            verticalItemSpacing = 4.dp,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            content = {
+                items(topics) { photo ->
+                    Card {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Image(
+                                painter = painterResource(photo.image),
+                                contentScale = ContentScale.Crop,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentHeight().drawWithCache {
+                                        onDrawWithContent {
+                                            drawContent()
+                                            drawRect(gradient, blendMode = BlendMode.Multiply)
+                                        }
+                                    }
+                            )
+                            Text(
+                                text = stringResource(photo.title),
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = Color.White,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.wrapContentHeight().fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        )
     } else {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),

@@ -19,7 +19,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LoginErrorScreen(
-    loginComponent: LoginScreenComponent,
+    onEmptyState:() -> Unit,
     errorMessage: String
 ) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -31,9 +31,7 @@ fun LoginErrorScreen(
             Text(errorMessage, textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(8.dp))
             Button(
-                onClick = {
-                    loginComponent.onEvent(LoginScreenEvent.OnBackToEmptyState)
-                }
+                onClick = onEmptyState
             ) {
                 Text(stringResource(Res.string.back))
             }

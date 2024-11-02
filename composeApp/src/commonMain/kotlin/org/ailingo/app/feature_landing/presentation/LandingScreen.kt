@@ -65,10 +65,10 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun LandingScreen(
-    component: LandingScreenComponent
+//    component: LandingScreenComponent
+    onNavigateToLoginScreen: () -> Unit
 ) {
     val screenInfo = rememberWindowInfo()
     val screenHeight = screenInfo.screenHeight
@@ -143,7 +143,7 @@ fun LandingScreen(
                         )
                 )
                 Column {
-                    HeaderLanding(component)
+                    HeaderLanding(onNavigateToLoginScreen)
                     Spacer(modifier = Modifier.height(32.dp))
                     Row(
                         horizontalArrangement = Arrangement.Center,
@@ -263,10 +263,9 @@ fun RowScope.InfoRow(info: Info) {
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun HeaderLanding(
-    component: LandingScreenComponent
+    onNavigateToLoginScreen: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -286,9 +285,7 @@ fun HeaderLanding(
             )
             Spacer(modifier = Modifier.weight(1f))
             TextButton(
-                onClick = {
-                   component.onEvent(LandingScreenEvent.OnNavigateToLoginScreen)
-                }, colors = ButtonDefaults.textButtonColors(
+                onClick = onNavigateToLoginScreen, colors = ButtonDefaults.textButtonColors(
                     contentColor = ColorForMainTextDictionary
                 )
             ) {

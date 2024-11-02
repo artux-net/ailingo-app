@@ -37,7 +37,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ResetPasswordScreen(
-    component: ResetPasswordScreenComponent
+    onNavigateToSelectScreen:() -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -93,7 +93,7 @@ fun ResetPasswordScreen(
             color = MaterialTheme.colorScheme.primary,
             text = stringResource(Res.string.back_to_the_selection),
             modifier = Modifier.clickable {
-                component.onEvent(ResetPasswordEvent.OnNavigateGetStartedScreen)
+                onNavigateToSelectScreen()
             })
         Spacer(modifier = Modifier.weight(1f))
     }

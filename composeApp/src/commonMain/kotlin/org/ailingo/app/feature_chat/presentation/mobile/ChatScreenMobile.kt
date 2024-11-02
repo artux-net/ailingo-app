@@ -13,7 +13,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import org.ailingo.app.core.helper_voice.VoiceStates
 import org.ailingo.app.core.helper_voice.VoiceToTextParser
 import org.ailingo.app.feature_chat.data.model.Message
-import org.ailingo.app.feature_chat.presentation.ChatScreenComponent
+import org.ailingo.app.feature_chat.presentation.ChatScreenViewModel
 
 @Composable
 fun ChatScreenMobile(
@@ -22,7 +22,7 @@ fun ChatScreenMobile(
     chatState: List<Message>,
     listState: LazyListState,
     voiceState: State<VoiceStates>,
-    chatViewModel: ChatScreenComponent,
+    chatViewModel: ChatScreenViewModel,
     isActiveJob: State<Boolean>,
     onChatTextField: (TextFieldValue) -> Unit
 ) {

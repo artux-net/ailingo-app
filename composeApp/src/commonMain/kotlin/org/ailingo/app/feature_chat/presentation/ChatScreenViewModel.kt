@@ -2,7 +2,8 @@ package org.ailingo.app.feature_chat.presentation
 
 import AiLingo.composeApp.BuildConfig.BASE_URL
 import androidx.compose.runtime.mutableStateListOf
-import com.arkivanov.decompose.ComponentContext
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -18,12 +19,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.ailingo.app.core.helper_auth.auth.basicAuthHeader
-import org.ailingo.app.core.util.componentCoroutineScope
 import org.ailingo.app.feature_chat.data.model.Message
 
-class ChatScreenComponent(
-    componentContext: ComponentContext
-): ComponentContext by componentContext {
+class ChatScreenViewModel: ViewModel() {
     private val _chatState = mutableStateListOf<Message>()
     val chatState: List<Message> = _chatState
 
@@ -40,14 +38,12 @@ class ChatScreenComponent(
     private val USERNAME = "admin"
     private val PASSWORD = "pass"
 
-    private val coroutineScope = componentCoroutineScope()
-
     fun onEvent(event: ChatScreenEvents) {
         when (event) {
             is ChatScreenEvents.MessageSent -> {
                 _chatState.add(Message(event.message, isSentByUser = true))
                 _chatState.add(Message("Waiting for response...", isSentByUser = false))
-                coroutineScope.launch {
+                viewModelScope.launch {
                     _isActiveJob.emit(true)
                     val localHttpClient = HttpClient {
                         install(ContentNegotiation) {

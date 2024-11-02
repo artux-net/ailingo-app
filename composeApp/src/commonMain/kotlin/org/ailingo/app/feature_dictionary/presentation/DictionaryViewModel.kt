@@ -1,6 +1,7 @@
 package org.ailingo.app.feature_dictionary.presentation
 
-import com.arkivanov.decompose.ComponentContext
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -21,17 +22,15 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import org.ailingo.app.core.util.componentCoroutineScope
 import org.ailingo.app.feature_dicitionary_predictor.data.PredictorResponse
 import org.ailingo.app.feature_dictionary.data.model.DictionaryResponse
 import org.ailingo.app.feature_dictionary_examples.data.model.WordInfoItem
 import org.ailingo.app.feature_dictionary_history.domain.DictionaryRepository
 import org.ailingo.app.feature_dictionary_history.domain.HistoryDictionary
 
-class DictionaryScreenComponent(
-    componentContext: ComponentContext,
+class DictionaryViewModel(
     private val historyDictionaryRepository: Deferred<DictionaryRepository>
-) : ComponentContext by componentContext {
+) : ViewModel() {
     private val httpClient = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -40,7 +39,8 @@ class DictionaryScreenComponent(
         }
     }
 
-    private val apiKeyDictionary = "dict.1.1.20231102T140345Z.9979700cf66f91d0.b210308b827953080f07e8f2e12779e2486d2695"
+    private val apiKeyDictionary =
+        "dict.1.1.20231102T140345Z.9979700cf66f91d0.b210308b827953080f07e8f2e12779e2486d2695"
     private val baseUrl = "https://dictionary.yandex.net/api/v1/dicservice.json/lookup"
     private val baseFreeDictionaryUrl = "https://api.dictionaryapi.dev/api/v2/entries/en"
 
@@ -52,14 +52,11 @@ class DictionaryScreenComponent(
     private val _historyOfDictionaryState = MutableStateFlow<List<HistoryDictionary>>(emptyList())
     val historyOfDictionaryState = _historyOfDictionaryState.asStateFlow()
 
-    private val coroutineScope = componentCoroutineScope()
-
-    private var _items  = MutableStateFlow<PredictorResponse?>(null)
-    val items : StateFlow<PredictorResponse?> = _items.asStateFlow()
-
+    private var _items = MutableStateFlow<PredictorResponse?>(null)
+    val items: StateFlow<PredictorResponse?> = _items.asStateFlow()
 
     init {
-        coroutineScope.launch {
+        viewModelScope.launch {
             try {
                 val dictionaryRepository = historyDictionaryRepository.await()
                 dictionaryRepository.getDictionaryHistory().collectLatest { history ->
@@ -77,7 +74,7 @@ class DictionaryScreenComponent(
     fun onEvent(event: DictionaryScreenEvents) {
         when (event) {
             is DictionaryScreenEvents.PredictNextWords -> {
-                coroutineScope.launch {
+                viewModelScope.launch {
                     val response = httpClient.post(predictorBaseUrl) {
                         header(HttpHeaders.ContentType, ContentType.Application.Json)
                         setBody(event.request)
@@ -89,7 +86,7 @@ class DictionaryScreenComponent(
             }
 
             is DictionaryScreenEvents.SaveSearchedWord -> {
-                coroutineScope.launch {
+                viewModelScope.launch {
                     try {
                         val dictionaryRepository = historyDictionaryRepository.await()
                         dictionaryRepository.insertWordToHistory(event.word)
@@ -100,7 +97,7 @@ class DictionaryScreenComponent(
             }
 
             is DictionaryScreenEvents.SearchWordDefinition -> {
-                coroutineScope.launch {
+                viewModelScope.launch {
                     try {
                         _uiState.value = DictionaryUiState.Loading
 
@@ -133,7 +130,7 @@ class DictionaryScreenComponent(
             }
 
             is DictionaryScreenEvents.DeleteFromHistory -> {
-                coroutineScope.launch {
+                viewModelScope.launch {
                     try {
                         val dictionaryRepository = historyDictionaryRepository.await()
                         dictionaryRepository.deleteWordFromHistory(event.id)

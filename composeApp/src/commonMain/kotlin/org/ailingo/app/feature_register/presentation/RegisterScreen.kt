@@ -51,7 +51,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -59,23 +58,19 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun RegisterScreen(
-    component: RegisterScreenComponent
+    onNavigateToLoginScreen: () -> Unit,
+    onNavigateToUploadAvatarScreen: (
+        login: String,
+        password: String,
+        email: String,
+        name: String
+    ) -> Unit,
+    registerViewModel: RegisterViewModel
 ) {
-    val login = rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
-    val password = rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
-    val email = rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
-    val name = rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
-    val savedPhoto = rememberSaveable {
-        mutableStateOf("")
-    }
+    val login = registerViewModel.login
+    val password = registerViewModel.password
+    val email = registerViewModel.email
+    val name = registerViewModel.name
     var isLoading by remember {
         mutableStateOf(true)
     }
@@ -247,22 +242,16 @@ fun RegisterScreen(
                     keyboardActions = KeyboardActions(
                         onNext = {
                             isLoading = true
-                            isLoginNotValid =
-                                login.value.text.length !in 4..16 || login.value.text.isBlank()
-                            isPasswordNotValid =
-                                password.value.text.length !in 8..24 || password.value.text.isBlank()
-                            isEmailNotValid =
-                                !isValidEmail(email.value.text) || email.value.text.isBlank()
-                            isNameNotValid = name.value.text.isBlank()
+                            isLoginNotValid = login.value.length !in 4..16 || login.value.isBlank()
+                            isPasswordNotValid = password.value.length !in 8..24 || password.value.isBlank()
+                            isEmailNotValid = !isValidEmail(email.value) || email.value.isBlank()
+                            isNameNotValid = name.value.isBlank()
                             if (!isLoginNotValid && !isPasswordNotValid && !isEmailNotValid && !isNameNotValid) {
-                                component.onEvent(
-                                    RegisterScreenEvent.OnNavigateToUploadAvatarScreen(
-                                        login.value.text,
-                                        password.value.text,
-                                        email.value.text,
-                                        name.value.text,
-                                        savedPhoto.value
-                                    )
+                                onNavigateToUploadAvatarScreen(
+                                    login.value,
+                                    password.value,
+                                    email.value,
+                                    name.value
                                 )
                             }
                         }
@@ -297,21 +286,16 @@ fun RegisterScreen(
                 shape = MaterialTheme.shapes.small,
                 onClick = {
                     isLoading = true
-                    isLoginNotValid =
-                        login.value.text.length !in 4..16 || login.value.text.isBlank()
-                    isPasswordNotValid =
-                        password.value.text.length !in 8..24 || password.value.text.isBlank()
-                    isEmailNotValid = !isValidEmail(email.value.text) || email.value.text.isBlank()
-                    isNameNotValid = name.value.text.isBlank()
+                    isLoginNotValid = login.value.length !in 4..16 || login.value.isBlank()
+                    isPasswordNotValid = password.value.length !in 8..24 || password.value.isBlank()
+                    isEmailNotValid = !isValidEmail(email.value) || email.value.isBlank()
+                    isNameNotValid = name.value.isBlank()
                     if (!isLoginNotValid && !isPasswordNotValid && !isEmailNotValid && !isNameNotValid) {
-                        component.onEvent(
-                            RegisterScreenEvent.OnNavigateToUploadAvatarScreen(
-                                login.value.text,
-                                password.value.text,
-                                email.value.text,
-                                name.value.text,
-                                savedPhoto.value
-                            )
+                        onNavigateToUploadAvatarScreen(
+                            login.value,
+                            password.value,
+                            email.value,
+                            name.value
                         )
                     }
                 }
@@ -328,7 +312,7 @@ fun RegisterScreen(
                     color = MaterialTheme.colorScheme.primary,
                     text = stringResource(Res.string.log_in),
                     modifier = Modifier.clickable {
-                        component.onEvent(RegisterScreenEvent.OnNavigateToLoginScreen)
+                        onNavigateToLoginScreen()
                     }
                 )
             }

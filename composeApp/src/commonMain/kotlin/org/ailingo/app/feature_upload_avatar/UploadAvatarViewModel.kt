@@ -4,7 +4,8 @@ import AiLingo.composeApp.BuildConfig.API_ENDPOINT_USER
 import AiLingo.composeApp.BuildConfig.BASE_URL
 import AiLingo.composeApp.BuildConfig.BASE_URL_UPLOAD_IMAGE
 import AiLingo.composeApp.BuildConfig.UPLOAD_IMAGE_KEY
-import com.arkivanov.decompose.ComponentContext
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -27,32 +28,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import org.ailingo.app.core.util.componentCoroutineScope
 import org.ailingo.app.feature_register.data.model.SuccessRegister
 import org.ailingo.app.feature_register.data.model.UserRegistrationData
 import org.ailingo.app.feature_register.data.model_upload_image.UploadImageResponse
 import org.ailingo.app.feature_register.data.model_upload_image.UploadImageUiState
 import org.ailingo.app.feature_register.presentation.RegisterUiState
 
-class UploadAvatarComponent(
-    componentContext: ComponentContext,
-    val login: String,
-    val password: String,
-    val email: String,
-    val name: String,
-    private val onNavigateToChatScreen: () -> Unit,
-    private val onNavigateToRegisterScreen: () -> Unit
-) : ComponentContext by componentContext {
+class UploadAvatarViewModel : ViewModel() {
     fun onEvent(event: UploadAvatarEvent) {
         when (event) {
-            UploadAvatarEvent.OnNavigateToChatScreen -> {
-                onNavigateToChatScreen()
-            }
-
-            UploadAvatarEvent.OnNavigateToRegisterScreen -> {
-                onNavigateToRegisterScreen()
-            }
-
             UploadAvatarEvent.OnBackToEmptyRegisterState -> {
                 _registerState.update { RegisterUiState.Empty }
             }
@@ -74,10 +58,8 @@ class UploadAvatarComponent(
     private val _registerState = MutableStateFlow<RegisterUiState>(RegisterUiState.Empty)
     val registerState: StateFlow<RegisterUiState> = _registerState.asStateFlow()
 
-    private val coroutineScope = componentCoroutineScope()
-
     fun registerUser(user: UserRegistrationData) {
-        coroutineScope.launch {
+        viewModelScope.launch {
             _registerState.value = RegisterUiState.Loading
             val httpClient = HttpClient {
                 install(ContentNegotiation) {
@@ -130,7 +112,7 @@ class UploadAvatarComponent(
                 logger = Logger.DEFAULT
             }
         }
-        coroutineScope.launch {
+        viewModelScope.launch {
             try {
                 val response = httpClient.post("$BASE_URL_UPLOAD_IMAGE?key=$UPLOAD_IMAGE_KEY") {
                     body = MultiPartFormDataContent(

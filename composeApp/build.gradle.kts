@@ -13,7 +13,6 @@ plugins {
     id("kotlin-parcelize")
 }
 
-
 @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
     jvmToolchain(17)
@@ -60,13 +59,12 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
-            implementation(libs.coil)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.compose.core)
+            implementation(libs.coil.mp)
             implementation(libs.coil.network.ktor)
             implementation(libs.composeIcons.featherIcons)
-            implementation(libs.composeImageLoader)
             implementation(compose.materialIconsExtended)
-            implementation(libs.decompose)
-            implementation(libs.decompose.jetbrains)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.sqlDelight.driver.coroutines)
         }
@@ -84,7 +82,6 @@ kotlin {
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.sqlDelight.driver.android)
-            implementation(libs.decompose)
         }
 
         jvmMain.dependencies {
@@ -158,7 +155,7 @@ android {
 
 compose.desktop {
     application {
-        mainClass = "org.ailingo.composeApp.MainKt"
+        mainClass = "org.ailingo.app.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)

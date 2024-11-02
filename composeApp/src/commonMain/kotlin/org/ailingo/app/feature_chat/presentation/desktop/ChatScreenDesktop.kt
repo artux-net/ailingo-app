@@ -1,7 +1,6 @@
 package org.ailingo.app.feature_chat.presentation.desktop
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -9,22 +8,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
 import org.ailingo.app.core.helper_voice.VoiceStates
 import org.ailingo.app.core.helper_voice.VoiceToTextParser
 import org.ailingo.app.feature_chat.data.model.Message
-import org.ailingo.app.feature_chat.presentation.ChatScreenComponent
 
 @Composable
 fun ChatScreenDesktop(
     voiceToTextParser: VoiceToTextParser,
-    chatTextField: TextFieldValue,
+    chatTextField: String,
     chatState: List<Message>,
     listState: LazyListState,
     voiceState: State<VoiceStates>,
-    component: ChatScreenComponent,
+    onMessageSent: (String) -> Unit,
     isActiveJob: State<Boolean>,
-    onChatTextField: (TextFieldValue) -> Unit
+    onChatTextField: (String) -> Unit
 ) {
     Scaffold(
         bottomBar = {
@@ -34,16 +31,16 @@ fun ChatScreenDesktop(
                 voiceState = voiceState,
                 messages = chatState,
                 listState = listState,
-                chatComponent = component,
+                onMessageSent = onMessageSent,
                 isActiveJob = isActiveJob.value,
                 onChatTextField = onChatTextField
             )
         }
-    ) { padding ->
+    ) {
         LazyColumn(
             state = listState,
             modifier = Modifier
-                .fillMaxSize().padding(padding)
+                .fillMaxSize()
         ) {
             items(chatState) { message ->
                 MessageItemDesktop(message)

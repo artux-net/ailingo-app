@@ -2,26 +2,22 @@ package org.ailingo.app.feature_login.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
-
 
 @Composable
 fun LoginScreen(
-    component: LoginScreenComponent
+    onNavigateToChatScreen: () -> Unit,
+    onNavigateToRegisterScreen: () -> Unit,
+    onNavigateToResetPasswordScreen: () -> Unit,
+    loginViewModel: LoginViewModel
 ) {
-    val loginState = component.loginState.collectAsState()
-    var login by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue("admin"))
-    }
-    var password by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue("pass"))
-    }
+    val loginState = loginViewModel.loginState.collectAsStateWithLifecycle().value
+
     var passwordVisible by rememberSaveable {
         mutableStateOf(false)
     }
@@ -36,31 +32,42 @@ fun LoginScreen(
         }
     }
 
-    when (loginState.value) {
+    when (loginState) {
         LoginUiState.Empty -> {
             LoginMainScreen(
                 onLoginUser = {
-                    component.onEvent(LoginScreenEvent.OnLoginUser(login.text, password.text))
+                    loginViewModel.onEvent(
+                        LoginScreenEvent.OnLoginUser(
+                            loginViewModel.login,
+                            loginViewModel.password
+                        )
+                    )
                 },
-                login = login,
+                login = loginViewModel.login,
                 onLoginChange = {
-                    login = it
+                    loginViewModel.login = it
                 },
-                password = password,
+                password = loginViewModel.password,
                 onPasswordChange = {
-                    password = it
+                    loginViewModel.password = it
                 },
                 passwordVisible,
                 onPasswordVisibleChange = {
                     passwordVisible = !passwordVisible
                 },
                 isLoading,
-                component
+                onNavigateToRegisterScreen = onNavigateToRegisterScreen,
+                onNavigateToResetPasswordScreen = onNavigateToResetPasswordScreen
             )
         }
 
         is LoginUiState.Error -> {
-            LoginErrorScreen(component, (loginState.value as LoginUiState.Error).message)
+            LoginErrorScreen(
+                onEmptyState = {
+                    loginViewModel.onEvent(LoginScreenEvent.OnBackToEmptyState)
+                },
+                errorMessage = loginState.message
+            )
         }
 
         LoginUiState.Loading -> {
@@ -68,9 +75,7 @@ fun LoginScreen(
         }
 
         is LoginUiState.Success -> {
-            component.onEvent(
-                LoginScreenEvent.OnNavigateToChatScreen
-            )
+            onNavigateToChatScreen()
         }
     }
 }

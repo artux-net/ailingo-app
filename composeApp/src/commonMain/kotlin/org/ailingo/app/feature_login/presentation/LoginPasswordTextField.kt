@@ -19,7 +19,6 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
@@ -27,14 +26,14 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LoginPasswordTextField(
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
+    value: String,
+    onValueChange: (String) -> Unit,
     passwordVisible: Boolean,
     onPasswordVisibleChange: () -> Unit,
     focusRequester: FocusRequester,
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?,
-    onLoginUser:() -> Unit,
+    onLoginUser: () -> Unit,
     showErrorText: Boolean
 ) {
     Column {
