@@ -27,5 +27,6 @@ To run the application on iPhone device/simulator:
   Run iOS simulator UI tests: `./gradlew :composeApp:iosSimulatorArm64Test`
 
 ### JS Browser (Experimental)
-Run the browser application: `./gradlew :composeApp:jsBrowserDevelopmentRun --continue`
+Ctrl + S запускает пересборку образа, чтобы увидеть изменения на вебе.
+Run the browser application: `./gradlew :composeApp:jsBrowserDevelopmentRun --continuous`
 Run browser UI tests: `./gradlew :composeApp:jsBrowserTest`
