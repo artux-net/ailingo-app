@@ -34,10 +34,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.ailingo.app.core.helper_voice.VoiceStates
-import org.ailingo.app.feature_topics.data.Topic
-import org.ailingo.app.feature_topics.presentation.TopicCard
-import org.ailingo.app.feature_upload_avatar.UploadAvatarViewModel
+import org.ailingo.app.core.helper.voice.VoiceStates
+import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
+import org.ailingo.app.features.topics.data.Topic
+import org.ailingo.app.features.topics.presentation.TopicCard
 import org.ailingo.composeApp.database.HistoryDictionaryDatabase
 import java.awt.Desktop
 import java.io.BufferedInputStream
@@ -54,7 +54,6 @@ import javax.sound.sampled.TargetDataLine
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.math.sqrt
-
 
 internal actual fun openUrl(url: String?) {
     val uri = url?.let { URI.create(it) } ?: return
@@ -170,7 +169,6 @@ actual class DriverFactory {
                     HistoryDictionaryDatabase.Schema.create(driver = it).await()
                 }
         return driver
-
     }
 }
 
@@ -256,5 +254,4 @@ actual fun UploadAvatarForPhone(
     name: String,
     onNavigateToRegisterScreen: () -> Unit
 ) {
-
 }

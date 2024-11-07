@@ -36,8 +36,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import org.ailingo.app.feature_login.presentation.LoginUiState
-import org.ailingo.app.feature_login.presentation.LoginViewModel
+import org.ailingo.app.features.login.presentation.LoginUiState
+import org.ailingo.app.features.login.presentation.LoginViewModel
 import org.ailingo.app.theme.inversePrimaryLight
 import org.ailingo.app.theme.primaryContainerLight
 import org.jetbrains.compose.resources.painterResource

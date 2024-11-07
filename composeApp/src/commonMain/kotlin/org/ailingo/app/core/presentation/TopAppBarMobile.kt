@@ -15,8 +15,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Menu
-import org.ailingo.app.core.helper_window_info.WindowInfo
-import org.ailingo.app.core.helper_window_info.rememberWindowInfo
+import org.ailingo.app.core.helper.window.info.WindowInfo
+import org.ailingo.app.core.helper.window.info.rememberWindowInfo
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 
@@ -40,7 +40,8 @@ fun TopAppBarMain(
                     onClick = onOpenNavigation
                 ) {
                     Icon(
-                        imageVector = FeatherIcons.Menu, contentDescription = null
+                        imageVector = FeatherIcons.Menu,
+                        contentDescription = null
                     )
                 }
             }

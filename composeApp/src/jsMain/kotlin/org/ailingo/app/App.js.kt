@@ -28,9 +28,9 @@ import app.cash.sqldelight.driver.worker.WebWorkerDriver
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.await
-import org.ailingo.app.feature_topics.data.Topic
-import org.ailingo.app.feature_topics.presentation.TopicCard
-import org.ailingo.app.feature_upload_avatar.UploadAvatarViewModel
+import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
+import org.ailingo.app.features.topics.data.Topic
+import org.ailingo.app.features.topics.presentation.TopicCard
 import org.ailingo.composeApp.database.HistoryDictionaryDatabase
 import org.w3c.dom.Audio
 import org.w3c.dom.HTMLInputElement
@@ -68,7 +68,6 @@ actual fun playSound(sound: String) {
     }
 }
 
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 internal actual fun getConfiguration(): Pair<Int, Int> {
@@ -80,14 +79,23 @@ actual class DriverFactory {
     actual suspend fun createDriver(): SqlDriver {
         return WebWorkerDriver(
             Worker(
-                js("""new URL("sqlite.worker.js", import.meta.url)""")
+                js(JS_STARTUP_CODE) as String
             )
         ).also { HistoryDictionaryDatabase.Schema.create(it).await() }
+    }
+
+    companion object {
+
+        private const val JS_STARTUP_CODE =
+            // language=JavaScript
+            """
+            new URL("sqlite.worker.js", import.meta.url)
+            """
+
     }
 }
 
 actual suspend fun selectImageWebAndDesktop(): String? {
-
     val input = document.createElement("input") as HTMLInputElement
     input.type = "file"
 
@@ -178,7 +186,6 @@ actual fun TopicsForDesktopAndWeb(topics: List<Topic>) {
         )
     }
 }
-
 
 @Composable
 actual fun UploadAvatarForPhone(

@@ -60,10 +60,10 @@ import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import coil3.compose.AsyncImage
-import org.ailingo.app.feature_register.data.model.UserRegistrationData
-import org.ailingo.app.feature_register.data.model_upload_image.UploadImageUiState
-import org.ailingo.app.feature_topics.data.Topic
-import org.ailingo.app.feature_upload_avatar.UploadAvatarViewModel
+import org.ailingo.app.features.registration.data.model.UserRegistrationData
+import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
+import org.ailingo.app.features.registration.presentation.UploadImageUiState
+import org.ailingo.app.features.topics.data.Topic
 import org.ailingo.composeApp.database.HistoryDictionaryDatabase
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -88,7 +88,6 @@ actual fun playSound(sound: String) {
     mediaPlayer.prepare()
     mediaPlayer.start()
 }
-
 
 @Composable
 internal actual fun getConfiguration(): Pair<Int, Int> {
@@ -249,7 +248,6 @@ actual fun UploadAvatarForPhone(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.padding(bottom = ButtonDefaults.MinHeight + 16.dp)
                 ) {
-
                     OutlinedButton(
                         onClick = {
                             singlePhotoPickerLauncher.launch(
