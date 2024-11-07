@@ -28,10 +28,10 @@ import app.cash.sqldelight.driver.worker.WebWorkerDriver
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.await
+import org.ailingo.app.database.HistoryDictionaryDatabase
 import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
 import org.ailingo.app.features.topics.data.Topic
 import org.ailingo.app.features.topics.presentation.TopicCard
-import org.ailingo.composeApp.database.HistoryDictionaryDatabase
 import org.w3c.dom.Audio
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.Worker
@@ -79,19 +79,9 @@ actual class DriverFactory {
     actual suspend fun createDriver(): SqlDriver {
         return WebWorkerDriver(
             Worker(
-                js(JS_STARTUP_CODE) as String
+                js("""new URL("sqlite.worker.js", import.meta.url)""")
             )
         ).also { HistoryDictionaryDatabase.Schema.create(it).await() }
-    }
-
-    companion object {
-
-        private const val JS_STARTUP_CODE =
-            // language=JavaScript
-            """
-            new URL("sqlite.worker.js", import.meta.url)
-            """
-
     }
 }
 

@@ -69,6 +69,7 @@ fun SearchTextFieldDictionary(
             },
             inputField = {
                 SearchBarDefaults.InputField(
+                    modifier = Modifier.fillMaxWidth(),
                     query = textFieldValue.value,
                     onQueryChange = {
                         onTextFieldValueChange(it)

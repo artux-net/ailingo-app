@@ -5,9 +5,9 @@ import app.cash.sqldelight.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.ailingo.app.database.HistoryDictionaryDatabase
 import org.ailingo.app.features.dictionary.history.domain.DictionaryRepository
 import org.ailingo.app.features.dictionary.history.domain.HistoryDictionary
-import org.ailingo.composeApp.database.HistoryDictionaryDatabase
 
 class DictionaryRepositoryImpl(
     db: HistoryDictionaryDatabase

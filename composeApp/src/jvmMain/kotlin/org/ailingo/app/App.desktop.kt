@@ -35,10 +35,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.ailingo.app.core.helper.voice.VoiceStates
+import org.ailingo.app.database.HistoryDictionaryDatabase
 import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
 import org.ailingo.app.features.topics.data.Topic
 import org.ailingo.app.features.topics.presentation.TopicCard
-import org.ailingo.composeApp.database.HistoryDictionaryDatabase
 import java.awt.Desktop
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
