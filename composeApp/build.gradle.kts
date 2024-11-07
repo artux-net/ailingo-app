@@ -1,3 +1,4 @@
+import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
@@ -11,6 +12,13 @@ plugins {
     alias(libs.plugins.sqlDelight)
     alias(libs.plugins.buildConfig)
     id("kotlin-parcelize")
+
+    val detektVersion = "1.23.7"
+    id("io.gitlab.arturbosch.detekt") version detektVersion
+}
+
+detekt {
+    autoCorrect = true
 }
 
 @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
@@ -23,16 +31,17 @@ kotlin {
 
     jvm()
 
-    //TODO IOS
-//    listOf(
-//            iosX64(),
-//            iosArm64(),
-//            iosSimulatorArm64()
-//        ).forEach {
-//            it.binaries.framework {
-//                baseName = "ailingo"
-//                isStatic = true
-//            }
+    /* TODO IOS
+    listOf(
+            iosX64(),
+            iosArm64(),
+            iosSimulatorArm64()
+        ).forEach {
+            it.binaries.framework {
+                baseName = "ailingo"
+                isStatic = true
+    }
+     */
 
     js {
         browser()
@@ -91,15 +100,14 @@ kotlin {
             implementation(libs.sqlDelight.driver.sqlite)
             implementation(libs.kotlinx.coroutines.swing)
 
-            //Speech client
+            // Speech client
             implementation(libs.google.cloud.library)
-            //GoogleCredentials
+            // GoogleCredentials
             implementation(libs.google.auth.library.oauth2.http)
-            //Logs for speech request
+            // Logs for speech request
             implementation(libs.logback.classic)
-            //Playing audio
+            // Playing audio
             implementation(libs.jlayer)
-
         }
 
         jsMain.dependencies {
@@ -107,7 +115,7 @@ kotlin {
             implementation(libs.ktor.client.js)
             implementation(libs.sqlDelight.driver.js)
 
-            //sqlDelight for local database
+            // sqlDelight for local database
             implementation("app.cash.sqldelight:web-worker-driver:2.0.1")
             implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.0.1"))
             implementation(npm("sql.js", "1.8.0"))
@@ -115,14 +123,14 @@ kotlin {
             implementation(npm("@sqlite.org/sqlite-wasm", "3.43.2-build1"))
         }
 
-        //TODO IOS
-//        val iosMain by getting {
-//            dependencies {
-//                implementation(libs.ktor.client.darwin)
-//                implementation(libs.sqlDelight.driver.native)
-//                implementation("app.cash.sqldelight:native-driver:2.0.0")
-//            }
-//        }
+        /* TODO IOS
+        val iosMain by getting {
+            dependencies {
+                implementation(libs.ktor.client.darwin)
+                implementation(libs.sqlDelight.driver.native)
+                implementation("app.cash.sqldelight:native-driver:2.0.0")
+            }
+        }*/
 
         targets.all {
             compilations.all {
@@ -135,7 +143,6 @@ kotlin {
         }
     }
 }
-
 
 android {
     namespace = "org.ailingo.composeApp"
@@ -190,6 +197,23 @@ tasks {
     }
 }
 
+allprojects {
+    detekt {
+        buildUponDefaultConfig = true
+        allRules = true
+    }
+    tasks.withType<Detekt> {
+        setSource(files(project.projectDir))
+        exclude("**/build/**")
+        exclude {
+            it.file.relativeTo(projectDir).startsWith(project.buildDir.relativeTo(projectDir))
+        }
+    }
+    tasks.register("detektAll") {
+        dependsOn(tasks.withType<Detekt>())
+    }
+}
+
 buildConfig {
     // BuildConfig configuration here.
     // https://github.com/gmazzo/gradle-buildconfig-plugin#usage-in-kts
@@ -198,7 +222,10 @@ buildConfig {
 //    FOR TESTING
 //    buildConfigField("BASE_URL", "http://localhost:8080/ailingo")
     buildConfigField("API_ENDPOINT_USER", "/api/v1/user")
-    buildConfigField("API_KEY_DICTIONARY", "dict.1.1.20231102T140345Z.9979700cf66f91d0.b210308b827953080f07e8f2e12779e2486d2695")
+    buildConfigField(
+        "API_KEY_DICTIONARY",
+        "dict.1.1.20231102T140345Z.9979700cf66f91d0.b210308b827953080f07e8f2e12779e2486d2695"
+    )
     buildConfigField("BASE_URL_YANEX_DICTIONARY", "https://dictionary.yandex.net/api/v1/dicservice.json/lookup")
     buildConfigField("BASE_URL_FREE_DICTIONARY", "https://api.dictionaryapi.dev/api/v2/entries/en")
     buildConfigField("PREDICTOR_BASE_URL", "https://api.typewise.ai/latest/completion/complete")
@@ -219,4 +246,6 @@ dependencies {
     implementation("androidx.core:core:1.10.1")
     androidTestImplementation(libs.androidx.uitest.junit4)
     debugImplementation(libs.androidx.uitest.testManifest)
+
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.7")
 }

@@ -2,7 +2,6 @@ package org.ailingo.app.theme
 
 import ailingo.composeapp.generated.resources.AtypDisplay_Medium
 import ailingo.composeapp.generated.resources.NunitoSans_Bold
-import ailingo.composeapp.generated.resources.NunitoSans_Light
 import ailingo.composeapp.generated.resources.NunitoSans_Medium
 import ailingo.composeapp.generated.resources.NunitoSans_Regular
 import ailingo.composeapp.generated.resources.OpenSans_Medium
@@ -12,7 +11,6 @@ import ailingo.composeapp.generated.resources.Rubik_Bold
 import ailingo.composeapp.generated.resources.Rubik_Light
 import ailingo.composeapp.generated.resources.Rubik_Medium
 import ailingo.composeapp.generated.resources.Rubik_Regular
-import ailingo.composeapp.generated.resources.Ubuntu_Light
 import ailingo.composeapp.generated.resources.Ubuntu_Medium
 import ailingo.composeapp.generated.resources.Ubuntu_Regular
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,10 +21,8 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -262,18 +258,6 @@ private val highContrastDarkColorScheme = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDarkHighContrast,
 )
 
-@Immutable
-data class ColorFamily(
-    val color: Color,
-    val onColor: Color,
-    val colorContainer: Color,
-    val onColorContainer: Color
-)
-
-val unspecified_scheme = ColorFamily(
-    Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
-)
-
 private val AppShapes = Shapes(
     extraSmall = RoundedCornerShape(2.dp),
     small = RoundedCornerShape(4.dp),
@@ -286,10 +270,10 @@ internal val LocalThemeIsDark = compositionLocalOf { mutableStateOf(true) }
 
 @Composable
 internal fun AppTheme(
-    content: @Composable() () -> Unit
+    content:
+    @Composable()
+    () -> Unit
 ) {
-    val fontFamilyNunitoSansLight = FontFamily(Font(Res.font.NunitoSans_Light))
-    val fontFamilyUbuntuLight = FontFamily(Font(Res.font.Ubuntu_Light))
     val fontFamilyAtypDisplayMedium = FontFamily(Font(Res.font.AtypDisplay_Medium))
     val fontFamilyUbuntuRegular = FontFamily(Font(Res.font.Ubuntu_Regular))
     val fontFamilyUbuntuMedium = FontFamily(Font(Res.font.Ubuntu_Medium))
@@ -376,23 +360,23 @@ internal fun AppTheme(
             Surface(content = content)
         }
     )
-    //TODO DARK SCHEMA
-//    val systemIsDark = isSystemInDarkTheme()
-//    val isDarkState = remember { mutableStateOf(systemIsDark) }
-//    CompositionLocalProvider(
-//        LocalThemeIsDark provides isDarkState
-//    ) {
-//        val isDark by isDarkState
-//        SystemAppearance(!isDark)
-//        MaterialTheme(
-//            colorScheme = if (isDark) DarkColorScheme else LightColorScheme,
-//            typography = AppTypography,
-//            shapes = AppShapes,
-//            content = {
-//                Surface(content = content)
-//            }
-//        )
-//    }
+    /* TODO DARK SCHEMA
+    val systemIsDark = isSystemInDarkTheme()
+    val isDarkState = remember { mutableStateOf(systemIsDark) }
+    CompositionLocalProvider(
+        LocalThemeIsDark provides isDarkState
+    ) {
+        val isDark by isDarkState
+        SystemAppearance(!isDark)
+        MaterialTheme(
+            colorScheme = if (isDark) DarkColorScheme else LightColorScheme,
+            typography = AppTypography,
+            shapes = AppShapes,
+            content = {
+                Surface(content = content)
+            }
+        )
+    }*/
 }
 
 @Composable

@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.PermanentDrawerSheet
@@ -28,31 +27,29 @@ import androidx.navigation.toRoute
 import app.cash.sqldelight.db.SqlDriver
 import coil3.compose.setSingletonImageLoaderFactory
 import kotlinx.coroutines.Deferred
-import org.ailingo.app.core.helper_voice.VoiceToTextParser
+import org.ailingo.app.core.helper.voice.VoiceToTextParser
 import org.ailingo.app.core.presentation.TopAppBarCenter
 import org.ailingo.app.core.presentation.TopAppBarWithProfile
 import org.ailingo.app.core.presentation.utils.DrawerItems
 import org.ailingo.app.core.utils.getAsyncImageLoader
-import org.ailingo.app.feature_chat.presentation.ChatScreen
-import org.ailingo.app.feature_dictionary.presentation.DictionaryScreen
-import org.ailingo.app.feature_dictionary.presentation.DictionaryViewModel
-import org.ailingo.app.feature_dictionary_history.domain.DictionaryRepository
-import org.ailingo.app.feature_get_started.presentation.GetStartedScreen
-import org.ailingo.app.feature_landing.presentation.LandingScreen
-import org.ailingo.app.feature_login.presentation.LoginScreen
-import org.ailingo.app.feature_login.presentation.LoginScreenEvent
-import org.ailingo.app.feature_login.presentation.LoginViewModel
-import org.ailingo.app.feature_register.presentation.RegisterScreen
-import org.ailingo.app.feature_register.presentation.RegisterViewModel
-import org.ailingo.app.feature_reset_password.presentation.ResetPasswordScreen
-import org.ailingo.app.feature_topics.data.Topic
-import org.ailingo.app.feature_topics.presentation.TopicsScreen
-import org.ailingo.app.feature_upload_avatar.UploadAvatarScreen
-import org.ailingo.app.feature_upload_avatar.UploadAvatarViewModel
+import org.ailingo.app.features.chat.presentation.ChatScreen
+import org.ailingo.app.features.dictionary.history.domain.DictionaryRepository
+import org.ailingo.app.features.dictionary.main.presentation.DictionaryScreen
+import org.ailingo.app.features.dictionary.main.presentation.DictionaryViewModel
+import org.ailingo.app.features.introduction.presentation.GetStartedScreen
+import org.ailingo.app.features.login.presentation.LoginScreen
+import org.ailingo.app.features.login.presentation.LoginScreenEvent
+import org.ailingo.app.features.login.presentation.LoginViewModel
+import org.ailingo.app.features.registration.presentation.RegisterScreen
+import org.ailingo.app.features.registration.presentation.RegisterViewModel
+import org.ailingo.app.features.registration.presentation.UploadAvatarScreen
+import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
+import org.ailingo.app.features.resetpass.presentation.ResetPasswordScreen
+import org.ailingo.app.features.topics.data.Topic
+import org.ailingo.app.features.topics.presentation.TopicsScreen
 import org.ailingo.app.theme.AppTheme
 import org.jetbrains.compose.resources.stringResource
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun App(
     voiceToTextParser: VoiceToTextParser,
@@ -100,7 +97,7 @@ internal fun App(
         }
     }
 
-    //Coil
+    // Coil
     setSingletonImageLoaderFactory { context ->
         getAsyncImageLoader(context)
     }
@@ -151,7 +148,7 @@ internal fun App(
                                             )
 
                                             DrawerItems.Exit -> {
-                                                navController.navigate(LandingPage)
+                                                navController.navigate(LoginPage)
                                                 loginViewModel.onEvent(LoginScreenEvent.OnBackToEmptyState)
                                             }
                                         }
@@ -165,14 +162,9 @@ internal fun App(
             ) {
                 NavHost(
                     navController,
-                    startDestination = LandingPage,
+                    startDestination = LoginPage,
                     modifier = Modifier.padding(innerPadding)
                 ) {
-                    composable<LandingPage> {
-                        LandingScreen(onNavigateToLoginScreen = {
-                            navController.navigate(LoginPage)
-                        })
-                    }
                     composable<LoginPage> {
                         LoginScreen(
                             onNavigateToChatScreen = {
@@ -198,7 +190,10 @@ internal fun App(
                             onNavigateToUploadAvatarScreen = { login, password, email, name ->
                                 navController.navigate(
                                     UploadAvatarPage(
-                                        login, password, email, name
+                                        login,
+                                        password,
+                                        email,
+                                        name
                                     )
                                 )
                             },

@@ -12,9 +12,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import org.ailingo.app.core.helper_voice.VoiceToTextParser
-import org.ailingo.app.feature_dictionary_history.di.AppModule
-
+import org.ailingo.app.core.helper.voice.VoiceToTextParser
+import org.ailingo.app.features.dictionary.history.di.AppModule
 
 class AndroidApp : Application() {
     companion object {
@@ -30,19 +29,24 @@ class AndroidApp : Application() {
 class AppActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
+        actionBar?.hide()
 
+        setContent {
             var canRecord by remember {
                 mutableStateOf(false)
             }
+
             val voiceToTextParser by lazy {
                 VoiceToTextParser()
             }
+
             val recordAudioLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission(),
                 onResult = { isGranted ->
                     canRecord = isGranted
-                })
+                }
+            )
+
             LaunchedEffect(key1 = recordAudioLauncher) {
                 recordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
             }
@@ -54,4 +58,3 @@ class AppActivity : ComponentActivity() {
         }
     }
 }
-

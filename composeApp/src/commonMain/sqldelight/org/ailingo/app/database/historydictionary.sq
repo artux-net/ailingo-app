@@ -4,8 +4,7 @@ CREATE TABLE IF NOT EXISTS HistoryDictionaryEntity(
 );
 
 getDictionaryHistory:
-SELECT *
-FROM HistoryDictionaryEntity;
+SELECT * FROM HistoryDictionaryEntity;
 
 insertDictionaryHistory:
 INSERT OR REPLACE
@@ -14,10 +13,7 @@ INTO HistoryDictionaryEntity(
 ) VALUES (?,?);
 
 deleteFromDictionaryHistory:
-DELETE FROM HistoryDictionaryEntity
-WHERE id = :id;
+DELETE FROM HistoryDictionaryEntity WHERE id = :id;
 
 getDictionaryHistoryById:
-SELECT *
-FROM HistoryDictionaryEntity
-WHERE id = :id;
+SELECT * FROM HistoryDictionaryEntity WHERE id = :id;
