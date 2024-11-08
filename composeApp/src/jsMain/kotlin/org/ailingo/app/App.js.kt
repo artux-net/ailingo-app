@@ -76,23 +76,12 @@ internal actual fun getConfiguration(): Pair<Int, Int> {
 }
 
 actual class DriverFactory {
-    @Suppress("UnsafeCastFromDynamic")
     actual suspend fun createDriver(): SqlDriver {
         return WebWorkerDriver(
             Worker(
-                js(JS_STARTUP_CODE)
+                js("""new URL("sqlite.worker.js", import.meta.url)""")
             )
         ).also { HistoryDictionaryDatabase.Schema.create(it).await() }
-    }
-
-    companion object {
-
-        private const val JS_STARTUP_CODE =
-            //language=JavaScript
-            """
-            new URL("sqlite.worker.js", import.meta.url)
-            """
-
     }
 }
 
