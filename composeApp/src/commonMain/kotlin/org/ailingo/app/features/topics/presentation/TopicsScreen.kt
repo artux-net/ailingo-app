@@ -86,6 +86,7 @@ fun TopicsScreen() {
             columns = StaggeredGridCells.Adaptive(350.dp),
             verticalItemSpacing = 4.dp,
             horizontalArrangement = Arrangement.spacedBy(4.dp),
+            contentPadding = PaddingValues(end = 16.dp),
             content = {
                 items(topics) { photo ->
                     Card {
@@ -106,7 +107,7 @@ fun TopicsScreen() {
                                     }
                             )
                             Text(
-                                text = stringResource(photo.title),
+                                text = stringResource(photo.title).uppercase(),
                                 style = MaterialTheme.typography.headlineMedium,
                                 color = Color.White,
                                 textAlign = TextAlign.Center,

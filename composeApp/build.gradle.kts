@@ -145,7 +145,7 @@ kotlin {
 }
 
 android {
-    namespace = "org.ailingo.composeApp"
+    namespace = "org.ailingo.app"
     compileSdk = 35
 
     defaultConfig {
@@ -177,7 +177,7 @@ compose.desktop {
             }
             macOS {
                 iconFile.set(project.file("desktopAppIcons/MacosIcon.icns"))
-                bundleID = "org.company.composeApp.desktopApp"
+                bundleID = "org.ailingo.app.desktopApp"
             }
 
             modules("java.sql")
@@ -236,7 +236,7 @@ buildConfig {
 sqldelight {
     databases {
         create("HistoryDictionaryDatabase") {
-            packageName.set("org.ailingo.composeApp.database")
+            packageName.set("org.ailingo.app.database")
             generateAsync.set(true)
         }
     }

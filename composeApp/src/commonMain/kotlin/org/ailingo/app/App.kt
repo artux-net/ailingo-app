@@ -77,6 +77,7 @@ internal fun App(
         RegisterPage::class,
         ResetPasswordPage::class,
         SelectPage::class,
+        UploadAvatarPage::class
     )
 
     val showTopAppCenter = currentDestination?.let {

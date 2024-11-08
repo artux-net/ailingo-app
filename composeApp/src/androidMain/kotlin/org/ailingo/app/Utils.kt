@@ -60,11 +60,11 @@ import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import coil3.compose.AsyncImage
+import org.ailingo.app.database.HistoryDictionaryDatabase
 import org.ailingo.app.features.registration.data.model.UserRegistrationData
 import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
 import org.ailingo.app.features.registration.presentation.UploadImageUiState
 import org.ailingo.app.features.topics.data.Topic
-import org.ailingo.composeApp.database.HistoryDictionaryDatabase
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 

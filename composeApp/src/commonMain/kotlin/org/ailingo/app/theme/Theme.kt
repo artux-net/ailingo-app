@@ -1,34 +1,15 @@
 package org.ailingo.app.theme
 
-import ailingo.composeapp.generated.resources.AtypDisplay_Medium
-import ailingo.composeapp.generated.resources.NunitoSans_Bold
-import ailingo.composeapp.generated.resources.NunitoSans_Medium
-import ailingo.composeapp.generated.resources.NunitoSans_Regular
-import ailingo.composeapp.generated.resources.OpenSans_Medium
-import ailingo.composeapp.generated.resources.PTSansCaption_Regular
-import ailingo.composeapp.generated.resources.Res
-import ailingo.composeapp.generated.resources.Rubik_Bold
-import ailingo.composeapp.generated.resources.Rubik_Light
-import ailingo.composeapp.generated.resources.Rubik_Medium
-import ailingo.composeapp.generated.resources.Rubik_Regular
-import ailingo.composeapp.generated.resources.Ubuntu_Medium
-import ailingo.composeapp.generated.resources.Ubuntu_Regular
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import org.jetbrains.compose.resources.Font
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -270,91 +251,11 @@ internal val LocalThemeIsDark = compositionLocalOf { mutableStateOf(true) }
 
 @Composable
 internal fun AppTheme(
-    content:
-    @Composable()
-    () -> Unit
+    content: @Composable () -> Unit
 ) {
-    val fontFamilyAtypDisplayMedium = FontFamily(Font(Res.font.AtypDisplay_Medium))
-    val fontFamilyUbuntuRegular = FontFamily(Font(Res.font.Ubuntu_Regular))
-    val fontFamilyUbuntuMedium = FontFamily(Font(Res.font.Ubuntu_Medium))
-    val fontFamilyNunitoSansBold = FontFamily(Font(Res.font.NunitoSans_Bold))
-    val fontFamilyNunitoSansSemiMedium = FontFamily(Font(Res.font.NunitoSans_Medium))
-    val fontFamilyNunitoSansRegular = FontFamily(Font(Res.font.NunitoSans_Regular))
-    val fontFamilyOpenSansMedium = FontFamily(Font(Res.font.OpenSans_Medium))
-    val fontFamilyPTSansRegular = FontFamily(Font(Res.font.PTSansCaption_Regular))
-    val fontFamilyPTSansRubikBold = FontFamily(Font(Res.font.Rubik_Bold))
-    val fontFamilyPTSansRubikMedium = FontFamily(Font(Res.font.Rubik_Medium))
-    val fontFamilyPTSansRubikRegular = FontFamily(Font(Res.font.Rubik_Regular))
-    val fontFamilyPTSansRubikLight = FontFamily(Font(Res.font.Rubik_Light))
-
-    val MyTypography = Typography(
-        displayLarge = TextStyle(
-            fontFamily = fontFamilyAtypDisplayMedium,
-            fontWeight = FontWeight.Bold,
-            fontSize = 57.sp,
-        ),
-        displayMedium = TextStyle(
-            fontFamily = fontFamilyUbuntuMedium,
-            fontSize = 45.sp,
-        ),
-        displaySmall = TextStyle(
-            fontFamily = fontFamilyNunitoSansBold,
-            fontSize = 36.sp
-        ),
-        headlineLarge = TextStyle(
-            fontFamily = fontFamilyPTSansRubikBold,
-            fontSize = 32.sp
-        ),
-        headlineMedium = TextStyle(
-            fontFamily = fontFamilyPTSansRubikMedium,
-            fontSize = 24.sp
-        ),
-        headlineSmall = TextStyle(
-            fontFamily = fontFamilyPTSansRubikLight,
-            fontSize = 20.sp,
-        ),
-        titleLarge = TextStyle(
-            fontFamily = fontFamilyOpenSansMedium,
-            fontSize = 22.sp
-        ),
-        titleMedium = TextStyle(
-            fontFamily = fontFamilyPTSansRegular,
-            fontSize = 16.sp
-        ),
-        titleSmall = TextStyle(
-            fontFamily = fontFamilyPTSansRubikRegular,
-            fontSize = 14.sp
-        ),
-        bodyLarge = TextStyle(
-            fontFamily = fontFamilyPTSansRubikLight,
-            fontSize = 16.sp
-        ),
-        bodyMedium = TextStyle(
-            fontFamily = fontFamilyUbuntuRegular,
-            fontSize = 14.sp
-        ),
-        bodySmall = TextStyle(
-            fontFamily = fontFamilyNunitoSansRegular,
-            fontSize = 12.sp
-        ),
-        labelLarge = TextStyle(
-            fontFamily = fontFamilyPTSansRubikLight,
-            fontSize = 14.sp
-        ),
-        labelMedium = TextStyle(
-            fontFamily = fontFamilyNunitoSansSemiMedium,
-            fontSize = 12.sp,
-        ),
-        labelSmall = TextStyle(
-            fontFamily = fontFamilyPTSansRubikLight,
-            fontSize = 11.sp,
-        )
-    )
 
     MaterialTheme(
         colorScheme = lightScheme,
-        typography = MyTypography,
-
         shapes = AppShapes,
         content = {
             Surface(content = content)
