@@ -1,3 +1,4 @@
+//https://slack-chats.kotlinlang.org/t/12313761/any-advice-on-getting-production-builds-to-complete-running-
 const TerserPlugin = require("terser-webpack-plugin");
 
 config.optimization = config.optimization || {};
