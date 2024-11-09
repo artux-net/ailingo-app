@@ -2,8 +2,9 @@ name: Web Deploy
 
 on:
   push:
-    branches:
-      - main
+  pull_request:
+   branches:
+    - main
   workflow_dispatch:
 
 jobs:
@@ -39,12 +40,22 @@ jobs:
 
   deploy:
     needs: build
+    name: Deploy
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
-      - name: Deploy
+      - uses: 1arp/create-a-file-action@0.4.5
+        with:
+          file: '_headers'
+          content: |
+            # SQLDelight headers
+            /*
+              Cross-Origin-Embedder-Policy: require-corp
+              Cross-Origin-Opener-Policy: same-origin
+            
+      - name: Deploy to Cloudflare Pages
         id: deploy
         uses: cloudflare/wrangler-action@v3
         with:
@@ -56,4 +67,9 @@ jobs:
         env:
           DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
         run: echo $DEPLOYMENT_URL >> $GITHUB_STEP_SUMMARY
-                  
+
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v3.0.1
+        with:
+          message: "## 🛠️ Preview: ${{ steps.deploy.outputs.deployment-url }}"
+          
