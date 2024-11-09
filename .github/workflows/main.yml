@@ -2,9 +2,9 @@ name: Web Deploy
 
 on:
   push:
-    branches:
-      - main
-      - dev
+   branches:
+    - main
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      
       - name: set up JDK 17
         uses: actions/setup-java@v2
         with:
@@ -24,32 +25,56 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.10.2
-          cache-cleanup: never
-          cache-overwrite-existing: true
-          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
-      - name: Upgrade YarnLock Kotlin
+
+      - name: Upgrade YarnLock
         run: ./gradlew kotlinUpgradeYarnLock
 
       - name: Build JS Browser Distribution
         run: ./gradlew jsBrowserDistribution
         
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
+          name: browser-distribution
           path: ./composeApp/build/dist/js/productionExecutable
 
   deploy:
     needs: build
-    permissions:
-      pages: write
-      id-token: write
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
+    name: Deploy
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write 
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
+      - uses: actions/download-artifact@v4
+        with:
+           merge-multiple: true
+
+      - name: Configure headers
+        uses: 1arp/create-a-file-action@0.4.5
+        with:
+          file: '_headers'
+          content: |
+            # SQLDelight headers
+            /*
+              Cross-Origin-Embedder-Policy: require-corp
+              Cross-Origin-Opener-Policy: same-origin
+              X-Robots-Tag: noindex
+    
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy . --project-name=ailingo-app --branch=${{ github.ref_name }}
+
+      - name: Deployment summary
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+        run: echo $DEPLOYMENT_URL >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v3.0.1
+        with:
+          message: "## 🛠️ Preview: ${{ steps.deploy.outputs.deployment-url }}"
+          
