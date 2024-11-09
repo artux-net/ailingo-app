@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - dev
   workflow_dispatch:
 
 jobs:
@@ -27,7 +26,7 @@ jobs:
           cache-cleanup: never
           cache-overwrite-existing: true
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
-      - name: Upgrade YarnLock Kotlin
+      - name: Upgrade YarnLock
         run: ./gradlew kotlinUpgradeYarnLock
 
       - name: Build JS Browser Distribution
@@ -40,16 +39,21 @@ jobs:
 
   deploy:
     needs: build
-    permissions:
-      pages: write
-      id-token: write
-
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
+      - name: Deploy
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy . --project-name=ailingo-app
+
+      - name: Deployment summary
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+        run: echo $DEPLOYMENT_URL >> $GITHUB_STEP_SUMMARY
+                  
