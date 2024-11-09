@@ -34,8 +34,9 @@ jobs:
         run: ./gradlew jsBrowserDistribution
         
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
+          name: browser-distribution
           path: ./composeApp/build/dist/js/productionExecutable
 
   deploy:
@@ -43,14 +44,12 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     permissions:
-      pages: write
-      id-token: write
       pull-requests: write 
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: 1arp/create-a-file-action@0.4.5
+      - uses: actions/download-artifact@v4
+
+      - name: Configure headers
+        uses: 1arp/create-a-file-action@0.4.5
         with:
           file: '_headers'
           content: |
@@ -58,7 +57,7 @@ jobs:
             /*
               Cross-Origin-Embedder-Policy: require-corp
               Cross-Origin-Opener-Policy: same-origin
-            
+    
       - name: Deploy to Cloudflare Pages
         id: deploy
         uses: cloudflare/wrangler-action@v3
