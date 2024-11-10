@@ -1,4 +1,4 @@
-package org.ailingo.app.core.utils
+package org.ailingo.app.core.utils.coil
 
 import coil3.ImageLoader
 import coil3.PlatformContext

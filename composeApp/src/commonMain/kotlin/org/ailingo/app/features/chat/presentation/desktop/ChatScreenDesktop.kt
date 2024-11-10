@@ -8,25 +8,25 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
-import org.ailingo.app.core.helper.voice.VoiceStates
-import org.ailingo.app.core.helper.voice.VoiceToTextParser
+import org.ailingo.app.core.utils.voice.VoiceStates
+import org.ailingo.app.core.utils.voice.VoiceToTextParser
 import org.ailingo.app.features.chat.data.model.Message
 
 @Composable
 fun ChatScreenDesktop(
     voiceToTextParser: VoiceToTextParser,
-    chatTextField: String,
+    userTextField: String,
     chatState: List<Message>,
     listState: LazyListState,
     voiceState: State<VoiceStates>,
-    onMessageSent: (String) -> Unit,
     isActiveJob: State<Boolean>,
+    onMessageSent: (String) -> Unit,
     onChatTextField: (String) -> Unit
 ) {
     Scaffold(
         bottomBar = {
             BottomUserMessageBox(
-                chatTextField = chatTextField,
+                userTextField = userTextField,
                 voiceToTextParser = voiceToTextParser,
                 voiceState = voiceState,
                 messages = chatState,

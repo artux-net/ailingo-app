@@ -4,6 +4,7 @@ import ailingo.composeapp.generated.resources.Res
 import ailingo.composeapp.generated.resources.ailingologowithoutbackground
 import ailingo.composeapp.generated.resources.coins
 import ailingo.composeapp.generated.resources.defaultProfilePhoto
+import ailingo.composeapp.generated.resources.logo
 import ailingo.composeapp.generated.resources.streak
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -36,6 +36,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
+import org.ailingo.app.core.utils.windowinfo.info.rememberWindowInfo
 import org.ailingo.app.features.login.presentation.LoginUiState
 import org.ailingo.app.features.login.presentation.LoginViewModel
 import org.ailingo.app.theme.inversePrimaryLight
@@ -45,16 +47,24 @@ import org.jetbrains.compose.resources.painterResource
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBarWithProfile(modifier: Modifier = Modifier, loginViewModel: LoginViewModel) {
+    val windowInfo = rememberWindowInfo()
     TopAppBar(
         modifier = modifier,
         title = {
-            Box(
-                modifier = Modifier.height(64.dp).width(350.dp).offset((-16).dp, 0.dp)
-                    .background(Color.White)
-            )
-            Box(contentAlignment = Alignment.CenterStart, modifier = Modifier.height(64.dp).fillMaxWidth()) {
+            if (windowInfo.screenWidthInfo is WindowInfo.WindowType.DesktopWindowInfo) {
+                Box(
+                    modifier = Modifier.height(64.dp).width(350.dp).offset((-16).dp, 0.dp)
+                        .background(Color.White)
+                )
                 Icon(
                     painter = painterResource(Res.drawable.ailingologowithoutbackground),
+                    contentDescription = null,
+                    tint = Color.Black,
+                    modifier = Modifier.height(40.dp)
+                )
+            } else {
+                Icon(
+                    painter = painterResource(Res.drawable.logo),
                     contentDescription = null,
                     tint = Color.Black,
                     modifier = Modifier.height(40.dp)

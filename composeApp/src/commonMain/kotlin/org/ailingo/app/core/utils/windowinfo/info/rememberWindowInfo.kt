@@ -1,4 +1,4 @@
-package org.ailingo.app.core.helper.window.info
+package org.ailingo.app.core.utils.windowinfo.info
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp

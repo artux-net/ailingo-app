@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import org.ailingo.app.core.helper.auth.basicAuthHeader
+import org.ailingo.app.core.utils.auth.basicAuthHeader
 
 class LoginViewModel : ViewModel() {
     private val _loginState = MutableStateFlow<LoginUiState>(LoginUiState.Empty)
