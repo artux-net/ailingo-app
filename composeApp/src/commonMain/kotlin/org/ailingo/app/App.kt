@@ -26,8 +26,6 @@ internal fun App(
     voiceToTextParser: VoiceToTextParser,
     dictionaryLocalDataBase: Deferred<DictionaryRepository>
 ) {
-    val windowInfo = rememberWindowInfo()
-
     val navController = rememberNavController()
     val loginViewModel: LoginViewModel = viewModel { LoginViewModel() }
     val registerViewModel: RegisterViewModel = viewModel { RegisterViewModel() }
@@ -61,38 +59,43 @@ internal fun App(
     setSingletonImageLoaderFactory { context ->
         getAsyncImageLoader(context)
     }
+    val windowInfo = rememberWindowInfo()
     if (windowInfo.screenWidthInfo is WindowInfo.WindowType.DesktopWindowInfo) {
         NavigationForDesktop(
-            navController,
-            showTopAppCenter,
-            showTopAppBarWithProfile,
-            loginViewModel,
-            currentDestination,
+            navController = navController,
+            showTopAppCenter = showTopAppCenter,
+            showTopAppBarWithProfile = showTopAppBarWithProfile,
+            loginViewModel = loginViewModel,
+            currentDestination = currentDestination,
+            windowInfo = windowInfo
         ) { innerPadding ->
             AppNavHost(
-                navController,
-                loginViewModel,
-                voiceToTextParser,
-                registerViewModel,
-                dictionaryLocalDataBase,
-                innerPadding,
+                navController = navController,
+                loginViewModel = loginViewModel,
+                voiceToTextParser = voiceToTextParser,
+                registerViewModel = registerViewModel,
+                dictionaryLocalDataBase = dictionaryLocalDataBase,
+                innerPadding = innerPadding,
+                windowInfo = windowInfo
             )
         }
     } else {
         NavigationForMobile(
-            navController,
-            currentDestination,
-            showTopAppCenter,
-            showTopAppBarWithProfile,
-            loginViewModel,
+            navController = navController,
+            currentDestination = currentDestination,
+            showTopAppCenter = showTopAppCenter,
+            showTopAppBarWithProfile = showTopAppBarWithProfile,
+            loginViewModel = loginViewModel,
+            windowInfo = windowInfo
         ) { innerPadding ->
             AppNavHost(
-                navController,
-                loginViewModel,
-                voiceToTextParser,
-                registerViewModel,
-                dictionaryLocalDataBase,
-                innerPadding,
+                navController = navController,
+                loginViewModel = loginViewModel,
+                voiceToTextParser = voiceToTextParser,
+                registerViewModel = registerViewModel,
+                dictionaryLocalDataBase = dictionaryLocalDataBase,
+                innerPadding = innerPadding,
+                windowInfo = windowInfo
             )
         }
     }

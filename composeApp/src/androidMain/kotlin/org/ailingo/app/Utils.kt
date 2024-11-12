@@ -90,6 +90,7 @@ actual fun playSound(sound: String) {
 @Composable
 internal actual fun getConfiguration(): Pair<Int, Int> {
     val configuration = LocalConfiguration.current
+    println(configuration)
     return Pair(configuration.screenWidthDp, configuration.screenHeightDp)
 }
 

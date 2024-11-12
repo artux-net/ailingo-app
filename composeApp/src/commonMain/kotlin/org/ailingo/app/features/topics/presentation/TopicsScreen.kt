@@ -35,11 +35,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
-import org.ailingo.app.core.utils.windowinfo.info.rememberWindowInfo
 import org.ailingo.app.features.topics.data.Topic
 
 @Composable
-fun TopicsScreen() {
+fun TopicsScreen(
+    windowInfo: WindowInfo
+) {
     val topics = listOf(
         Topic(Res.string.trips, Res.drawable.trips),
         Topic(Res.string.food_and_drinks, Res.drawable.food),
@@ -57,8 +58,6 @@ fun TopicsScreen() {
         Topic(Res.string.history, Res.drawable.history),
         Topic(Res.string.business, Res.drawable.business)
     )
-
-    val windowInfo = rememberWindowInfo()
 
     if (windowInfo.screenWidthInfo is WindowInfo.WindowType.DesktopWindowInfo) {
         LazyVerticalStaggeredGrid(

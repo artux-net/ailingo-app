@@ -2,6 +2,7 @@ package org.ailingo.app
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.worker.WebWorkerDriver
@@ -49,8 +50,11 @@ actual fun playSound(sound: String) {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 internal actual fun getConfiguration(): Pair<Int, Int> {
-    val containerSize = LocalWindowInfo.current.containerSize
-    return Pair(containerSize.width, containerSize.height)
+    val windowInfo = LocalWindowInfo.current
+    val density = LocalDensity.current.density
+    val width = (windowInfo.containerSize.width / density)
+    val height = (windowInfo.containerSize.height / density)
+    return Pair(width.toInt(), height.toInt())
 }
 
 actual class DriverFactory {

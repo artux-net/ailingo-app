@@ -32,6 +32,7 @@ import org.ailingo.app.UploadAvatarPage
 import org.ailingo.app.core.presentation.TopAppBarCenter
 import org.ailingo.app.core.presentation.TopAppBarWithProfile
 import org.ailingo.app.core.presentation.model.DrawerItems
+import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.login.presentation.LoginScreenEvent
 import org.ailingo.app.features.login.presentation.LoginViewModel
 import org.ailingo.app.theme.AppTheme
@@ -44,6 +45,7 @@ fun NavigationForDesktop(
     showTopAppBarWithProfile: Boolean?,
     loginViewModel: LoginViewModel,
     currentDestination: NavDestination?,
+    windowInfo: WindowInfo,
     contentNavHost: @Composable (padding: PaddingValues) -> Unit
 ) {
     val routesWithOutNavigationDrawer = listOf(
@@ -65,7 +67,7 @@ fun NavigationForDesktop(
         Scaffold(
             topBar = {
                 if (showTopAppBarWithProfile == true) {
-                    TopAppBarWithProfile(loginViewModel = loginViewModel)
+                    TopAppBarWithProfile(loginViewModel = loginViewModel, windowInfo = windowInfo)
                 } else {
                     if (showTopAppCenter == true) {
                         TopAppBarCenter()

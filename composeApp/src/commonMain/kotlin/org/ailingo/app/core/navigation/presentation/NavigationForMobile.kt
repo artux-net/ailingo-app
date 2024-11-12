@@ -42,6 +42,7 @@ import org.ailingo.app.UploadAvatarPage
 import org.ailingo.app.core.navigation.model.BottomNavigationItem
 import org.ailingo.app.core.presentation.TopAppBarCenter
 import org.ailingo.app.core.presentation.TopAppBarWithProfile
+import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.login.presentation.LoginViewModel
 import org.ailingo.app.theme.AppTheme
 import org.jetbrains.compose.resources.stringResource
@@ -53,7 +54,8 @@ fun NavigationForMobile(
     showTopAppCenter: Boolean?,
     showTopAppBarWithProfile: Boolean?,
     loginViewModel: LoginViewModel,
-    contentNavHost: @Composable (padding: PaddingValues) -> Unit
+    windowInfo: WindowInfo,
+    contentNavHost: @Composable (padding: PaddingValues) -> Unit,
 ) {
     val routesWithoutBottomBar = listOf(
         LoginPage::class,
@@ -103,7 +105,7 @@ fun NavigationForMobile(
         Scaffold(
             topBar = {
                 if (showTopAppBarWithProfile == true) {
-                    TopAppBarWithProfile(loginViewModel = loginViewModel)
+                    TopAppBarWithProfile(loginViewModel = loginViewModel, windowInfo = windowInfo)
                 } else {
                     if (showTopAppCenter == true) {
                         TopAppBarCenter()

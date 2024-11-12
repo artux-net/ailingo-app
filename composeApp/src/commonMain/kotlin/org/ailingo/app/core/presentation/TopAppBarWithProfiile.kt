@@ -37,7 +37,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
-import org.ailingo.app.core.utils.windowinfo.info.rememberWindowInfo
 import org.ailingo.app.features.login.presentation.LoginUiState
 import org.ailingo.app.features.login.presentation.LoginViewModel
 import org.ailingo.app.theme.inversePrimaryLight
@@ -46,8 +45,11 @@ import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBarWithProfile(modifier: Modifier = Modifier, loginViewModel: LoginViewModel) {
-    val windowInfo = rememberWindowInfo()
+fun TopAppBarWithProfile(
+    modifier: Modifier = Modifier,
+    loginViewModel: LoginViewModel,
+    windowInfo: WindowInfo
+) {
     TopAppBar(
         modifier = modifier,
         title = {

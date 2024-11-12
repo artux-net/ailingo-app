@@ -32,6 +32,7 @@ import org.ailingo.app.ResetPasswordPage
 import org.ailingo.app.SelectPage
 import org.ailingo.app.TopicsPage
 import org.ailingo.app.UploadAvatarPage
+import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.dictionary.history.domain.DictionaryRepository
 import org.ailingo.app.features.login.presentation.LoginScreenEvent
 import org.ailingo.app.features.profile.presentation.ProfileScreen
@@ -44,7 +45,8 @@ fun AppNavHost(
     registerViewModel: RegisterViewModel,
     dictionaryLocalDataBase: Deferred<DictionaryRepository>,
     innerPadding: PaddingValues,
-    modifier: Modifier = Modifier,
+    windowInfo: WindowInfo,
+    modifier: Modifier = Modifier
 ) {
     NavHost(
         navController,
@@ -66,7 +68,7 @@ fun AppNavHost(
             )
         }
         composable<ChatPage> {
-            ChatScreen(voiceToTextParser = voiceToTextParser)
+            ChatScreen(voiceToTextParser = voiceToTextParser, windowInfo = windowInfo)
         }
         composable<RegisterPage> {
             RegisterScreen(
@@ -121,7 +123,7 @@ fun AppNavHost(
             )
         }
         composable<TopicsPage> {
-            TopicsScreen()
+            TopicsScreen(windowInfo = windowInfo)
         }
         composable<DictionaryPage> {
             val dictionaryViewModel: DictionaryViewModel = viewModel {

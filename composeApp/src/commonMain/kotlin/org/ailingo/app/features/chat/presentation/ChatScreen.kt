@@ -11,13 +11,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.ailingo.app.core.utils.voice.VoiceToTextParser
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
-import org.ailingo.app.core.utils.windowinfo.info.rememberWindowInfo
 import org.ailingo.app.features.chat.presentation.desktop.ChatScreenDesktop
 import org.ailingo.app.features.chat.presentation.mobile.ChatScreenMobile
 
 @Composable
 fun ChatScreen(
-    voiceToTextParser: VoiceToTextParser
+    voiceToTextParser: VoiceToTextParser,
+    windowInfo: WindowInfo
 ) {
     val voiceState = voiceToTextParser.voiceState.collectAsState()
 
@@ -41,9 +41,7 @@ fun ChatScreen(
         lastSpokenText = voiceState.value.spokenText
     }
 
-    val screenInfo = rememberWindowInfo()
-
-    if (screenInfo.screenWidthInfo is WindowInfo.WindowType.DesktopWindowInfo) {
+    if (windowInfo.screenWidthInfo is WindowInfo.WindowType.DesktopWindowInfo) {
         ChatScreenDesktop(
             voiceToTextParser = voiceToTextParser,
             userTextField = userTextField,
