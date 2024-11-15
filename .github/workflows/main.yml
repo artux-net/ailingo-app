@@ -75,6 +75,7 @@ jobs:
 
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v3.0.1
+        if: github.event_name != 'pull_request'
         with:
           message: "## 🛠️ Preview: ${{ steps.deploy.outputs.deployment-url }}"
           
