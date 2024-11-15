@@ -33,3 +33,6 @@ object TopicsPage
 
 @Serializable
 object DictionaryPage
+
+@Serializable
+object ProfilePage

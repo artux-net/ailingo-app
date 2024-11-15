@@ -56,4 +56,6 @@
     <string name="new_Test">New Test value</string>
     <string name="search">Search</string>
     <string name="history_of_search">Here will be the search history of your words</string>
+    <string name="profile">Profile</string>
+    <string name="back_input_fields">Back to the input fields</string>
 </resources>

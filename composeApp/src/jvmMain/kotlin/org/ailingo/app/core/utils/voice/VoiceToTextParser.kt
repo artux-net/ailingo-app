@@ -1,4 +1,4 @@
-package org.ailingo.app.core.helper.voice
+package org.ailingo.app.core.utils.voice
 
 import com.google.api.gax.core.FixedCredentialsProvider
 import com.google.api.gax.rpc.PermissionDeniedException

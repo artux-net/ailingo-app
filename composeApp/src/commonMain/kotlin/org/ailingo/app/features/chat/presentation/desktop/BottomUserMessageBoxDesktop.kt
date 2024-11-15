@@ -22,14 +22,14 @@ import compose.icons.feathericons.Mic
 import compose.icons.feathericons.MicOff
 import compose.icons.feathericons.Send
 import kotlinx.coroutines.launch
-import org.ailingo.app.core.helper.voice.VoiceStates
-import org.ailingo.app.core.helper.voice.VoiceToTextParser
+import org.ailingo.app.core.utils.voice.VoiceStates
+import org.ailingo.app.core.utils.voice.VoiceToTextParser
 import org.ailingo.app.features.chat.data.model.Message
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun BottomUserMessageBox(
-    chatTextField: String,
+    userTextField: String,
     onChatTextField: (String) -> Unit,
     voiceToTextParser: VoiceToTextParser,
     voiceState: State<VoiceStates>,
@@ -45,7 +45,7 @@ fun BottomUserMessageBox(
     ) {
         Spacer(modifier = Modifier.weight(1f))
         OutlinedTextField(
-            value = chatTextField,
+            value = userTextField,
             onValueChange = {
                 onChatTextField(it)
             },
@@ -73,8 +73,9 @@ fun BottomUserMessageBox(
                     Spacer(modifier = Modifier.width(8.dp))
                     if (!isActiveJob) {
                         IconButton(onClick = {
-                            if (chatTextField.isNotBlank()) {
-                                onMessageSent(chatTextField)
+                            if (userTextField.isNotBlank()) {
+                                onMessageSent(userTextField)
+                                onChatTextField("")
                                 scope.launch {
                                     listState.scrollToItem(messages.size - 1)
                                 }

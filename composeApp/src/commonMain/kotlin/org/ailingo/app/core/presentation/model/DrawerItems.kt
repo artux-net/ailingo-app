@@ -1,4 +1,4 @@
-package org.ailingo.app.core.presentation.utils
+package org.ailingo.app.core.presentation.model
 
 import ailingo.composeapp.generated.resources.Res
 import ailingo.composeapp.generated.resources.dictionary
