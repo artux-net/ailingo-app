@@ -17,30 +17,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Mic
 import compose.icons.feathericons.MicOff
 import compose.icons.feathericons.Send
 import kotlinx.coroutines.launch
-import org.ailingo.app.core.helper.voice.VoiceStates
-import org.ailingo.app.core.helper.voice.VoiceToTextParser
+import org.ailingo.app.core.utils.voice.VoiceStates
+import org.ailingo.app.core.utils.voice.VoiceToTextParser
 import org.ailingo.app.features.chat.data.model.Message
-import org.ailingo.app.features.chat.presentation.ChatScreenEvents
-import org.ailingo.app.features.chat.presentation.ChatScreenViewModel
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun BottomUserMessageBoxMobile(
-    chatField: TextFieldValue,
+    userTextField: String,
     voiceToTextParser: VoiceToTextParser,
     voiceState: State<VoiceStates>,
     messages: List<Message>,
     listState: LazyListState,
-    viewModel: ChatScreenViewModel,
     isActiveJob: Boolean,
-    onChatTextField: (TextFieldValue) -> Unit
+    onMessageSent: (String) -> Unit,
+    onChatTextField: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     Row(
@@ -50,7 +47,7 @@ fun BottomUserMessageBoxMobile(
             shape = RoundedCornerShape(18.dp),
             modifier = Modifier.fillMaxWidth(),
             maxLines = 3,
-            value = chatField,
+            value = userTextField,
             onValueChange = {
                 onChatTextField(it)
             },
@@ -75,9 +72,8 @@ fun BottomUserMessageBoxMobile(
                     Spacer(modifier = Modifier.width(8.dp))
                     if (!isActiveJob) {
                         IconButton(onClick = {
-                            if (chatField.text.isNotBlank()) {
-                                viewModel.onEvent(ChatScreenEvents.MessageSent(chatField.text))
-                                onChatTextField(TextFieldValue(chatField.text))
+                            if (userTextField.isNotEmpty()) {
+                                onMessageSent(userTextField)
                                 scope.launch {
                                     listState.scrollToItem(messages.size - 1)
                                 }

@@ -9,33 +9,31 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
-import org.ailingo.app.core.helper.voice.VoiceStates
-import org.ailingo.app.core.helper.voice.VoiceToTextParser
+import org.ailingo.app.core.utils.voice.VoiceStates
+import org.ailingo.app.core.utils.voice.VoiceToTextParser
 import org.ailingo.app.features.chat.data.model.Message
-import org.ailingo.app.features.chat.presentation.ChatScreenViewModel
 
 @Composable
 fun ChatScreenMobile(
     voiceToTextParser: VoiceToTextParser,
-    chatTextField: TextFieldValue,
+    userTextField: String,
     chatState: List<Message>,
     listState: LazyListState,
     voiceState: State<VoiceStates>,
-    chatViewModel: ChatScreenViewModel,
     isActiveJob: State<Boolean>,
-    onChatTextField: (TextFieldValue) -> Unit
+    onMessageSent: (String) -> Unit,
+    onChatTextField: (String) -> Unit
 ) {
     Scaffold(
         bottomBar = {
             BottomUserMessageBoxMobile(
-                chatTextField,
+                userTextField,
                 voiceToTextParser,
                 voiceState,
                 chatState,
                 listState,
-                chatViewModel,
                 isActiveJob.value,
+                onMessageSent = onMessageSent,
                 onChatTextField = onChatTextField
             )
         }

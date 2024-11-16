@@ -2,7 +2,8 @@
     <string name="app_name">AILINGO</string>
     <string name="app_name_underspace">AiLingo</string>
     <string name="welcome_back">С возвращением</string>
-    <string name="login">Войти</string>
+    <string name="login">Логин</string>
+    <string name="log_in">Войти</string>
     <string name="password">Пароль</string>
     <string name="email">Электронная почта</string>
     <string name="name">Имя</string>
@@ -13,8 +14,7 @@
     <string name="sign_up">Зарегистрироваться</string>
     <string name="create_your_account">Создайте свой аккаунт</string>
     <string name="already_have_an_account">Уже есть аккаунт?</string>
-    <string name="log_in">Войти</string>
-    <string name="get_started">Начать</string>
+    <string name="get_started">Выбери</string>
     <string name="back_to_the_selection">Вернуться к выбору</string>
     <string name="reset_your_password">Сбросить пароль</string>
     <string name="free_mode">Чат</string>
@@ -54,4 +54,6 @@
     <string name="press_kit">Пресс-кит</string>
     <string name="search">Поиск</string>
     <string name="history_of_search">Здесь будет история вашего поиска</string>
+    <string name="profile">Профиль</string>
+    <string name="back_input_fields">Вернуться к полям ввода</string>
 </resources>

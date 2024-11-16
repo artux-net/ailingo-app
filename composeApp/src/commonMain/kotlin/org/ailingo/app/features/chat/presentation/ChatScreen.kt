@@ -9,14 +9,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.ailingo.app.core.helper.voice.VoiceToTextParser
-import org.ailingo.app.core.helper.window.info.WindowInfo
-import org.ailingo.app.core.helper.window.info.rememberWindowInfo
+import org.ailingo.app.core.utils.voice.VoiceToTextParser
+import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.chat.presentation.desktop.ChatScreenDesktop
+import org.ailingo.app.features.chat.presentation.mobile.ChatScreenMobile
 
 @Composable
 fun ChatScreen(
-    voiceToTextParser: VoiceToTextParser
+    voiceToTextParser: VoiceToTextParser,
+    windowInfo: WindowInfo
 ) {
     val voiceState = voiceToTextParser.voiceState.collectAsState()
 
@@ -24,9 +25,9 @@ fun ChatScreen(
         mutableStateOf("")
     }
 
-    val chatScreenViewModel: ChatScreenViewModel = viewModel { ChatScreenViewModel() }
-    val chatState = chatScreenViewModel.chatState
-    val isActiveJob = chatScreenViewModel.isActiveJob.collectAsState(false)
+    val chatViewModel: ChatViewModel = viewModel { ChatViewModel() }
+    val chatState = chatViewModel.chatState
+    val isActiveJob = chatViewModel.isActiveJob.collectAsState(false)
 
     val listState = rememberLazyListState()
     var lastSpokenText by rememberSaveable {
@@ -40,37 +41,37 @@ fun ChatScreen(
         lastSpokenText = voiceState.value.spokenText
     }
 
-    val screenInfo = rememberWindowInfo()
-
-    if (screenInfo.screenWidthInfo is WindowInfo.WindowType.DesktopWindowInfo) {
+    if (windowInfo.screenWidthInfo is WindowInfo.WindowType.DesktopWindowInfo) {
         ChatScreenDesktop(
             voiceToTextParser = voiceToTextParser,
-            chatTextField = userTextField,
+            userTextField = userTextField,
             chatState = chatState,
             listState = listState,
             voiceState = voiceState,
+            isActiveJob = isActiveJob,
             onMessageSent = {
-                chatScreenViewModel.onEvent(ChatScreenEvents.MessageSent(it))
+                chatViewModel.onEvent(ChatScreenEvents.MessageSent(it))
                 userTextField = ""
             },
-            isActiveJob = isActiveJob,
             onChatTextField = {
                 userTextField = it
             }
         )
     } else {
-        // TODO FOR MOBILE
-//        ChatScreenMobile(
-//            voiceToTextParser,
-//            chatTextField,
-//            chatState,
-//            listState,
-//            voiceState,
-//            component,
-//            isActiveJob,
-//            onChatTextField = {
-//                chatTextField = it
-//            }
-//        )
+        ChatScreenMobile(
+            voiceToTextParser = voiceToTextParser,
+            userTextField = userTextField,
+            chatState = chatState,
+            listState = listState,
+            voiceState = voiceState,
+            isActiveJob = isActiveJob,
+            onMessageSent = {
+                chatViewModel.onEvent(ChatScreenEvents.MessageSent(it))
+                userTextField = ""
+            },
+            onChatTextField = {
+                userTextField = it
+            }
+        )
     }
 }

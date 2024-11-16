@@ -2,12 +2,12 @@ package org.ailingo.app
 
 import ailingo.composeapp.generated.resources.ArrowForwardIOS
 import ailingo.composeapp.generated.resources.Res
+import ailingo.composeapp.generated.resources.back_input_fields
 import ailingo.composeapp.generated.resources.choose_image
 import ailingo.composeapp.generated.resources.continue_app
 import ailingo.composeapp.generated.resources.continue_with_default_image
 import ailingo.composeapp.generated.resources.defaultProfilePhoto
 import ailingo.composeapp.generated.resources.lets_add_your_avatar
-import ailingo.composeapp.generated.resources.lets_other_get_to_know_you
 import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
@@ -33,7 +33,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
@@ -60,11 +59,11 @@ import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import coil3.compose.AsyncImage
+import org.ailingo.app.core.utils.windowinfo.util.PlatformName
 import org.ailingo.app.database.HistoryDictionaryDatabase
 import org.ailingo.app.features.registration.data.model.UserRegistrationData
 import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
 import org.ailingo.app.features.registration.presentation.UploadImageUiState
-import org.ailingo.app.features.topics.data.Topic
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -78,8 +77,8 @@ internal actual fun openUrl(url: String?) {
     AndroidApp.INSTANCE.startActivity(intent)
 }
 
-internal actual fun getPlatformName(): String {
-    return "Android"
+internal actual fun getPlatformName(): PlatformName {
+    return PlatformName.Android
 }
 
 actual fun playSound(sound: String) {
@@ -148,35 +147,78 @@ actual fun UploadAvatarForPhone(
         ) {
             Text(
                 stringResource(Res.string.lets_add_your_avatar),
-                style = MaterialTheme.typography.displaySmall,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                stringResource(Res.string.lets_other_get_to_know_you),
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.DarkGray,
+                style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(32.dp))
             Row(
-                horizontalArrangement = Arrangement.spacedBy(32.dp),
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxSize()
             ) {
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Box(
-                        modifier = Modifier.fillMaxWidth(0.5f)
+                        modifier = Modifier.fillMaxWidth(0.4f)
                     ) {
-                        Card(
-                            shape = CircleShape,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            when (imageState.value) {
-                                UploadImageUiState.EmptyImage -> {
-                                    if (savedPhoto.isNotEmpty()) {
+                        Column {
+                            Card(
+                                shape = CircleShape,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                when (imageState.value) {
+                                    UploadImageUiState.EmptyImage -> {
+                                        if (savedPhoto.isNotEmpty()) {
+                                            AsyncImage(
+                                                model = savedPhoto,
+                                                contentDescription = null,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .aspectRatio(1f),
+                                                contentScale = ContentScale.Crop
+                                            )
+                                        } else {
+                                            Image(
+                                                painter = painterResource(Res.drawable.defaultProfilePhoto),
+                                                contentDescription = null,
+                                                modifier = Modifier.aspectRatio(1f),
+                                                contentScale = ContentScale.Crop
+                                            )
+                                        }
+                                    }
+
+                                    is UploadImageUiState.Error -> {
+                                        SelectionContainer {
+                                            Card(
+                                                shape = CircleShape,
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .padding(start = 16.dp, end = 16.dp),
+                                            ) {
+                                                Text(
+                                                    (imageState.value as UploadImageUiState.Error).message,
+                                                    textAlign = TextAlign.Center
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                    UploadImageUiState.LoadingImage -> {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .aspectRatio(1f),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            CircularProgressIndicator()
+                                        }
+                                    }
+
+                                    is UploadImageUiState.Success -> {
+                                        savedPhoto =
+                                            (imageState.value as UploadImageUiState.Success).uploadImageResponse.data.image.url
                                         AsyncImage(
                                             model = savedPhoto,
                                             contentDescription = null,
@@ -185,68 +227,20 @@ actual fun UploadAvatarForPhone(
                                                 .aspectRatio(1f),
                                             contentScale = ContentScale.Crop
                                         )
-                                    } else {
-                                        Image(
-                                            painter = painterResource(Res.drawable.defaultProfilePhoto),
-                                            contentDescription = null,
-                                            modifier = Modifier.aspectRatio(1f),
-                                            contentScale = ContentScale.Crop
-                                        )
                                     }
-                                }
-
-                                is UploadImageUiState.Error -> {
-                                    SelectionContainer {
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .padding(start = 16.dp, end = 16.dp),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(
-                                                (imageState.value as UploadImageUiState.Error).message,
-                                                textAlign = TextAlign.Center
-                                            )
-                                        }
-                                    }
-                                }
-
-                                UploadImageUiState.LoadingImage -> {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .aspectRatio(1f),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        CircularProgressIndicator()
-                                    }
-                                }
-
-                                is UploadImageUiState.Success -> {
-                                    savedPhoto =
-                                        (imageState.value as UploadImageUiState.Success).uploadImageResponse.data.image.url
-                                    AsyncImage(
-                                        model = savedPhoto,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .aspectRatio(1f),
-                                        contentScale = ContentScale.Crop
-                                    )
                                 }
                             }
+                            Spacer(modifier = Modifier.height(16.dp))
+                            ElevatedButton(onClick = {
+                                onNavigateToRegisterScreen()
+                            }, shape = MaterialTheme.shapes.small) {
+                                Text(stringResource(Res.string.back_input_fields))
+                            }
                         }
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    ElevatedButton(onClick = {
-                        onNavigateToRegisterScreen()
-                    }, shape = MaterialTheme.shapes.small) {
-                        Text("Back to the input fields")
                     }
                 }
                 Column(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.padding(bottom = ButtonDefaults.MinHeight + 16.dp)
                 ) {
                     OutlinedButton(
                         onClick = {
@@ -338,10 +332,6 @@ private fun convertImageToBase64(context: Context, uri: Uri?): String {
     } else {
         ""
     }
-}
-
-@Composable
-actual fun TopicsForDesktopAndWeb(topics: List<Topic>) {
 }
 
 actual suspend fun selectImageWebAndDesktop(): String? {

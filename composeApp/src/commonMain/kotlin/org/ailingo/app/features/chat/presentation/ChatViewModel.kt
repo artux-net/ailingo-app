@@ -18,10 +18,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import org.ailingo.app.core.helper.auth.basicAuthHeader
+import org.ailingo.app.core.utils.auth.basicAuthHeader
 import org.ailingo.app.features.chat.data.model.Message
 
-class ChatScreenViewModel : ViewModel() {
+class ChatViewModel : ViewModel() {
     private val _chatState = mutableStateListOf<Message>()
     val chatState: List<Message> = _chatState
 

@@ -1,37 +1,17 @@
 package org.ailingo.app
 
-import androidx.compose.foundation.HorizontalScrollbar
-import androidx.compose.foundation.ScrollbarStyle
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.unit.dp
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.worker.WebWorkerDriver
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.await
+import org.ailingo.app.core.utils.windowinfo.util.PlatformName
 import org.ailingo.app.database.HistoryDictionaryDatabase
 import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
-import org.ailingo.app.features.topics.data.Topic
-import org.ailingo.app.features.topics.presentation.TopicCard
 import org.w3c.dom.Audio
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.Worker
@@ -53,8 +33,8 @@ external object VoiceToText {
     fun setListeningCallback(callback: (Boolean) -> Unit)
 }
 
-actual fun getPlatformName(): String {
-    return "Web"
+actual fun getPlatformName(): PlatformName {
+    return PlatformName.Web
 }
 
 actual fun playSound(sound: String) {
@@ -71,8 +51,11 @@ actual fun playSound(sound: String) {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 internal actual fun getConfiguration(): Pair<Int, Int> {
-    val containerSize = LocalWindowInfo.current.containerSize
-    return Pair(containerSize.width, containerSize.height)
+    val windowInfo = LocalWindowInfo.current
+    val density = LocalDensity.current.density
+    val width = (windowInfo.containerSize.width / density)
+    val height = (windowInfo.containerSize.height / density)
+    return Pair(width.toInt(), height.toInt())
 }
 
 actual class DriverFactory {
@@ -129,52 +112,6 @@ private fun readAsBase64(file: File, callback: (String?) -> Unit) {
 
     // Read the file as a data URL (base64)
     reader.readAsDataURL(file)
-}
-
-@Composable
-actual fun TopicsForDesktopAndWeb(topics: List<Topic>) {
-    val horizontalScrollbarStyle = ScrollbarStyle(
-        minimalHeight = 0.dp,
-        thickness = 12.dp,
-        shape = RectangleShape,
-        hoverDurationMillis = 100,
-        unhoverColor = Color.Gray,
-        hoverColor = Color.DarkGray
-    )
-    val horizontalScrollState = rememberScrollState(0)
-    val topicsCount = topics.size
-    val topicsPerColumn = 2
-    val columnsCount = topicsCount / topicsPerColumn
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize().horizontalScroll(horizontalScrollState)
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            repeat(columnsCount) { columnIndex ->
-                Column(modifier = Modifier.fillMaxHeight()) {
-                    repeat(topicsPerColumn) { rowIndex ->
-                        val topicIndex = columnIndex * topicsPerColumn + rowIndex
-                        TopicCard(
-                            topics[topicIndex],
-                            modifier = Modifier.weight(1f)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                }
-            }
-        }
-        HorizontalScrollbar(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .fillMaxWidth(),
-            adapter = rememberScrollbarAdapter(horizontalScrollState),
-            style = horizontalScrollbarStyle
-        )
-    }
 }
 
 @Composable

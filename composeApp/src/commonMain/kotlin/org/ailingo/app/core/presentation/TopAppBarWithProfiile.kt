@@ -4,6 +4,7 @@ import ailingo.composeapp.generated.resources.Res
 import ailingo.composeapp.generated.resources.ailingologowithoutbackground
 import ailingo.composeapp.generated.resources.coins
 import ailingo.composeapp.generated.resources.defaultProfilePhoto
+import ailingo.composeapp.generated.resources.logo
 import ailingo.composeapp.generated.resources.streak
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.login.presentation.LoginUiState
 import org.ailingo.app.features.login.presentation.LoginViewModel
 import org.ailingo.app.theme.inversePrimaryLight
@@ -44,17 +46,31 @@ import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBarWithProfile(modifier: Modifier = Modifier, loginViewModel: LoginViewModel) {
+fun TopAppBarWithProfile(
+    modifier: Modifier = Modifier,
+    loginViewModel: LoginViewModel,
+    windowInfo: WindowInfo
+) {
     TopAppBar(
         modifier = modifier,
         title = {
-            Box(
-                modifier = Modifier.height(64.dp).width(350.dp).offset((-16).dp, 0.dp)
-                    .background(Color.White)
-            )
-            Box(contentAlignment = Alignment.CenterStart, modifier = Modifier.height(64.dp).fillMaxWidth()) {
+            if (windowInfo.screenWidthInfo is WindowInfo.WindowType.DesktopWindowInfo) {
+                Box(
+                    modifier = Modifier
+                        .height(TopAppBarDefaults.TopAppBarExpandedHeight)
+                        .width(350.dp)
+                        .offset((-16).dp, 0.dp) //need for delete standard padding title
+                        .background(Color.White)
+                )
                 Icon(
                     painter = painterResource(Res.drawable.ailingologowithoutbackground),
+                    contentDescription = null,
+                    tint = Color.Black,
+                    modifier = Modifier.padding(top = 10.dp).height(40.dp)
+                )
+            } else {
+                Icon(
+                    painter = painterResource(Res.drawable.logo),
                     contentDescription = null,
                     tint = Color.Black,
                     modifier = Modifier.height(40.dp)

@@ -106,7 +106,7 @@ fun RegisterScreen(
         email: MutableState<String>,
         name: MutableState<String>,
         invoker: () -> Unit
-    ){
+    ) {
         isLoading = true
         isLoginValid = login.value.length in 4..16 && login.value.isNotEmpty()
         isPasswordValid = password.value.length in 8..24 && password.value.isNotEmpty()
@@ -261,7 +261,7 @@ fun RegisterScreen(
                     ),
                     keyboardActions = KeyboardActions(
                         onNext = {
-                            onValidRegistrationForm(login, password, email, name){
+                            onValidRegistrationForm(login, password, email, name) {
                                 onNavigateToUploadAvatarScreen(
                                     login.value,
                                     password.value,
@@ -300,12 +300,12 @@ fun RegisterScreen(
                     .height(OutlinedTextFieldDefaults.MinHeight),
                 shape = MaterialTheme.shapes.small,
                 onClick = {
-                   onValidRegistrationForm(
-                       login,
-                       password,
-                       email,
-                       name
-                   ){
+                    onValidRegistrationForm(
+                        login,
+                        password,
+                        email,
+                        name
+                    ) {
                         onNavigateToUploadAvatarScreen(
                             login.value,
                             password.value,
