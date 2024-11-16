@@ -22,13 +22,9 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import org.ailingo.app.ChatPage
 import org.ailingo.app.DictionaryPage
-import org.ailingo.app.LandingPage
 import org.ailingo.app.LoginPage
-import org.ailingo.app.RegisterPage
-import org.ailingo.app.ResetPasswordPage
-import org.ailingo.app.SelectPage
+import org.ailingo.app.ProfilePage
 import org.ailingo.app.TopicsPage
-import org.ailingo.app.UploadAvatarPage
 import org.ailingo.app.core.presentation.TopAppBarCenter
 import org.ailingo.app.core.presentation.TopAppBarWithProfile
 import org.ailingo.app.core.presentation.model.DrawerItems
@@ -41,35 +37,33 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun NavigationForDesktop(
     navController: NavHostController,
-    showTopAppCenter: Boolean?,
-    showTopAppBarWithProfile: Boolean?,
+    isStandardCenterTopAppBarVisible: Boolean,
+    isTopAppBarWithProfileVisible: Boolean,
     loginViewModel: LoginViewModel,
     currentDestination: NavDestination?,
     windowInfo: WindowInfo,
     contentNavHost: @Composable (padding: PaddingValues) -> Unit
 ) {
-    val routesWithOutNavigationDrawer = listOf(
-        LandingPage::class,
-        LoginPage::class,
-        RegisterPage::class,
-        ResetPasswordPage::class,
-        SelectPage::class,
-        UploadAvatarPage::class
+    val routesWithNavigationDrawer = listOf(
+        ChatPage::class,
+        TopicsPage::class,
+        DictionaryPage::class,
+        ProfilePage::class,
     )
 
-    val showNavigationDrawer = currentDestination?.let {
-        !routesWithOutNavigationDrawer.any { routeClass ->
-            it.hasRoute(routeClass)
+    val isNavigationDrawerVisible = currentDestination?.let { dest ->
+        routesWithNavigationDrawer.any { routeClass ->
+            dest.hasRoute(routeClass)
         }
-    }
+    } ?: false
 
     AppTheme {
         Scaffold(
             topBar = {
-                if (showTopAppBarWithProfile == true) {
+                if (isTopAppBarWithProfileVisible) {
                     TopAppBarWithProfile(loginViewModel = loginViewModel, windowInfo = windowInfo)
                 } else {
-                    if (showTopAppCenter == true) {
+                    if (isStandardCenterTopAppBarVisible) {
                         TopAppBarCenter()
                     }
                 }
@@ -78,11 +72,12 @@ fun NavigationForDesktop(
             PermanentNavigationDrawer(
                 modifier = Modifier,
                 drawerContent = {
-                    if (showNavigationDrawer == true) {
+                    if (isNavigationDrawerVisible) {
                         val items = listOf(
                             DrawerItems.ChatMode,
                             DrawerItems.Topics,
                             DrawerItems.Dictionary,
+                            DrawerItems.Profile,
                             DrawerItems.Exit,
                         )
                         val selectedItem = remember { mutableStateOf(items[0]) }
@@ -106,6 +101,9 @@ fun NavigationForDesktop(
                                             DrawerItems.Topics -> navController.navigate(TopicsPage)
                                             DrawerItems.Dictionary -> navController.navigate(
                                                 DictionaryPage
+                                            )
+                                            DrawerItems.Profile -> navController.navigate(
+                                                ProfilePage
                                             )
 
                                             DrawerItems.Exit -> {

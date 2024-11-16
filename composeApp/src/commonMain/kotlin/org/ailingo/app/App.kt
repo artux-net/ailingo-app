@@ -12,10 +12,12 @@ import kotlinx.coroutines.Deferred
 import org.ailingo.app.core.navigation.presentation.AppNavHost
 import org.ailingo.app.core.navigation.presentation.NavigationForDesktop
 import org.ailingo.app.core.navigation.presentation.NavigationForMobile
-import org.ailingo.app.core.utils.coil.getAsyncImageLoader
+import org.ailingo.app.core.utils.coil.asyncImageLoader
+import org.ailingo.app.core.utils.coil.enableDiskCache
 import org.ailingo.app.core.utils.voice.VoiceToTextParser
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.core.utils.windowinfo.info.rememberWindowInfo
+import org.ailingo.app.core.utils.windowinfo.util.PlatformName
 import org.ailingo.app.features.dictionary.history.domain.DictionaryRepository
 import org.ailingo.app.features.login.presentation.LoginViewModel
 import org.ailingo.app.features.registration.presentation.RegisterViewModel
@@ -26,45 +28,53 @@ internal fun App(
     voiceToTextParser: VoiceToTextParser,
     dictionaryLocalDataBase: Deferred<DictionaryRepository>
 ) {
+    setSingletonImageLoaderFactory { context ->
+        if (getPlatformName() == PlatformName.Web) {
+            context.asyncImageLoader()
+        } else {
+            context.asyncImageLoader().enableDiskCache()
+        }
+    }
+
     val navController = rememberNavController()
     val loginViewModel: LoginViewModel = viewModel { LoginViewModel() }
     val registerViewModel: RegisterViewModel = viewModel { RegisterViewModel() }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    val routesWithoutTopBar = listOf(
-        LandingPage::class,
-    )
-
-    val routesWithProfileScreen = listOf(
+    val routesProfileVisible = listOf(
         ChatPage::class,
         DictionaryPage::class,
         TopicsPage::class,
+        ProfilePage::class,
     )
 
-    val showTopAppCenter = currentDestination?.let {
-        !routesWithoutTopBar.any { routeClass ->
-            it.hasRoute(routeClass)
+    val isTopAppBarWithProfileVisible = currentDestination?.let { dest ->
+        routesProfileVisible.any { routeClass ->
+            dest.hasRoute(routeClass)
         }
-    }
+    } ?: false
 
+    val routesWithStandardTopAppBar = listOf(
+        LoginPage::class,
+        RegisterPage::class,
+        UploadAvatarPage::class,
+        GetStartedPage::class,
+        ResetPasswordPage::class
+    )
 
-    val showTopAppBarWithProfile = currentDestination?.let {
-        routesWithProfileScreen.any { routeClass ->
-            it.hasRoute(routeClass)
+    val isStandardCenterTopAppBarVisible = currentDestination?.let { dest ->
+        routesWithStandardTopAppBar.any { routeClass ->
+            dest.hasRoute(routeClass)
         }
-    }
+    } ?: false
 
-    // Coil
-    setSingletonImageLoaderFactory { context ->
-        getAsyncImageLoader(context)
-    }
     val windowInfo = rememberWindowInfo()
     if (windowInfo.screenWidthInfo is WindowInfo.WindowType.DesktopWindowInfo) {
         NavigationForDesktop(
             navController = navController,
-            showTopAppCenter = showTopAppCenter,
-            showTopAppBarWithProfile = showTopAppBarWithProfile,
+            isStandardCenterTopAppBarVisible = isStandardCenterTopAppBarVisible,
+            isTopAppBarWithProfileVisible = isTopAppBarWithProfileVisible,
             loginViewModel = loginViewModel,
             currentDestination = currentDestination,
             windowInfo = windowInfo
@@ -83,8 +93,8 @@ internal fun App(
         NavigationForMobile(
             navController = navController,
             currentDestination = currentDestination,
-            showTopAppCenter = showTopAppCenter,
-            showTopAppBarWithProfile = showTopAppBarWithProfile,
+            isStandardCenterTopAppBarVisible = isStandardCenterTopAppBarVisible,
+            isTopAppBarWithProfileVisible = isTopAppBarWithProfileVisible,
             loginViewModel = loginViewModel,
             windowInfo = windowInfo
         ) { innerPadding ->
@@ -102,7 +112,7 @@ internal fun App(
 }
 
 internal expect fun openUrl(url: String?)
-internal expect fun getPlatformName(): String
+internal expect fun getPlatformName(): PlatformName
 internal expect fun playSound(sound: String)
 
 @Composable

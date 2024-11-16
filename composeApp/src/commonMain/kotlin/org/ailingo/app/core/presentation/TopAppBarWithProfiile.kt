@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,14 +56,17 @@ fun TopAppBarWithProfile(
         title = {
             if (windowInfo.screenWidthInfo is WindowInfo.WindowType.DesktopWindowInfo) {
                 Box(
-                    modifier = Modifier.height(64.dp).width(350.dp).offset((-16).dp, 0.dp)
+                    modifier = Modifier
+                        .height(TopAppBarDefaults.TopAppBarExpandedHeight)
+                        .width(350.dp)
+                        .offset((-16).dp, 0.dp) //need for delete standard padding title
                         .background(Color.White)
                 )
                 Icon(
                     painter = painterResource(Res.drawable.ailingologowithoutbackground),
                     contentDescription = null,
                     tint = Color.Black,
-                    modifier = Modifier.height(40.dp)
+                    modifier = Modifier.padding(top = 10.dp).height(40.dp)
                 )
             } else {
                 Icon(

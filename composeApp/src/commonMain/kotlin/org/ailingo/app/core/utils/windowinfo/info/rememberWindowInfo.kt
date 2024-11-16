@@ -3,6 +3,7 @@ package org.ailingo.app.core.utils.windowinfo.info
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import org.ailingo.app.core.utils.windowinfo.util.PlatformName
 import org.ailingo.app.getConfiguration
 import org.ailingo.app.getPlatformName
 
@@ -11,11 +12,11 @@ fun rememberWindowInfo(): WindowInfo {
     val (width, height) = getConfiguration()
     return WindowInfo(
         screenWidthInfo = when {
-            width.dp < 840.dp || getPlatformName() == "Android" -> WindowInfo.WindowType.MobileWindowInfo
+            width.dp < 840.dp || getPlatformName() == PlatformName.Android -> WindowInfo.WindowType.MobileWindowInfo
             else -> WindowInfo.WindowType.DesktopWindowInfo
         },
         screenHeightInfo = when {
-            height.dp < 900.dp || getPlatformName() == "Android" -> WindowInfo.WindowType.MobileWindowInfo
+            height.dp < 900.dp || getPlatformName() == PlatformName.Android -> WindowInfo.WindowType.MobileWindowInfo
             else -> WindowInfo.WindowType.DesktopWindowInfo
         },
         screenHeight = height.dp,

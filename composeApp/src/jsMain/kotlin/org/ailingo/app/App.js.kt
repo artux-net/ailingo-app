@@ -9,6 +9,7 @@ import app.cash.sqldelight.driver.worker.WebWorkerDriver
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.await
+import org.ailingo.app.core.utils.windowinfo.util.PlatformName
 import org.ailingo.app.database.HistoryDictionaryDatabase
 import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
 import org.w3c.dom.Audio
@@ -32,8 +33,8 @@ external object VoiceToText {
     fun setListeningCallback(callback: (Boolean) -> Unit)
 }
 
-actual fun getPlatformName(): String {
-    return "Web"
+actual fun getPlatformName(): PlatformName {
+    return PlatformName.Web
 }
 
 actual fun playSound(sound: String) {

@@ -2,9 +2,9 @@ package org.ailingo.app.features.registration.presentation
 
 import ailingo.composeapp.generated.resources.ArrowForwardIOS
 import ailingo.composeapp.generated.resources.Res
+import ailingo.composeapp.generated.resources.back_input_fields
 import ailingo.composeapp.generated.resources.choose_image
 import ailingo.composeapp.generated.resources.continue_app
-import ailingo.composeapp.generated.resources.back_input_fields
 import ailingo.composeapp.generated.resources.continue_with_default_image
 import ailingo.composeapp.generated.resources.defaultProfilePhoto
 import ailingo.composeapp.generated.resources.lets_add_your_avatar
@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.ailingo.app.UploadAvatarForPhone
+import org.ailingo.app.core.utils.windowinfo.util.PlatformName
 import org.ailingo.app.features.registration.data.model.UserRegistrationData
 import org.ailingo.app.getPlatformName
 import org.ailingo.app.selectImageWebAndDesktop
@@ -65,7 +66,7 @@ fun RegisterUploadAvatarEmpty(
     var savedPhoto by remember {
         mutableStateOf("")
     }
-    if (getPlatformName() == "Android") {
+    if (getPlatformName() == PlatformName.Android) {
         UploadAvatarForPhone(
             uploadAvatarViewModel,
             login,

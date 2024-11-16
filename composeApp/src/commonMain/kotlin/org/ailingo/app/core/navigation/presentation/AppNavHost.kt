@@ -6,36 +6,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import org.ailingo.app.core.utils.voice.VoiceToTextParser
-import org.ailingo.app.features.chat.presentation.ChatScreen
-import org.ailingo.app.features.dictionary.main.presentation.DictionaryScreen
-import org.ailingo.app.features.dictionary.main.presentation.DictionaryViewModel
-import org.ailingo.app.features.introduction.presentation.GetStartedScreen
-import org.ailingo.app.features.login.presentation.LoginScreen
-import org.ailingo.app.features.login.presentation.LoginViewModel
-import org.ailingo.app.features.registration.presentation.RegisterScreen
-import org.ailingo.app.features.registration.presentation.RegisterViewModel
-import org.ailingo.app.features.registration.presentation.UploadAvatarScreen
-import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
-import org.ailingo.app.features.resetpass.presentation.ResetPasswordScreen
-import org.ailingo.app.features.topics.presentation.TopicsScreen
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import kotlinx.coroutines.Deferred
 import org.ailingo.app.ChatPage
 import org.ailingo.app.DictionaryPage
+import org.ailingo.app.GetStartedPage
 import org.ailingo.app.LoginPage
 import org.ailingo.app.ProfilePage
 import org.ailingo.app.RegisterPage
 import org.ailingo.app.ResetPasswordPage
-import org.ailingo.app.SelectPage
 import org.ailingo.app.TopicsPage
 import org.ailingo.app.UploadAvatarPage
+import org.ailingo.app.core.utils.voice.VoiceToTextParser
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
+import org.ailingo.app.features.chat.presentation.ChatScreen
 import org.ailingo.app.features.dictionary.history.domain.DictionaryRepository
+import org.ailingo.app.features.dictionary.main.presentation.DictionaryScreen
+import org.ailingo.app.features.dictionary.main.presentation.DictionaryViewModel
+import org.ailingo.app.features.introduction.presentation.GetStartedScreen
+import org.ailingo.app.features.login.presentation.LoginScreen
 import org.ailingo.app.features.login.presentation.LoginScreenEvent
+import org.ailingo.app.features.login.presentation.LoginViewModel
 import org.ailingo.app.features.profile.presentation.ProfileScreen
+import org.ailingo.app.features.registration.presentation.RegisterScreen
+import org.ailingo.app.features.registration.presentation.RegisterViewModel
+import org.ailingo.app.features.registration.presentation.UploadAvatarScreen
+import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
+import org.ailingo.app.features.resetpass.presentation.ResetPasswordScreen
+import org.ailingo.app.features.topics.presentation.TopicsScreen
 
 @Composable
 fun AppNavHost(
@@ -91,11 +91,11 @@ fun AppNavHost(
         composable<ResetPasswordPage> {
             ResetPasswordScreen(
                 onNavigateToSelectScreen = {
-                    navController.navigate(SelectPage)
+                    navController.navigate(GetStartedPage)
                 }
             )
         }
-        composable<SelectPage> {
+        composable<GetStartedPage> {
             GetStartedScreen(
                 onNavigateToLoginScreen = {
                     navController.navigate(LoginPage)

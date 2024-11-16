@@ -35,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
+import org.ailingo.app.core.utils.windowinfo.util.DeviceType
 import org.ailingo.app.features.topics.data.Topic
 
 @Composable
@@ -59,7 +60,13 @@ fun TopicsScreen(
         Topic(Res.string.business, Res.drawable.business)
     )
 
-    if (windowInfo.screenWidthInfo is WindowInfo.WindowType.DesktopWindowInfo) {
+    val deviceType = if (windowInfo.screenWidthInfo is WindowInfo.WindowType.DesktopWindowInfo) {
+        DeviceType.Desktop
+    } else {
+        DeviceType.Mobile
+    }
+
+    if (deviceType == DeviceType.Desktop) {
         LazyVerticalStaggeredGrid(
             columns = StaggeredGridCells.Adaptive(350.dp),
             verticalItemSpacing = 4.dp,
@@ -68,7 +75,7 @@ fun TopicsScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             items(topics) { photo ->
-                ContentTopics(photo, type = "desktop")
+                ContentTopics(photo, deviceType = deviceType)
             }
         }
     } else {
@@ -80,7 +87,7 @@ fun TopicsScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             items(topics) { photo ->
-                ContentTopics(photo, type = "mobile")
+                ContentTopics(photo, deviceType = deviceType)
             }
         }
     }

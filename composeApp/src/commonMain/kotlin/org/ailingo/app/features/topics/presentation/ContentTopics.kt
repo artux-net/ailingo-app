@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.ailingo.app.core.utils.windowinfo.util.DeviceType
 import org.ailingo.app.features.topics.data.Topic
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -26,7 +27,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun ContentTopics(
     photo: Topic,
-    type: String,
+    deviceType: DeviceType,
     modifier: Modifier = Modifier
 ) {
     val gradient = Brush.verticalGradient(
@@ -53,7 +54,7 @@ fun ContentTopics(
             )
             Text(
                 text = stringResource(photo.title).uppercase(),
-                style = if (type == "desktop") MaterialTheme.typography.headlineMedium else MaterialTheme.typography.titleLarge,
+                style = if (deviceType == DeviceType.Desktop) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.titleLarge,
                 color = Color.White,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.wrapContentHeight().fillMaxWidth().padding(16.dp)

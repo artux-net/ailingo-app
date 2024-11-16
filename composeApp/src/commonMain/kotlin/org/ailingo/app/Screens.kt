@@ -18,7 +18,7 @@ object RegisterPage
 object ResetPasswordPage
 
 @Serializable
-object SelectPage
+object GetStartedPage
 
 @Serializable
 data class UploadAvatarPage(

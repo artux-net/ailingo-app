@@ -59,6 +59,7 @@ import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import coil3.compose.AsyncImage
+import org.ailingo.app.core.utils.windowinfo.util.PlatformName
 import org.ailingo.app.database.HistoryDictionaryDatabase
 import org.ailingo.app.features.registration.data.model.UserRegistrationData
 import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
@@ -76,8 +77,8 @@ internal actual fun openUrl(url: String?) {
     AndroidApp.INSTANCE.startActivity(intent)
 }
 
-internal actual fun getPlatformName(): String {
-    return "Android"
+internal actual fun getPlatformName(): PlatformName {
+    return PlatformName.Android
 }
 
 actual fun playSound(sound: String) {
@@ -90,7 +91,6 @@ actual fun playSound(sound: String) {
 @Composable
 internal actual fun getConfiguration(): Pair<Int, Int> {
     val configuration = LocalConfiguration.current
-    println(configuration)
     return Pair(configuration.screenWidthDp, configuration.screenHeightDp)
 }
 

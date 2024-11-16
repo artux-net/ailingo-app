@@ -31,14 +31,8 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import org.ailingo.app.ChatPage
 import org.ailingo.app.DictionaryPage
-import org.ailingo.app.LandingPage
-import org.ailingo.app.LoginPage
 import org.ailingo.app.ProfilePage
-import org.ailingo.app.RegisterPage
-import org.ailingo.app.ResetPasswordPage
-import org.ailingo.app.SelectPage
 import org.ailingo.app.TopicsPage
-import org.ailingo.app.UploadAvatarPage
 import org.ailingo.app.core.navigation.model.BottomNavigationItem
 import org.ailingo.app.core.presentation.TopAppBarCenter
 import org.ailingo.app.core.presentation.TopAppBarWithProfile
@@ -51,26 +45,24 @@ import org.jetbrains.compose.resources.stringResource
 fun NavigationForMobile(
     navController: NavHostController,
     currentDestination: NavDestination?,
-    showTopAppCenter: Boolean?,
-    showTopAppBarWithProfile: Boolean?,
+    isStandardCenterTopAppBarVisible: Boolean,
+    isTopAppBarWithProfileVisible: Boolean,
     loginViewModel: LoginViewModel,
     windowInfo: WindowInfo,
     contentNavHost: @Composable (padding: PaddingValues) -> Unit,
 ) {
-    val routesWithoutBottomBar = listOf(
-        LoginPage::class,
-        LandingPage::class,
-        RegisterPage::class,
-        UploadAvatarPage::class,
-        SelectPage::class,
-        ResetPasswordPage::class
+    val routesWithBottomBar = listOf(
+        ChatPage::class,
+        TopicsPage::class,
+        DictionaryPage::class,
+        ProfilePage::class,
     )
 
-    val showBottomBar = currentDestination?.let {
-        !routesWithoutBottomBar.any { routeClass ->
-            it.hasRoute(routeClass)
+    val isBottomBarVisible = currentDestination?.let { dest ->
+        routesWithBottomBar.any { routeClass ->
+            dest.hasRoute(routeClass)
         }
-    }
+    } ?: false
 
     val items = listOf(
         BottomNavigationItem(
@@ -104,16 +96,16 @@ fun NavigationForMobile(
     AppTheme {
         Scaffold(
             topBar = {
-                if (showTopAppBarWithProfile == true) {
+                if (isTopAppBarWithProfileVisible) {
                     TopAppBarWithProfile(loginViewModel = loginViewModel, windowInfo = windowInfo)
                 } else {
-                    if (showTopAppCenter == true) {
+                    if (isStandardCenterTopAppBarVisible) {
                         TopAppBarCenter()
                     }
                 }
             },
             bottomBar = {
-                if (showBottomBar == true) {
+                if (isBottomBarVisible) {
                     NavigationBar {
                         items.forEachIndexed { index, item ->
                             NavigationBarItem(

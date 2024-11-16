@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.ailingo.app.core.utils.voice.VoiceStates
+import org.ailingo.app.core.utils.windowinfo.util.PlatformName
 import org.ailingo.app.database.HistoryDictionaryDatabase
 import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
 import java.awt.Desktop
@@ -107,8 +108,8 @@ fun calculateVolume(audioBuffer: ByteArray, bytesRead: Int): Double {
     return sqrt(sum / (bytesRead / 2))
 }
 
-internal actual fun getPlatformName(): String {
-    return "Desktop"
+internal actual fun getPlatformName(): PlatformName {
+    return PlatformName.Desktop
 }
 
 @OptIn(DelicateCoroutinesApi::class)
