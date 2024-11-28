@@ -8,16 +8,19 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import javazoom.jl.player.advanced.AdvancedPlayer
 import javazoom.jl.player.advanced.PlaybackEvent
 import javazoom.jl.player.advanced.PlaybackListener
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.swing.Swing
+import kotlinx.coroutines.withContext
 import org.ailingo.app.core.utils.voice.VoiceStates
 import org.ailingo.app.core.utils.windowinfo.util.PlatformName
 import org.ailingo.app.database.HistoryDictionaryDatabase
-import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
+import org.ailingo.app.features.registration.presentation.uploadavatar.UploadAvatarViewModel
 import java.awt.Desktop
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
@@ -151,24 +154,19 @@ actual class DriverFactory {
     }
 }
 
-@Suppress("NewApi")
-actual suspend fun selectImageWebAndDesktop(): String? {
-    val fileChooser = JFileChooser()
-
-    // Создание фильтра для файлов PNG и JPG
-    val filter = FileNameExtensionFilter("Image files", "png", "jpg")
-    fileChooser.fileFilter = filter
-
-    // Отображение диалогового окна выбора файла
-    fileChooser.showOpenDialog(null)
-
-    val selectedFile = fileChooser.selectedFile
-
-    // Проверка, что файл был действительно выбран
-    return if (selectedFile == null) {
-        null
-    } else {
-        encodeFileToBase64(selectedFile)
+actual fun selectImageWebAndDesktop(scope: CoroutineScope, callback: (String?) -> Unit) {
+    scope.launch(Dispatchers.IO) {
+        val result = withContext(Dispatchers.Swing) {
+            val fileChooser = JFileChooser()
+            val filter = FileNameExtensionFilter("Image files", "png", "jpg")
+            fileChooser.fileFilter = filter
+            fileChooser.showOpenDialog(null)
+            fileChooser.selectedFile
+        }
+        val base64String = if (result == null) null else encodeFileToBase64(result)
+        withContext(Dispatchers.Main) {
+            callback(base64String)
+        }
     }
 }
 

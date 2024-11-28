@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -84,126 +83,112 @@ fun TopAppBarWithProfile(
                 }
 
                 is LoginUiState.Success -> {
-                    if (loginState.avatar?.isNotEmpty() == true) {
-                        Card(
-                            shape = CircleShape,
-                            modifier = Modifier.size(56.dp).padding(8.dp)
+                    Card(
+                        modifier = Modifier.padding(8.dp),
+                        shape = CircleShape,
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                        colors = CardDefaults.cardColors(containerColor = inversePrimaryLight)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(4.dp).padding(start = 2.dp).padding(end = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            AsyncImage(
-                                model = loginState.avatar,
-                                contentDescription = null,
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
-                            )
-                        }
-                    } else {
-                        Card(
-                            modifier = Modifier.padding(8.dp),
-                            shape = CircleShape,
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                            colors = CardDefaults.cardColors(containerColor = inversePrimaryLight)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .padding(4.dp).padding(start = 2.dp).padding(end = 2.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                            if (loginState.avatar.isNotEmpty()) {
+                                Box(
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    AsyncImage(
+                                        model = loginState.avatar,
+                                        contentDescription = "avatar",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(CircleShape)
+                                            .border(
+                                                0.5.dp,
+                                                Color.Black,
+                                                CircleShape
+                                            )
+                                    )
+                                    Text(
+                                        text = loginState.login.first().uppercase()
+                                            .toString(),
+                                        style = MaterialTheme.typography.headlineSmall
+                                    )
+                                }
+                            } else {
+                                Box(
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Image(
+                                        painter = painterResource(Res.drawable.defaultProfilePhoto),
+                                        contentDescription = "avatar",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(CircleShape)
+                                            .border(
+                                                0.5.dp,
+                                                Color.Black,
+                                                CircleShape
+                                            )
+                                    )
+                                    Text(
+                                        text = loginState.login.first()?.uppercase()
+                                            .toString(),
+                                        style = MaterialTheme.typography.headlineSmall
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Card(
+                                colors = CardDefaults.cardColors(containerColor = primaryContainerLight),
+                                shape = CircleShape,
                             ) {
-                                if (loginState.avatar?.isNotEmpty() == true) {
-                                    Box(
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        AsyncImage(
-                                            model = loginState.avatar,
-                                            contentDescription = "avatar",
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .size(40.dp)
-                                                .clip(CircleShape)
-                                                .border(
-                                                    0.5.dp,
-                                                    Color.Black,
-                                                    CircleShape
-                                                )
-                                        )
-                                        Text(
-                                            text = loginState.login?.first()?.uppercase()
-                                                .toString(),
-                                            style = MaterialTheme.typography.headlineSmall
-                                        )
-                                    }
-                                } else {
-                                    Box(
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Image(
-                                            painter = painterResource(Res.drawable.defaultProfilePhoto),
-                                            contentDescription = "avatar",
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .size(40.dp)
-                                                .clip(CircleShape)
-                                                .border(
-                                                    0.5.dp,
-                                                    Color.Black,
-                                                    CircleShape
-                                                )
-                                        )
-                                        Text(
-                                            text = loginState.login?.first()?.uppercase()
-                                                .toString(),
-                                            style = MaterialTheme.typography.headlineSmall
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Card(
-                                    colors = CardDefaults.cardColors(containerColor = primaryContainerLight),
-                                    shape = CircleShape,
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(4.dp).padding(end = 4.dp)
                                 ) {
-                                    Row(
-                                        horizontalArrangement = Arrangement.Center,
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(4.dp).padding(end = 4.dp)
-                                    ) {
-                                        Image(
-                                            painter = painterResource(Res.drawable.coins),
-                                            contentDescription = "money",
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .size(30.dp)
-                                                .clip(CircleShape)
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(
-                                            loginState.coins.toString(),
-                                            modifier = Modifier.align(Alignment.CenterVertically)
-                                        )
-                                    }
+                                    Image(
+                                        painter = painterResource(Res.drawable.coins),
+                                        contentDescription = "money",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(30.dp)
+                                            .clip(CircleShape)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        loginState.coins.toString(),
+                                        modifier = Modifier.align(Alignment.CenterVertically)
+                                    )
                                 }
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Card(
-                                    colors = CardDefaults.cardColors(containerColor = primaryContainerLight),
-                                    shape = CircleShape,
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Card(
+                                colors = CardDefaults.cardColors(containerColor = primaryContainerLight),
+                                shape = CircleShape,
+                            ) {
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(4.dp).padding(end = 4.dp)
                                 ) {
-                                    Row(
-                                        horizontalArrangement = Arrangement.Center,
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(4.dp).padding(end = 4.dp)
-                                    ) {
-                                        Image(
-                                            painter = painterResource(Res.drawable.streak),
-                                            contentDescription = "streak",
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .size(30.dp)
-                                                .clip(CircleShape)
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(
-                                            loginState.streak.toString(),
-                                            modifier = Modifier.align(Alignment.CenterVertically)
-                                        )
-                                    }
+                                    Image(
+                                        painter = painterResource(Res.drawable.streak),
+                                        contentDescription = "streak",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(30.dp)
+                                            .clip(CircleShape)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        loginState.streak.toString(),
+                                        modifier = Modifier.align(Alignment.CenterVertically)
+                                    )
                                 }
                             }
                         }

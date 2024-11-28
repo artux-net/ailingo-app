@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -32,8 +33,8 @@ import org.ailingo.app.features.login.presentation.LoginViewModel
 import org.ailingo.app.features.profile.presentation.ProfileScreen
 import org.ailingo.app.features.registration.presentation.RegisterScreen
 import org.ailingo.app.features.registration.presentation.RegisterViewModel
-import org.ailingo.app.features.registration.presentation.UploadAvatarScreen
-import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
+import org.ailingo.app.features.registration.presentation.uploadavatar.UploadAvatarScreen
+import org.ailingo.app.features.registration.presentation.uploadavatar.UploadAvatarViewModel
 import org.ailingo.app.features.resetpass.presentation.ResetPasswordScreen
 import org.ailingo.app.features.topics.presentation.TopicsScreen
 
@@ -68,7 +69,13 @@ fun AppNavHost(
             )
         }
         composable<ChatPage> {
-            ChatScreen(voiceToTextParser = voiceToTextParser, windowInfo = windowInfo)
+            ChatScreen(
+                voiceToTextParser = voiceToTextParser,
+                windowInfo = windowInfo,
+                login = loginViewModel.login,
+                password = loginViewModel.password
+            )
+
         }
         composable<RegisterPage> {
             RegisterScreen(
@@ -117,6 +124,12 @@ fun AppNavHost(
                     navController.navigate(RegisterPage)
                 },
                 onNavigateToChatScreen = {
+                    loginViewModel.onEvent(
+                        LoginScreenEvent.OnLoginUser(
+                            args.login,
+                            args.password
+                        )
+                    )
                     navController.navigate(ChatPage)
                 },
                 uploadAvatarViewModel = uploadAvatarViewModel
@@ -135,6 +148,7 @@ fun AppNavHost(
         }
         composable<ProfilePage> {
             ProfileScreen(
+                loginUiState = loginViewModel.loginState.collectAsStateWithLifecycle().value,
                 onExit = {
                     loginViewModel.onEvent(LoginScreenEvent.OnBackToEmptyState)
                     navController.navigate(LoginPage) {

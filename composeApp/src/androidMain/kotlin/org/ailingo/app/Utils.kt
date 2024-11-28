@@ -59,11 +59,12 @@ import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.CoroutineScope
 import org.ailingo.app.core.utils.windowinfo.util.PlatformName
 import org.ailingo.app.database.HistoryDictionaryDatabase
 import org.ailingo.app.features.registration.data.model.UserRegistrationData
-import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
-import org.ailingo.app.features.registration.presentation.UploadImageUiState
+import org.ailingo.app.features.registration.presentation.uploadavatar.UploadAvatarViewModel
+import org.ailingo.app.features.registration.presentation.uploadavatar.UploadImageUiState
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -334,6 +335,4 @@ private fun convertImageToBase64(context: Context, uri: Uri?): String {
     }
 }
 
-actual suspend fun selectImageWebAndDesktop(): String? {
-    return null
-}
+actual fun selectImageWebAndDesktop(scope: CoroutineScope, callback: (String?) -> Unit) {}

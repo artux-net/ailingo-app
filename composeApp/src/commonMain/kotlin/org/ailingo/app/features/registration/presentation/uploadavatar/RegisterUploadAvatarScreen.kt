@@ -1,7 +1,9 @@
-package org.ailingo.app.features.registration.presentation
+package org.ailingo.app.features.registration.presentation.uploadavatar
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.ailingo.app.features.registration.presentation.RegisterError
+import org.ailingo.app.features.registration.presentation.RegisterLoading
 
 @Composable
 fun UploadAvatarScreen(
@@ -15,7 +17,7 @@ fun UploadAvatarScreen(
 ) {
     val registerState = uploadAvatarViewModel.registerState.collectAsStateWithLifecycle()
     when (registerState.value) {
-        RegisterUiState.Empty -> {
+        RegisterApiState.Empty -> {
             RegisterUploadAvatarEmpty(
                 login = login,
                 password = password,
@@ -26,9 +28,9 @@ fun UploadAvatarScreen(
             )
         }
 
-        is RegisterUiState.Error -> {
+        is RegisterApiState.Error -> {
             RegisterError(
-                errorMessage = (registerState.value as RegisterUiState.Error).message,
+                errorMessage = (registerState.value as RegisterApiState.Error).message,
                 onBackToEmptyState = {
                     uploadAvatarViewModel.onEvent(UploadAvatarEvent.OnBackToEmptyUploadAvatar)
                     onNavigateToRegisterScreen()
@@ -36,11 +38,11 @@ fun UploadAvatarScreen(
             )
         }
 
-        RegisterUiState.Loading -> {
+        RegisterApiState.Loading -> {
             RegisterLoading()
         }
 
-        is RegisterUiState.Success -> {
+        is RegisterApiState.Success -> {
             onNavigateToChatScreen()
         }
     }

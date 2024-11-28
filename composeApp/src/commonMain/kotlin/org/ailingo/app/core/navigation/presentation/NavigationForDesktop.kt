@@ -102,6 +102,7 @@ fun NavigationForDesktop(
                                             DrawerItems.Dictionary -> navController.navigate(
                                                 DictionaryPage
                                             )
+
                                             DrawerItems.Profile -> navController.navigate(
                                                 ProfilePage
                                             )

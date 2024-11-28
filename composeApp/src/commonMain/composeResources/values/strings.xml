@@ -58,4 +58,25 @@
     <string name="history_of_search">Here will be the search history of your words</string>
     <string name="profile">Profile</string>
     <string name="back_input_fields">Back to the input fields</string>
+    <string name="request_timeout">Request timeout. Please check your internet connection or try again later.</string>
+    <string name="could_not_connect">Could not connect to the server. Please check your internet connection.</string>
+    <string name="connection_timeout">Connection timeout. Please check your internet connection or try again later.</string>
+    <string name="unexpected_error">An unexpected error occurred: %s</string>
+    <string name="wrong_login_or_password">Wrong login or password</string>
+    <string name="request_failed">Request failed with %d</string>
+    <string name="login_must_be_between">Login must be between 4 and 16 characters</string>
+    <string name="password_must_be_between">Password must be between 8 and 24 characters</string>
+    <string name="invalid_email_format">Invalid email format</string>
+    <string name="name_cannot_be_blank">Name cannot be blank</string>
+    <string name="error">Error</string>
+    <string name="delete_avatar">Delete avatar</string>
+    <string name="bot_greeting_topic1">Hi there! Let\'s talk about daily routines. What\'s a typical day like for you?</string>
+    <string name="bot_greeting_topic2">Hello! Let\'s focus on describing your favorite hobby. Tell me all about it!</string>
+    <string name="bot_greeting_topic3">Hey! We\'ll be discussing travel. Where would you like to go on vacation?</string>
+    <string name="bot_greeting_topic4">Hi! Let\'s practice talking about food. What\'s your favorite dish?</string>
+    <string name="coins">Coins</string>
+    <string name="streak">Streak</string>
+    <string name="xp">XP</string>
+    <string name="your_statistics">Your statistics</string>
+    <string name="change_user_data">Change data</string>
 </resources>

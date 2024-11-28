@@ -56,4 +56,25 @@
     <string name="history_of_search">Здесь будет история вашего поиска</string>
     <string name="profile">Профиль</string>
     <string name="back_input_fields">Вернуться к полям ввода</string>
+    <string name="request_timeout">Время ожидания запроса истекло. Пожалуйста, проверьте подключение к интернету или попробуйте позже.</string>
+    <string name="could_not_connect">Не удалось подключиться к серверу. Пожалуйста, проверьте подключение к интернету.</string>
+    <string name="connection_timeout">Время ожидания соединения истекло. Пожалуйста, проверьте подключение к интернету или попробуйте позже.</string>
+    <string name="unexpected_error">Произошла непредвиденная ошибка: %s</string>
+    <string name="wrong_login_or_password">Неверный логин или пароль</string>
+    <string name="request_failed">Ошибка запроса с кодом %d</string>
+    <string name="login_must_be_between">Логин должен содержать от 4 до 16 символов</string>
+    <string name="password_must_be_between">Пароль должен содержать от 8 до 24 символов</string>
+    <string name="invalid_email_format">Неверный формат электронной почты</string>
+    <string name="name_cannot_be_blank">Имя не может быть пустым</string>
+    <string name="error">Ошибка</string>
+    <string name="delete_avatar">Удалить аватар</string>
+    <string name="bot_greeting_topic1">Привет! Поговорим о распорядке дня. Как обычно проходит твой день?</string>
+    <string name="bot_greeting_topic2">Привет! Давай сосредоточимся на описании твоего любимого хобби. Расскажи о нём!</string>
+    <string name="bot_greeting_topic3">Привет! Поговорим о путешествиях. Куда бы ты хотел поехать на отдых?</string>
+    <string name="bot_greeting_topic4">Привет! Давай потренируемся говорить о еде. Какое твое любимое блюдо?</string>
+    <string name="coins">Монеты</string>
+    <string name="streak">Серия</string>
+    <string name="xp">Опыт</string>
+    <string name="your_statistics">Ваша статистика</string>
+    <string name="change_user_data">Изменить данные</string>
 </resources>

@@ -37,10 +37,10 @@ fun LoginMainScreen(
     val focusManager = LocalFocusManager.current
     val passwordFieldFocusRequester = rememberUpdatedState(FocusRequester())
     val keyboardController = LocalSoftwareKeyboardController.current
-    val showLoginIsEmpty = remember {
+    val isLoginEmpty = remember {
         mutableStateOf(false)
     }
-    val showPasswordIsEmpty = remember {
+    val isPasswordEmpty = remember {
         mutableStateOf(false)
     }
     Column(
@@ -61,7 +61,7 @@ fun LoginMainScreen(
                 onNext = {
                     passwordFieldFocusRequester.value.requestFocus()
                 },
-                showErrorText = showLoginIsEmpty.value,
+                showErrorText = isLoginEmpty.value,
             )
 
             LoginPasswordTextField(
@@ -75,7 +75,7 @@ fun LoginMainScreen(
                 focusManager = focusManager,
                 keyboardController = keyboardController,
                 onLoginUser = onLoginUser,
-                showErrorText = showPasswordIsEmpty.value
+                showErrorText = isPasswordEmpty.value
             )
             Spacer(modifier = Modifier.height(12.dp))
             LoginForgotPasswordLink(onClick = {
@@ -86,8 +86,8 @@ fun LoginMainScreen(
                 onClick = onLoginUser,
                 login,
                 password,
-                showLoginIsEmpty,
-                showPasswordIsEmpty,
+                isLoginEmpty,
+                isPasswordEmpty,
                 isLoading
             )
             Spacer(modifier = Modifier.height(8.dp))

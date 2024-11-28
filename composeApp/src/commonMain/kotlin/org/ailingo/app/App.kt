@@ -8,6 +8,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import app.cash.sqldelight.db.SqlDriver
 import coil3.compose.setSingletonImageLoaderFactory
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import org.ailingo.app.core.navigation.presentation.AppNavHost
 import org.ailingo.app.core.navigation.presentation.NavigationForDesktop
@@ -21,7 +22,7 @@ import org.ailingo.app.core.utils.windowinfo.util.PlatformName
 import org.ailingo.app.features.dictionary.history.domain.DictionaryRepository
 import org.ailingo.app.features.login.presentation.LoginViewModel
 import org.ailingo.app.features.registration.presentation.RegisterViewModel
-import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
+import org.ailingo.app.features.registration.presentation.uploadavatar.UploadAvatarViewModel
 
 @Composable
 internal fun App(
@@ -122,7 +123,7 @@ expect class DriverFactory {
     suspend fun createDriver(): SqlDriver
 }
 
-expect suspend fun selectImageWebAndDesktop(): String?
+expect fun selectImageWebAndDesktop(scope: CoroutineScope, callback: (String?) -> Unit)
 
 @Composable
 expect fun UploadAvatarForPhone(
