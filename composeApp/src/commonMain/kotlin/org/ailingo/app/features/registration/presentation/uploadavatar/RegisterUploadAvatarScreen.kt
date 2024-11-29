@@ -1,9 +1,12 @@
 package org.ailingo.app.features.registration.presentation.uploadavatar
 
+import ailingo.composeapp.generated.resources.Res
+import ailingo.composeapp.generated.resources.back
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.ailingo.app.features.registration.presentation.RegisterError
-import org.ailingo.app.features.registration.presentation.RegisterLoading
+import org.ailingo.app.core.utils.presentation.ErrorScreen
+import org.ailingo.app.core.utils.presentation.LoadingScreen
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun UploadAvatarScreen(
@@ -16,7 +19,7 @@ fun UploadAvatarScreen(
     uploadAvatarViewModel: UploadAvatarViewModel
 ) {
     val registerState = uploadAvatarViewModel.registerState.collectAsStateWithLifecycle()
-    when (registerState.value) {
+    when (val state = registerState.value) {
         RegisterApiState.Empty -> {
             RegisterUploadAvatarEmpty(
                 login = login,
@@ -29,17 +32,17 @@ fun UploadAvatarScreen(
         }
 
         is RegisterApiState.Error -> {
-            RegisterError(
-                errorMessage = (registerState.value as RegisterApiState.Error).message,
-                onBackToEmptyState = {
+            ErrorScreen(
+                errorMessage = state.message,
+                onButtonClick = {
                     uploadAvatarViewModel.onEvent(UploadAvatarEvent.OnBackToEmptyUploadAvatar)
-                    onNavigateToRegisterScreen()
-                }
+                },
+                buttonMessage = stringResource(Res.string.back)
             )
         }
 
         RegisterApiState.Loading -> {
-            RegisterLoading()
+            LoadingScreen()
         }
 
         is RegisterApiState.Success -> {

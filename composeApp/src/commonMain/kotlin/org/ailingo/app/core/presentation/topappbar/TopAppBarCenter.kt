@@ -1,4 +1,4 @@
-package org.ailingo.app.core.presentation
+package org.ailingo.app.core.presentation.topappbar
 
 import ailingo.composeapp.generated.resources.Res
 import ailingo.composeapp.generated.resources.ailingologowithoutbackground

@@ -1,4 +1,4 @@
-package org.ailingo.app.core.presentation
+package org.ailingo.app.core.presentation.topappbar
 
 import ailingo.composeapp.generated.resources.Res
 import ailingo.composeapp.generated.resources.ailingologowithoutbackground
@@ -112,8 +112,7 @@ fun TopAppBarWithProfile(
                                             )
                                     )
                                     Text(
-                                        text = loginState.login.first().uppercase()
-                                            .toString(),
+                                        text = loginState.login.first().uppercase(),
                                         style = MaterialTheme.typography.headlineSmall
                                     )
                                 }
@@ -135,8 +134,7 @@ fun TopAppBarWithProfile(
                                             )
                                     )
                                     Text(
-                                        text = loginState.login.first()?.uppercase()
-                                            .toString(),
+                                        text = loginState.login.first().uppercase(),
                                         style = MaterialTheme.typography.headlineSmall
                                     )
                                 }

@@ -149,6 +149,7 @@ fun AppNavHost(
         composable<ProfilePage> {
             ProfileScreen(
                 loginUiState = loginViewModel.loginState.collectAsStateWithLifecycle().value,
+                windowInfo = windowInfo,
                 onExit = {
                     loginViewModel.onEvent(LoginScreenEvent.OnBackToEmptyState)
                     navController.navigate(LoginPage) {

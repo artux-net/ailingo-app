@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -46,6 +47,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import org.ailingo.app.core.utils.presentation.ErrorScreen
+import org.ailingo.app.core.utils.presentation.LoadingScreen
+import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.login.presentation.LoginUiState
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -56,19 +60,25 @@ import org.jetbrains.compose.resources.stringResource
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     loginUiState: LoginUiState,
+    windowInfo: WindowInfo,
     onExit: () -> Unit
 ) {
     when (loginUiState) {
         is LoginUiState.Error -> {
-            ErrorProfileScreen(error = loginUiState.message)
+            ErrorScreen(errorMessage = loginUiState.message)
         }
 
         LoginUiState.Loading -> {
-            LoadingProfileScreen()
+            LoadingScreen()
         }
 
         is LoginUiState.Success -> {
-            ProfileContent(modifier = modifier, loginUiState = loginUiState, onExit = onExit)
+            ProfileContent(
+                modifier = modifier,
+                loginUiState = loginUiState,
+                onExit = onExit,
+                windowInfo = windowInfo
+            )
         }
 
         LoginUiState.Empty -> {}
@@ -78,6 +88,7 @@ fun ProfileScreen(
 @Composable
 fun ProfileContent(
     modifier: Modifier,
+    windowInfo: WindowInfo,
     loginUiState: LoginUiState.Success,
     onExit: () -> Unit
 ) {
@@ -95,13 +106,54 @@ fun ProfileContent(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         ProfileHeader(loginUiState)
-        Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            ProfileData(loginUiState, statisticCardHeight.value, statisticCardWidth.value)
-            ProfileStats(loginUiState, cardWidth = statisticCardWidth, cardHeight = statisticCardHeight, density = density)
+        if (windowInfo.screenWidthInfo == WindowInfo.WindowType.DesktopWindowInfo) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.CenterEnd
+                    ) {
+                        ProfileData(
+                            loginUiState = loginUiState,
+                            statisticsHeight = statisticCardHeight.value,
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        ProfileStats(
+                            loginUiState,
+                            cardWidth = statisticCardWidth,
+                            cardHeight = statisticCardHeight,
+                            density = density,
+                        )
+                    }
+                }
+            }
+        } else {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                ProfileData(
+                    loginUiState = loginUiState,
+                    statisticsHeight = statisticCardHeight.value,
+                )
+                ProfileStats(
+                    loginUiState,
+                    cardWidth = statisticCardWidth,
+                    cardHeight = statisticCardHeight,
+                    density = density,
+                )
+            }
         }
         ProfileChangeDataButton(statisticCardWidth.value)
         ProfileExitButton(onExit, statisticCardWidth.value)
@@ -147,24 +199,24 @@ fun ProfileHeader(loginUiState: LoginUiState.Success) {
 
 @Composable
 fun ProfileData(
+    modifier: Modifier = Modifier,
     loginUiState: LoginUiState.Success,
-    statisticCardHeight: Dp,
-    statisticCardWidth: Dp
+    statisticsHeight: Dp
 ) {
     Card(
         colors = CardDefaults
             .cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-        modifier = Modifier.height(statisticCardHeight).width(statisticCardWidth),
+        modifier = modifier
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.height(statisticCardHeight).width(statisticCardWidth),
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp).height(statisticsHeight)
         ) {
             Text(
                 loginUiState.name,
                 style = MaterialTheme.typography.displayMedium,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             Text(
                 loginUiState.login,
@@ -186,11 +238,12 @@ fun ProfileStats(
     loginUiState: LoginUiState.Success,
     cardWidth: MutableState<Dp>,
     cardHeight: MutableState<Dp>,
-    density: Density
+    density: Density,
+    modifier: Modifier = Modifier
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-        modifier = Modifier.onGloballyPositioned { coordinates ->
+        modifier = modifier.onGloballyPositioned { coordinates ->
             cardWidth.value = with(density) { coordinates.size.width.toDp() }
             cardHeight.value = with(density) { coordinates.size.height.toDp() }
         }) {

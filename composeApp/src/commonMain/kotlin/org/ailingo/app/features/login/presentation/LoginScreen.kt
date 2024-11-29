@@ -1,5 +1,7 @@
 package org.ailingo.app.features.login.presentation
 
+import ailingo.composeapp.generated.resources.Res
+import ailingo.composeapp.generated.resources.back
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -8,6 +10,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
+import org.ailingo.app.core.utils.presentation.ErrorScreen
+import org.ailingo.app.core.utils.presentation.LoadingScreen
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LoginScreen(
@@ -62,16 +67,17 @@ fun LoginScreen(
         }
 
         is LoginUiState.Error -> {
-            LoginErrorScreen(
-                onEmptyState = {
+            ErrorScreen(
+                onButtonClick = {
                     loginViewModel.onEvent(LoginScreenEvent.OnBackToEmptyState)
                 },
+                buttonMessage = stringResource(Res.string.back),
                 errorMessage = loginState.message
             )
         }
 
         LoginUiState.Loading -> {
-            LoginLoadingScreen()
+            LoadingScreen()
         }
 
         is LoginUiState.Success -> {

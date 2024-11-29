@@ -1,7 +1,5 @@
-package org.ailingo.app.features.login.presentation
+package org.ailingo.app.core.utils.presentation
 
-import ailingo.composeapp.generated.resources.Res
-import ailingo.composeapp.generated.resources.back
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,14 +15,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun LoginErrorScreen(
-    onEmptyState: () -> Unit,
-    errorMessage: String
+fun ErrorScreen(
+    modifier: Modifier = Modifier,
+    errorMessage: String,
+    buttonMessage: String? = null,
+    onButtonClick: (() -> Unit)? = null
 ) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
@@ -41,10 +40,12 @@ fun LoginErrorScreen(
                     modifier = Modifier.padding(16.dp)
                 )
             }
-            Button(
-                onClick = onEmptyState
-            ) {
-                Text(stringResource(Res.string.back))
+            if (buttonMessage != null && onButtonClick != null) {
+                Button(
+                    onClick = onButtonClick
+                ) {
+                    Text(buttonMessage)
+                }
             }
         }
     }

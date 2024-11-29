@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import org.ailingo.app.features.registration.utils.isValidEmail
+import org.ailingo.app.core.utils.auth.isValidEmail
 
 class RegisterViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(RegisterUiState(isLoading = false))
