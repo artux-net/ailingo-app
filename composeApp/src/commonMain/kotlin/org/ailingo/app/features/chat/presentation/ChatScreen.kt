@@ -17,7 +17,9 @@ import org.ailingo.app.features.chat.presentation.mobile.ChatScreenMobile
 @Composable
 fun ChatScreen(
     voiceToTextParser: VoiceToTextParser,
-    windowInfo: WindowInfo
+    windowInfo: WindowInfo,
+    login: String,
+    password: String
 ) {
     val voiceState = voiceToTextParser.voiceState.collectAsState()
 
@@ -49,8 +51,8 @@ fun ChatScreen(
             listState = listState,
             voiceState = voiceState,
             isActiveJob = isActiveJob,
-            onMessageSent = {
-                chatViewModel.onEvent(ChatScreenEvents.MessageSent(it))
+            onMessageSent = { message->
+                chatViewModel.onEvent(ChatScreenEvents.MessageSent(message = message, username = login, password = password))
                 userTextField = ""
             },
             onChatTextField = {
@@ -65,8 +67,8 @@ fun ChatScreen(
             listState = listState,
             voiceState = voiceState,
             isActiveJob = isActiveJob,
-            onMessageSent = {
-                chatViewModel.onEvent(ChatScreenEvents.MessageSent(it))
+            onMessageSent = { message->
+                chatViewModel.onEvent(ChatScreenEvents.MessageSent(message = message, username = login, password = password))
                 userTextField = ""
             },
             onChatTextField = {

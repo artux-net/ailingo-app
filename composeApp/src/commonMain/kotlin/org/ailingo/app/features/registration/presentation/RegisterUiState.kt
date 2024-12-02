@@ -1,14 +1,13 @@
 package org.ailingo.app.features.registration.presentation
 
-sealed class RegisterUiState {
-    data class Success(
-        val success: Boolean,
-        val code: Int,
-        val description: String,
-        val failure: Boolean
-    ) : RegisterUiState()
-
-    data class Error(val message: String) : RegisterUiState()
-    data object Loading : RegisterUiState()
-    data object Empty : RegisterUiState()
-}
+data class RegisterUiState(
+    val login: String = "",
+    val password: String = "",
+    val email: String = "",
+    val name: String = "",
+    val isLoginValid: Boolean = true,
+    val isPasswordValid: Boolean = true,
+    val isEmailValid: Boolean = true,
+    val isNameValid: Boolean = true,
+    val isLoading: Boolean = false
+)

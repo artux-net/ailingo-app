@@ -25,9 +25,9 @@ import org.ailingo.app.DictionaryPage
 import org.ailingo.app.LoginPage
 import org.ailingo.app.ProfilePage
 import org.ailingo.app.TopicsPage
-import org.ailingo.app.core.presentation.TopAppBarCenter
-import org.ailingo.app.core.presentation.TopAppBarWithProfile
 import org.ailingo.app.core.presentation.model.DrawerItems
+import org.ailingo.app.core.presentation.topappbar.TopAppBarCenter
+import org.ailingo.app.core.presentation.topappbar.TopAppBarWithProfile
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.login.presentation.LoginScreenEvent
 import org.ailingo.app.features.login.presentation.LoginViewModel
@@ -102,6 +102,7 @@ fun NavigationForDesktop(
                                             DrawerItems.Dictionary -> navController.navigate(
                                                 DictionaryPage
                                             )
+
                                             DrawerItems.Profile -> navController.navigate(
                                                 ProfilePage
                                             )

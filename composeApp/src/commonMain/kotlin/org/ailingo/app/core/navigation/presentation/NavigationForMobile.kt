@@ -34,8 +34,8 @@ import org.ailingo.app.DictionaryPage
 import org.ailingo.app.ProfilePage
 import org.ailingo.app.TopicsPage
 import org.ailingo.app.core.navigation.model.BottomNavigationItem
-import org.ailingo.app.core.presentation.TopAppBarCenter
-import org.ailingo.app.core.presentation.TopAppBarWithProfile
+import org.ailingo.app.core.presentation.topappbar.TopAppBarCenter
+import org.ailingo.app.core.presentation.topappbar.TopAppBarWithProfile
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.login.presentation.LoginViewModel
 import org.ailingo.app.theme.AppTheme

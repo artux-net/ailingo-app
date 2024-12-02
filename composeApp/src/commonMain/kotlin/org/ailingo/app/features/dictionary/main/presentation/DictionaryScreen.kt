@@ -29,8 +29,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.ailingo.app.features.dictionary.main.presentation.utils.ErrorDictionaryScreen
-import org.ailingo.app.features.dictionary.main.presentation.utils.LoadingDictionaryScreen
+import org.ailingo.app.core.utils.presentation.ErrorScreen
+import org.ailingo.app.core.utils.presentation.LoadingScreen
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -61,7 +61,11 @@ fun DictionaryScreen(
                     active = active,
                     searchBarHeight = searchBarHeight
                 ) { searchWord ->
-                    dictionaryViewModel.onEvent(DictionaryScreenEvents.SearchWordDefinition(searchWord))
+                    dictionaryViewModel.onEvent(
+                        DictionaryScreenEvents.SearchWordDefinition(
+                            searchWord
+                        )
+                    )
                 }
             }
             if (uiState.value is DictionaryUiState.Empty) {
@@ -70,7 +74,11 @@ fun DictionaryScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(14.dp).clickable {
                             textFieldValue.value = it.text
-                            dictionaryViewModel.onEvent(DictionaryScreenEvents.SearchWordDefinition(it.text))
+                            dictionaryViewModel.onEvent(
+                                DictionaryScreenEvents.SearchWordDefinition(
+                                    it.text
+                                )
+                            )
                             active.value = false
                         }
                     ) {
@@ -138,7 +146,7 @@ fun DictionaryScreen(
             }
         }
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            when (uiState.value) {
+            when (val state = uiState.value) {
                 DictionaryUiState.Empty -> {
                     if (historyState.value.isEmpty()) {
                         Box(
@@ -152,14 +160,14 @@ fun DictionaryScreen(
                 }
 
                 is DictionaryUiState.Error -> {
-                    ErrorDictionaryScreen(
-                        (uiState.value as DictionaryUiState.Error).message,
+                    ErrorScreen(
+                        errorMessage = state.message,
                         modifier = Modifier.padding(top = searchBarHeight.value.dp)
                     )
                 }
 
                 DictionaryUiState.Loading -> {
-                    LoadingDictionaryScreen(modifier = Modifier.padding(top = searchBarHeight.value.dp))
+                    LoadingScreen(modifier = Modifier.padding(top = searchBarHeight.value.dp))
                 }
 
                 else -> {}

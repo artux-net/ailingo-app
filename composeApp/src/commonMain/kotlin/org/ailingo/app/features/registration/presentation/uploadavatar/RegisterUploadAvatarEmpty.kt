@@ -1,4 +1,4 @@
-package org.ailingo.app.features.registration.presentation
+package org.ailingo.app.features.registration.presentation.uploadavatar
 
 import ailingo.composeapp.generated.resources.ArrowForwardIOS
 import ailingo.composeapp.generated.resources.Res
@@ -7,8 +7,8 @@ import ailingo.composeapp.generated.resources.choose_image
 import ailingo.composeapp.generated.resources.continue_app
 import ailingo.composeapp.generated.resources.continue_with_default_image
 import ailingo.composeapp.generated.resources.defaultProfilePhoto
+import ailingo.composeapp.generated.resources.delete_avatar
 import ailingo.composeapp.generated.resources.lets_add_your_avatar
-import ailingo.composeapp.generated.resources.lets_other_get_to_know_you
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -97,12 +97,6 @@ fun RegisterUploadAvatarEmpty(
                         stringResource(Res.string.lets_add_your_avatar),
                         style = MaterialTheme.typography.displaySmall
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        stringResource(Res.string.lets_other_get_to_know_you),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.DarkGray,
-                    )
                     Spacer(modifier = Modifier.height(32.dp))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(32.dp),
@@ -189,7 +183,12 @@ fun RegisterUploadAvatarEmpty(
                             OutlinedButton(
                                 onClick = {
                                     scope.launch {
-                                        base64Image = selectImageWebAndDesktop()
+                                        selectImageWebAndDesktop(
+                                            scope = scope,
+                                            callback = {
+                                                base64Image = it
+                                            }
+                                        )
                                     }
                                 },
                                 shape = MaterialTheme.shapes.small
@@ -210,7 +209,7 @@ fun RegisterUploadAvatarEmpty(
                                     shape = MaterialTheme.shapes.small
                                 ) {
                                     Text(
-                                        "Delete avatar",
+                                        stringResource(Res.string.delete_avatar),
                                         color = Color.Black
                                     )
                                 }

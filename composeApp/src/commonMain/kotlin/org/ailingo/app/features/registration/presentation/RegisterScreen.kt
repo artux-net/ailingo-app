@@ -4,11 +4,16 @@ import ailingo.composeapp.generated.resources.Res
 import ailingo.composeapp.generated.resources.already_have_an_account
 import ailingo.composeapp.generated.resources.create_your_account
 import ailingo.composeapp.generated.resources.email
+import ailingo.composeapp.generated.resources.error
+import ailingo.composeapp.generated.resources.invalid_email_format
 import ailingo.composeapp.generated.resources.log_in
 import ailingo.composeapp.generated.resources.login
+import ailingo.composeapp.generated.resources.login_must_be_between
 import ailingo.composeapp.generated.resources.name
+import ailingo.composeapp.generated.resources.name_cannot_be_blank
 import ailingo.composeapp.generated.resources.next
 import ailingo.composeapp.generated.resources.password
+import ailingo.composeapp.generated.resources.password_must_be_between
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,7 +33,6 @@ import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,10 +41,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -51,10 +53,10 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
+import org.ailingo.app.core.utils.presentation.LoadingScreen
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -68,76 +70,70 @@ fun RegisterScreen(
     ) -> Unit,
     registerViewModel: RegisterViewModel
 ) {
-    val login = registerViewModel.login
-    val password = registerViewModel.password
-    val email = registerViewModel.email
-    val name = registerViewModel.name
-    var isLoading by remember {
-        mutableStateOf(true)
-    }
-    LaunchedEffect(isLoading) {
-        if (isLoading) {
-            delay(500L) // just for cute ui
-            isLoading = false
-        }
-    }
-    var passwordVisible by rememberSaveable {
-        mutableStateOf(false)
-    }
-    val passwordFieldFocusRequester = rememberUpdatedState(FocusRequester())
-    val emailFieldFocusRequester = rememberUpdatedState(FocusRequester())
-    val nameFieldFocusRequester = rememberUpdatedState(FocusRequester())
-    var isLoginValid by remember {
-        mutableStateOf(false)
-    }
-    var isPasswordValid by remember {
-        mutableStateOf(false)
-    }
-    var isEmailValid by remember {
-        mutableStateOf(false)
-    }
-    var isNameValid by remember {
-        mutableStateOf(false)
-    }
+    val uiState by registerViewModel.uiState.collectAsStateWithLifecycle()
+    val isLoading = uiState.isLoading
 
-    fun onValidRegistrationForm(
-        login: MutableState<String>,
-        password: MutableState<String>,
-        email: MutableState<String>,
-        name: MutableState<String>,
-        invoker: () -> Unit
-    ) {
-        isLoading = true
-        isLoginValid = login.value.length in 4..16 && login.value.isNotEmpty()
-        isPasswordValid = password.value.length in 8..24 && password.value.isNotEmpty()
-        isEmailValid = isValidEmail(email.value) && email.value.isNotEmpty()
-        isNameValid = name.value.isNotEmpty()
-
-        if (isLoginValid && isPasswordValid && isEmailValid && isNameValid) {
-            invoker()
-        }
+    LaunchedEffect(Unit) {
+        registerViewModel.onLoadingChange(true)
+        delay(250) // Just for cute ui
+        registerViewModel.onLoadingChange(false)
     }
 
     if (isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
+        LoadingScreen()
     } else {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)
+        RegistrationFormContent(
+            onNavigateToLoginScreen,
+            onNavigateToUploadAvatarScreen,
+            registerViewModel,
+            uiState
+        )
+    }
+}
+
+@Composable
+fun RegistrationFormContent(
+    onNavigateToLoginScreen: () -> Unit,
+    onNavigateToUploadAvatarScreen: (login: String, password: String, email: String, name: String) -> Unit,
+    registerViewModel: RegisterViewModel,
+    uiState: RegisterUiState
+) {
+    val login = uiState.login
+    val password = uiState.password
+    val email = uiState.email
+    val name = uiState.name
+
+    var passwordVisible by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    val passwordFieldFocusRequester = rememberUpdatedState(FocusRequester())
+    val emailFieldFocusRequester = rememberUpdatedState(FocusRequester())
+    val nameFieldFocusRequester = rememberUpdatedState(FocusRequester())
+
+    val isLoginValid = uiState.isLoginValid
+    val isPasswordValid = uiState.isPasswordValid
+    val isEmailValid = uiState.isEmailValid
+    val isNameValid = uiState.isNameValid
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)
+    ) {
+        Text(
+            stringResource(Res.string.create_your_account),
+            style = MaterialTheme.typography.headlineLarge
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                stringResource(Res.string.create_your_account),
-                style = MaterialTheme.typography.headlineLarge
-            )
-            Spacer(modifier = Modifier.height(8.dp))
             Column {
                 OutlinedTextField(
-                    value = login.value,
+                    value = login,
                     onValueChange = {
-                        login.value = it
+                        registerViewModel.onLoginChange(it)
                     },
                     label = { Text(text = stringResource(Res.string.login)) },
                     singleLine = true,
@@ -150,31 +146,30 @@ fun RegisterScreen(
                             passwordFieldFocusRequester.value.requestFocus()
                         }
                     ),
-                    isError = isLoginValid,
+                    isError = !isLoginValid,
                     trailingIcon = {
-                        if (isLoginValid) {
+                        if (!isLoginValid) {
                             Icon(
                                 Icons.Filled.Error,
-                                "error",
+                                stringResource(Res.string.error),
                                 tint = MaterialTheme.colorScheme.error
                             )
                         }
                     }
                 )
-                if (isLoginValid) {
+                if (!isLoginValid) {
                     Text(
-                        "Login must be between 4 and 16 characters",
+                        stringResource(Res.string.login_must_be_between),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 4.dp, start = 16.dp)
+                        modifier = Modifier.padding(top = 4.dp)
                     )
                 }
-            }
-            Column {
+
                 OutlinedTextField(
-                    value = password.value,
+                    value = password,
                     onValueChange = {
-                        password.value = it
+                        registerViewModel.onPasswordChange(it)
                     },
                     label = { Text(text = stringResource(Res.string.password)) },
                     singleLine = true,
@@ -187,8 +182,7 @@ fun RegisterScreen(
                             emailFieldFocusRequester.value.requestFocus()
                         }
                     ),
-                    isError = isPasswordValid,
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    isError = !isPasswordValid,
                     trailingIcon = {
                         val icon =
                             if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
@@ -200,20 +194,19 @@ fun RegisterScreen(
                     },
                     modifier = Modifier.focusRequester(passwordFieldFocusRequester.value),
                 )
-                if (isPasswordValid) {
+                if (!isPasswordValid) {
                     Text(
-                        "Password must be between 8 and 24 characters",
+                        stringResource(Res.string.password_must_be_between),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 4.dp, start = 16.dp)
+                        modifier = Modifier.padding(top = 4.dp)
                     )
                 }
-            }
-            Column {
+
                 OutlinedTextField(
-                    value = email.value,
+                    value = email,
                     onValueChange = {
-                        email.value = it
+                        registerViewModel.onEmailChange(it)
                     },
                     label = { Text(text = stringResource(Res.string.email)) },
                     singleLine = true,
@@ -227,31 +220,30 @@ fun RegisterScreen(
                         }
                     ),
                     modifier = Modifier.focusRequester(emailFieldFocusRequester.value),
-                    isError = isEmailValid,
+                    isError = !isEmailValid,
                     trailingIcon = {
-                        if (isEmailValid) {
+                        if (!isEmailValid) {
                             Icon(
                                 Icons.Filled.Error,
-                                "error",
+                                stringResource(Res.string.error),
                                 tint = MaterialTheme.colorScheme.error
                             )
                         }
                     }
                 )
-                if (isEmailValid) {
+                if (!isEmailValid) {
                     Text(
-                        "Invalid email format",
+                        stringResource(Res.string.invalid_email_format),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 4.dp, start = 16.dp)
+                        modifier = Modifier.padding(top = 4.dp)
                     )
                 }
-            }
-            Column {
+
                 OutlinedTextField(
-                    value = name.value,
+                    value = name,
                     onValueChange = {
-                        name.value = it
+                        registerViewModel.onNameChange(it)
                     },
                     label = { Text(text = stringResource(Res.string.name)) },
                     singleLine = true,
@@ -261,85 +253,71 @@ fun RegisterScreen(
                     ),
                     keyboardActions = KeyboardActions(
                         onNext = {
-                            onValidRegistrationForm(login, password, email, name) {
+                            registerViewModel.register {
                                 onNavigateToUploadAvatarScreen(
-                                    login.value,
-                                    password.value,
-                                    email.value,
-                                    name.value
+                                    uiState.login,
+                                    uiState.password,
+                                    uiState.email,
+                                    uiState.name
                                 )
                             }
                         }
                     ),
                     modifier = Modifier.focusRequester(nameFieldFocusRequester.value),
-                    isError = isNameValid,
+                    isError = !isNameValid,
                     trailingIcon = {
-                        if (isNameValid) {
+                        if (!isNameValid) {
                             Icon(
                                 Icons.Filled.Error,
-                                "error",
+                                stringResource(Res.string.error),
                                 tint = MaterialTheme.colorScheme.error
                             )
                         }
                     }
                 )
-                if (isNameValid) {
+                if (!isNameValid) {
                     Text(
-                        "Name cannot be blank",
+                        stringResource(Res.string.name_cannot_be_blank),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 4.dp, start = 16.dp)
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    modifier = Modifier
+                        .width(OutlinedTextFieldDefaults.MinWidth)
+                        .height(OutlinedTextFieldDefaults.MinHeight),
+                    shape = MaterialTheme.shapes.small,
+                    onClick = {
+                        registerViewModel.register {
+                            onNavigateToUploadAvatarScreen(
+                                uiState.login,
+                                uiState.password,
+                                uiState.email,
+                                uiState.name
+                            )
+                        }
+                    }
+                ) {
+                    Text(stringResource(Res.string.next))
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Row {
+                    Text(
+                        stringResource(Res.string.already_have_an_account)
+                    )
+                    Text(" ")
+                    Text(
+                        color = MaterialTheme.colorScheme.primary,
+                        text = stringResource(Res.string.log_in),
+                        modifier = Modifier.clickable {
+                            onNavigateToLoginScreen()
+                        }
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                modifier = Modifier
-                    .width(OutlinedTextFieldDefaults.MinWidth)
-                    .height(OutlinedTextFieldDefaults.MinHeight),
-                shape = MaterialTheme.shapes.small,
-                onClick = {
-                    onValidRegistrationForm(
-                        login,
-                        password,
-                        email,
-                        name
-                    ) {
-                        onNavigateToUploadAvatarScreen(
-                            login.value,
-                            password.value,
-                            email.value,
-                            name.value
-                        )
-                    }
-                }
-            ) {
-                Text(stringResource(Res.string.next))
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Row {
-                Text(
-                    stringResource(Res.string.already_have_an_account)
-                )
-                Text(" ")
-                Text(
-                    color = MaterialTheme.colorScheme.primary,
-                    text = stringResource(Res.string.log_in),
-                    modifier = Modifier.clickable {
-                        onNavigateToLoginScreen()
-                    }
-                )
-            }
         }
     }
-
 }
-
-private fun isValidEmail(email: String): Boolean {
-    val emailRegex = "^[A-Za-z](.*)([@]{1})(.{1,})(\\.)(.{1,})"
-    return email.matches(emailRegex.toRegex())
-}
-
-
-

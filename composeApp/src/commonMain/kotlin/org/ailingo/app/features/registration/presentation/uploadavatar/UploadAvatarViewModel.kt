@@ -1,13 +1,22 @@
-package org.ailingo.app.features.registration.presentation
+package org.ailingo.app.features.registration.presentation.uploadavatar
 
 import AiLingo.composeApp.BuildConfig.API_ENDPOINT_USER
 import AiLingo.composeApp.BuildConfig.BASE_URL
 import AiLingo.composeApp.BuildConfig.BASE_URL_UPLOAD_IMAGE
 import AiLingo.composeApp.BuildConfig.UPLOAD_IMAGE_KEY
+import ailingo.composeapp.generated.resources.Res
+import ailingo.composeapp.generated.resources.connection_timeout
+import ailingo.composeapp.generated.resources.could_not_connect
+import ailingo.composeapp.generated.resources.request_timeout
+import ailingo.composeapp.generated.resources.unexpected_error
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.network.sockets.SocketTimeoutException
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.Logger
@@ -31,12 +40,13 @@ import kotlinx.serialization.json.Json
 import org.ailingo.app.features.registration.data.image.UploadImageResponse
 import org.ailingo.app.features.registration.data.model.SuccessRegister
 import org.ailingo.app.features.registration.data.model.UserRegistrationData
+import org.jetbrains.compose.resources.getString
 
 class UploadAvatarViewModel : ViewModel() {
     fun onEvent(event: UploadAvatarEvent) {
         when (event) {
             UploadAvatarEvent.OnBackToEmptyRegisterState -> {
-                _registerState.update { RegisterUiState.Empty }
+                _registerState.update { RegisterApiState.Empty }
             }
 
             UploadAvatarEvent.OnBackToEmptyUploadAvatar -> {
@@ -53,15 +63,21 @@ class UploadAvatarViewModel : ViewModel() {
         }
     }
 
-    private val _registerState = MutableStateFlow<RegisterUiState>(RegisterUiState.Empty)
-    val registerState: StateFlow<RegisterUiState> = _registerState.asStateFlow()
+    private val _registerState = MutableStateFlow<RegisterApiState>(RegisterApiState.Empty)
+    val registerState: StateFlow<RegisterApiState> = _registerState.asStateFlow()
 
     fun registerUser(user: UserRegistrationData) {
         viewModelScope.launch {
-            _registerState.value = RegisterUiState.Loading
+            _registerState.value = RegisterApiState.Loading
             val httpClient = HttpClient {
                 install(ContentNegotiation) {
                     json()
+                }
+                install(Logging)
+                install(HttpTimeout) {
+                    requestTimeoutMillis = 15000
+                    socketTimeoutMillis = 15000
+                    connectTimeoutMillis = 15000
                 }
             }
             try {
@@ -73,22 +89,32 @@ class UploadAvatarViewModel : ViewModel() {
                     response.status.isSuccess() -> {
                         val body = response.body<SuccessRegister>()
                         if (body.success) {
-                            RegisterUiState.Success(
+                            RegisterApiState.Success(
                                 body.success,
                                 body.code,
                                 body.description,
                                 body.failure
                             )
                         } else {
-                            RegisterUiState.Error(body.description)
+                            RegisterApiState.Error(body.description)
                         }
                     }
-
-                    else -> RegisterUiState.Error("Request failed with $response")
+                    else -> RegisterApiState.Error("Request failed with $response")
                 }
+            } catch (e: HttpRequestTimeoutException) {
+                _registerState.update { RegisterApiState.Error(getString(Res.string.request_timeout)) }
+            } catch (e: ConnectTimeoutException) {
+                _registerState.update { RegisterApiState.Error(getString(Res.string.could_not_connect)) }
+            } catch (e: SocketTimeoutException) {
+                _registerState.update { RegisterApiState.Error(getString(Res.string.connection_timeout)) }
             } catch (e: Exception) {
                 _registerState.update {
-                    RegisterUiState.Error(e.message.toString())
+                    RegisterApiState.Error(
+                        getString(
+                            Res.string.unexpected_error,
+                            e.message ?: ""
+                        )
+                    )
                 }
             } finally {
                 httpClient.close()

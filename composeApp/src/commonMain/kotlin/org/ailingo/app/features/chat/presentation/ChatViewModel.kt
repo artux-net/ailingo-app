@@ -1,6 +1,11 @@
 package org.ailingo.app.features.chat.presentation
 
 import AiLingo.composeApp.BuildConfig.BASE_URL
+import ailingo.composeapp.generated.resources.Res
+import ailingo.composeapp.generated.resources.bot_greeting_topic1
+import ailingo.composeapp.generated.resources.bot_greeting_topic2
+import ailingo.composeapp.generated.resources.bot_greeting_topic3
+import ailingo.composeapp.generated.resources.bot_greeting_topic4
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,6 +25,8 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.ailingo.app.core.utils.auth.basicAuthHeader
 import org.ailingo.app.features.chat.data.model.Message
+import org.jetbrains.compose.resources.getString
+import kotlin.random.Random
 
 class ChatViewModel : ViewModel() {
     private val _chatState = mutableStateListOf<Message>()
@@ -29,14 +36,18 @@ class ChatViewModel : ViewModel() {
     val isActiveJob = _isActiveJob.asSharedFlow()
 
     init {
-        _chatState.add(
-            Message("Привет, как я могу вам помочь?", false)
-        )
+        viewModelScope.launch {
+            val randomGreeting = when (Random.nextInt(4)) {
+                0 -> getString(Res.string.bot_greeting_topic1)
+                1 -> getString(Res.string.bot_greeting_topic2)
+                2 -> getString(Res.string.bot_greeting_topic3)
+                else -> getString(Res.string.bot_greeting_topic4)
+            }
+            _chatState.add(Message(randomGreeting, false))
+        }
     }
 
     private val API_ENDPOINT = "/api/v1/chat/message"
-    private val USERNAME = "admin"
-    private val PASSWORD = "pass"
 
     fun onEvent(event: ChatScreenEvents) {
         when (event) {
@@ -56,7 +67,7 @@ class ChatViewModel : ViewModel() {
                     }
                     try {
                         val response = localHttpClient.post("$BASE_URL$API_ENDPOINT") {
-                            header(HttpHeaders.Authorization, basicAuthHeader(USERNAME, PASSWORD))
+                            header(HttpHeaders.Authorization, basicAuthHeader(event.username, event.password))
                             header(HttpHeaders.ContentType, ContentType.Application.Json)
                             setBody(event.message)
                         }

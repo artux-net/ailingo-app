@@ -1,4 +1,4 @@
-package org.ailingo.app.features.registration.presentation
+package org.ailingo.app.features.registration.presentation.uploadavatar
 
 import org.ailingo.app.features.registration.data.model.UserRegistrationData
 

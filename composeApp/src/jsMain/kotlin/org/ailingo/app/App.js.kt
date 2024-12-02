@@ -8,10 +8,14 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.worker.WebWorkerDriver
 import kotlinx.browser.document
 import kotlinx.browser.window
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.await
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.ailingo.app.core.utils.windowinfo.util.PlatformName
 import org.ailingo.app.database.HistoryDictionaryDatabase
-import org.ailingo.app.features.registration.presentation.UploadAvatarViewModel
+import org.ailingo.app.features.registration.presentation.uploadavatar.UploadAvatarViewModel
 import org.w3c.dom.Audio
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.Worker
@@ -68,51 +72,57 @@ actual class DriverFactory {
     }
 }
 
-actual suspend fun selectImageWebAndDesktop(): String? {
-    val input = document.createElement("input") as HTMLInputElement
-    input.type = "file"
+actual fun selectImageWebAndDesktop(scope: CoroutineScope, callback: (String?) -> Unit) {
+    scope.launch {
+        val file = withContext(Dispatchers.Default) {
+            // Create a hidden input element
+            val input = document.createElement("input") as HTMLInputElement
+            input.type = "file"
+            input.accept = "image/*" // Accept only image files
+            input.style.display = "none"
+            document.body?.appendChild(input)
 
-    // Set accept attribute to limit file selection to images
-    input.accept = "image/jpg"
-    input.accept = "image/png"
-
-    // Use Promise to handle asynchronous file reading
-    val promise = Promise<String?> { resolve, _ ->
-        input.onchange = { _ ->
-            val file = input.files?.get(0)
-            if (file != null) {
-                readAsBase64(file) { base64String ->
-                    resolve(base64String)
+            // Wait for the user to select a file
+            var selectedFile: File? = null
+            val promise = Promise { resolve, reject ->
+                input.onchange = {
+                    selectedFile = input.files?.get(0)
+                    resolve(selectedFile)
                 }
-            } else {
-                resolve(null)
+                input.click() // Simulate a click to open the file picker
             }
+            promise.await()
+            input.remove()
+            selectedFile
+        }
+        val base64String = if (file == null) null else encodeFileToBase64(file)
+        withContext(Dispatchers.Main) {
+            callback(base64String)
         }
     }
-
-    // Simulate a click on the input element to trigger file selection
-    input.click()
-
-    // Return the result as a nullable base64 string
-    return promise.await()
 }
 
-private fun readAsBase64(file: File, callback: (String?) -> Unit) {
+private suspend fun encodeFileToBase64(file: File): String? = withContext(Dispatchers.Default){
     val reader = FileReader()
-
-    reader.onload = { _ ->
-        val result = reader.result as? String
-        val base64String = result?.substringAfter("base64,")
-        callback(base64String)
+    val promise = Promise<String> { resolve, reject ->
+        reader.onload = {
+            resolve((reader.result as String).substringAfter(","))
+        }
+        reader.onerror = { event ->
+            console.error("FileReader error: ", event)
+            reject(Exception("FileReader error: $event"))
+        }
+        reader.readAsDataURL(file)
     }
-
-    reader.onerror = { _ ->
-        callback(null)
+    try {
+        promise.await()
+    } catch (e: Throwable) {
+        console.error("Error encoding file to base64: ", e)
+        return@withContext null
     }
-
-    // Read the file as a data URL (base64)
-    reader.readAsDataURL(file)
 }
+
+
 
 @Composable
 actual fun UploadAvatarForPhone(
@@ -123,4 +133,6 @@ actual fun UploadAvatarForPhone(
     name: String,
     onNavigateToRegisterScreen: () -> Unit
 ) {
+
+
 }

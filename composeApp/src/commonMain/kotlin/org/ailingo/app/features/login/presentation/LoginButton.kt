@@ -30,11 +30,11 @@ fun LoginButton(
             .height(OutlinedTextFieldDefaults.MinHeight),
         shape = MaterialTheme.shapes.small,
         onClick = {
-            isLoading.value = true
             showLoginIsEmpty.value = login.isBlank()
             showPasswordIsEmpty.value = password.isBlank()
 
             if (login.isNotBlank() && password.isNotBlank()) {
+                isLoading.value = true
                 onClick()
             }
         },
