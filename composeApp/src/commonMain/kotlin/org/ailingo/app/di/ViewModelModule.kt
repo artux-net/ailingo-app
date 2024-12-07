@@ -7,8 +7,8 @@ import org.ailingo.app.features.registration.presentation.RegisterViewModel
 import org.koin.compose.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
-val sharedModule = module {
-    viewModel { LoginViewModel() }
+val viewModelModule = module {
+    viewModel { LoginViewModel(get(), get()) }
     viewModel { RegisterViewModel() }
     viewModel { ChatViewModel() }
     viewModel { DictionaryViewModel(get()) }
