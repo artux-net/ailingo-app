@@ -12,25 +12,29 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.ailingo.app.features.dictionary.examples.data.model.WordInfoItem
 import org.ailingo.app.features.dictionary.history.domain.DictionaryRepository
-import org.ailingo.app.features.dictionary.history.domain.HistoryDictionary
+import org.ailingo.app.features.dictionary.history.domain.HistoryDictionaryUiState
 import org.ailingo.app.features.dictionary.main.data.model.DictionaryResponse
 import org.ailingo.app.features.dictionary.predictor.data.PredictorResponse
 
 class DictionaryViewModel(
     private val historyDictionaryRepository: Deferred<DictionaryRepository>
 ) : ViewModel() {
+
+    private val _historyOfDictionaryState = MutableStateFlow<HistoryDictionaryUiState>(HistoryDictionaryUiState.Empty)
+    val historyOfDictionaryState = _historyOfDictionaryState.asStateFlow()
+
     private val httpClient = HttpClient {
         install(ContentNegotiation) {
             json(
@@ -38,6 +42,19 @@ class DictionaryViewModel(
                     ignoreUnknownKeys = true
                 }
             )
+        }
+    }
+
+    init {
+        loadHistory()
+    }
+
+    private fun loadHistory() {
+        _historyOfDictionaryState.value = HistoryDictionaryUiState.Loading
+        viewModelScope.launch {
+            historyDictionaryRepository.await().getDictionaryHistory().onEach { history ->
+                _historyOfDictionaryState.value = HistoryDictionaryUiState.Success(history)
+            }.launchIn(viewModelScope)
         }
     }
 
@@ -51,27 +68,8 @@ class DictionaryViewModel(
 
     private val predictorBaseUrl = "https://api.typewise.ai/latest/completion/complete"
 
-    private val _historyOfDictionaryState = MutableStateFlow<List<HistoryDictionary>>(emptyList())
-    val historyOfDictionaryState = _historyOfDictionaryState.asStateFlow()
-
     private var _items = MutableStateFlow<PredictorResponse?>(null)
     val items: StateFlow<PredictorResponse?> = _items.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            try {
-                val dictionaryRepository = historyDictionaryRepository.await()
-                dictionaryRepository.getDictionaryHistory().collectLatest { history ->
-                    _historyOfDictionaryState.update {
-                        history
-                    }
-                }
-            } catch (e: Exception) {
-                if (e is CancellationException) throw e
-                e.printStackTrace()
-            }
-        }
-    }
 
     fun onEvent(event: DictionaryScreenEvents) {
         when (event) {
@@ -90,8 +88,7 @@ class DictionaryViewModel(
             is DictionaryScreenEvents.SaveSearchedWord -> {
                 viewModelScope.launch {
                     try {
-                        val dictionaryRepository = historyDictionaryRepository.await()
-                        dictionaryRepository.insertWordToHistory(event.word)
+                        historyDictionaryRepository.await().insertWordToHistory(event.word)
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
@@ -134,8 +131,7 @@ class DictionaryViewModel(
             is DictionaryScreenEvents.DeleteFromHistory -> {
                 viewModelScope.launch {
                     try {
-                        val dictionaryRepository = historyDictionaryRepository.await()
-                        dictionaryRepository.deleteWordFromHistory(event.id)
+                        historyDictionaryRepository.await().deleteWordFromHistory(event.id)
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }

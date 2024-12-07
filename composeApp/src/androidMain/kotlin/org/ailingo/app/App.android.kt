@@ -14,7 +14,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import org.ailingo.app.core.utils.voice.VoiceToTextParser
-import org.ailingo.app.features.dictionary.history.di.AppModule
 
 class AndroidApp : Application() {
     companion object {
@@ -52,10 +51,8 @@ class AppActivity : ComponentActivity() {
             LaunchedEffect(key1 = recordAudioLauncher) {
                 recordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
             }
-
             App(
-                voiceToTextParser,
-                AppModule(this).dictionaryRepository
+                voiceToTextParser
             )
         }
     }
