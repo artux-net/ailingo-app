@@ -250,12 +250,3 @@ dependencies {
 
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.7")
 }
-kotlin {
-    sourceSets {
-        getByName("commonMain") {
-            dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-            }
-        }
-    }
-}

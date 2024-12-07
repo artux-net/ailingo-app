@@ -1,5 +1,9 @@
 package org.ailingo.app.features.dictionary.main.presentation
 
+import AiLingo.composeApp.BuildConfig.API_KEY_DICTIONARY
+import AiLingo.composeApp.BuildConfig.BASE_URL_FREE_DICTIONARY
+import AiLingo.composeApp.BuildConfig.BASE_URL_YANEX_DICTIONARY
+import AiLingo.composeApp.BuildConfig.PREDICTOR_BASE_URL
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.ktor.client.HttpClient
@@ -32,7 +36,7 @@ class DictionaryViewModel(
     private val historyDictionaryRepository: Deferred<DictionaryRepository>
 ) : ViewModel() {
 
-    private val _historyOfDictionaryState = MutableStateFlow<HistoryDictionaryUiState>(HistoryDictionaryUiState.Empty)
+    private val _historyOfDictionaryState = MutableStateFlow<HistoryDictionaryUiState>(HistoryDictionaryUiState.Loading)
     val historyOfDictionaryState = _historyOfDictionaryState.asStateFlow()
 
     private val httpClient = HttpClient {
@@ -58,15 +62,8 @@ class DictionaryViewModel(
         }
     }
 
-    private val apiKeyDictionary =
-        "dict.1.1.20231102T140345Z.9979700cf66f91d0.b210308b827953080f07e8f2e12779e2486d2695"
-    private val baseUrl = "https://dictionary.yandex.net/api/v1/dicservice.json/lookup"
-    private val baseFreeDictionaryUrl = "https://api.dictionaryapi.dev/api/v2/entries/en"
-
     private val _uiState = MutableStateFlow<DictionaryUiState>(DictionaryUiState.Empty)
     val uiState: StateFlow<DictionaryUiState> = _uiState.asStateFlow()
-
-    private val predictorBaseUrl = "https://api.typewise.ai/latest/completion/complete"
 
     private var _items = MutableStateFlow<PredictorResponse?>(null)
     val items: StateFlow<PredictorResponse?> = _items.asStateFlow()
@@ -75,7 +72,7 @@ class DictionaryViewModel(
         when (event) {
             is DictionaryScreenEvents.PredictNextWords -> {
                 viewModelScope.launch {
-                    val response = httpClient.post(predictorBaseUrl) {
+                    val response = httpClient.post(PREDICTOR_BASE_URL) {
                         header(HttpHeaders.ContentType, ContentType.Application.Json)
                         setBody(event.request)
                     }
@@ -102,7 +99,7 @@ class DictionaryViewModel(
 
                         val deferredResponse = async {
                             try {
-                                httpClient.get("$baseUrl?key=$apiKeyDictionary&lang=en-ru&text=${event.word}")
+                                httpClient.get("$BASE_URL_YANEX_DICTIONARY?key=$API_KEY_DICTIONARY&lang=en-ru&text=${event.word}")
                                     .body<DictionaryResponse>()
                             } catch (e: Exception) {
                                 DictionaryResponse(emptyList())
@@ -111,7 +108,7 @@ class DictionaryViewModel(
 
                         val deferredResponseExample = async {
                             try {
-                                httpClient.get("$baseFreeDictionaryUrl/${event.word}")
+                                httpClient.get("$BASE_URL_FREE_DICTIONARY/${event.word}")
                                     .body<List<WordInfoItem>>()
                             } catch (e: Exception) {
                                 emptyList()

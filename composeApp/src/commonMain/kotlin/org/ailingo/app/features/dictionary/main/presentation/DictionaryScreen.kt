@@ -70,15 +70,18 @@ fun DictionaryScreen(
             }
             if (uiState.value is DictionaryUiState.Empty) {
                 when (val historyState = historyViewModelState.value) {
-                    HistoryDictionaryUiState.Empty -> {}
-                    is HistoryDictionaryUiState.Error -> {}
+                    is HistoryDictionaryUiState.Error -> {
+                        item {
+                            ErrorScreen(errorMessage =  historyState.message)
+                        }
+                    }
                     HistoryDictionaryUiState.Loading -> {
                         item {
                             LoadingScreen()
                         }
                     }
                     is HistoryDictionaryUiState.Success -> {
-                        items(historyState.history) {
+                        items(historyState.history.reversed()) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.padding(14.dp).clickable {
