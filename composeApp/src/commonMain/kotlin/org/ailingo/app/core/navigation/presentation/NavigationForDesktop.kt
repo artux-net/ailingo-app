@@ -12,8 +12,11 @@ import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -57,6 +60,33 @@ fun NavigationForDesktop(
         }
     } ?: false
 
+    val items = listOf(
+        DrawerItems.ChatMode,
+        DrawerItems.Topics,
+        DrawerItems.Dictionary,
+        DrawerItems.Profile,
+        DrawerItems.Exit,
+    )
+
+    var selectedItemIndex by rememberSaveable { mutableStateOf(0) }
+
+    LaunchedEffect(currentDestination) {
+        currentDestination?.let { destination ->
+            val matchingItemIndex = items.indexOfFirst { item ->
+                when (item) {
+                    DrawerItems.ChatMode -> destination.hasRoute(ChatPage::class)
+                    DrawerItems.Topics -> destination.hasRoute(TopicsPage::class)
+                    DrawerItems.Dictionary -> destination.hasRoute(DictionaryPage::class)
+                    DrawerItems.Profile -> destination.hasRoute(ProfilePage::class)
+                    else -> false
+                }
+            }
+            if (matchingItemIndex != -1 && matchingItemIndex != selectedItemIndex) {
+                selectedItemIndex = matchingItemIndex
+            }
+        }
+    }
+
     AppTheme {
         Scaffold(
             topBar = {
@@ -73,29 +103,19 @@ fun NavigationForDesktop(
                 modifier = Modifier,
                 drawerContent = {
                     if (isNavigationDrawerVisible) {
-                        val items = listOf(
-                            DrawerItems.ChatMode,
-                            DrawerItems.Topics,
-                            DrawerItems.Dictionary,
-                            DrawerItems.Profile,
-                            DrawerItems.Exit,
-                        )
-                        val selectedItem = remember { mutableStateOf(items[0]) }
-
                         PermanentDrawerSheet(
                             modifier = Modifier.padding(top = 64.dp).width(350.dp).fillMaxHeight(),
                             drawerContainerColor = Color.White
                         ) {
-                            items.forEach { item ->
+                            items.forEachIndexed { index, item ->
                                 if (item == DrawerItems.Exit) {
                                     Spacer(modifier = Modifier.weight(1f))
                                 }
                                 NavigationDrawerItem(
                                     icon = { Icon(item.icon, contentDescription = null) },
                                     label = { Text(stringResource(item.title)) },
-                                    selected = item == selectedItem.value,
+                                    selected = selectedItemIndex == index,
                                     onClick = {
-                                        selectedItem.value = item
                                         when (item) {
                                             DrawerItems.ChatMode -> navController.navigate(ChatPage)
                                             DrawerItems.Topics -> navController.navigate(TopicsPage)

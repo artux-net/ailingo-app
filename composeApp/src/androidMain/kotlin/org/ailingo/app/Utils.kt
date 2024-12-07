@@ -55,13 +55,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import app.cash.sqldelight.async.coroutines.synchronous
-import app.cash.sqldelight.db.SqlDriver
-import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.CoroutineScope
 import org.ailingo.app.core.utils.windowinfo.util.PlatformName
-import org.ailingo.app.database.HistoryDictionaryDatabase
 import org.ailingo.app.features.registration.data.model.UserRegistrationData
 import org.ailingo.app.features.registration.presentation.uploadavatar.UploadAvatarViewModel
 import org.ailingo.app.features.registration.presentation.uploadavatar.UploadImageUiState
@@ -93,16 +89,6 @@ actual fun playSound(sound: String) {
 internal actual fun getConfiguration(): Pair<Int, Int> {
     val configuration = LocalConfiguration.current
     return Pair(configuration.screenWidthDp, configuration.screenHeightDp)
-}
-
-actual class DriverFactory(private val context: Context) {
-    actual suspend fun createDriver(): SqlDriver {
-        return AndroidSqliteDriver(
-            HistoryDictionaryDatabase.Schema.synchronous(),
-            context,
-            "historyDictionary.db"
-        )
-    }
 }
 
 @Composable

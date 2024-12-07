@@ -4,8 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
-import app.cash.sqldelight.db.SqlDriver
-import app.cash.sqldelight.driver.worker.WebWorkerDriver
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
@@ -14,11 +12,9 @@ import kotlinx.coroutines.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.ailingo.app.core.utils.windowinfo.util.PlatformName
-import org.ailingo.app.database.HistoryDictionaryDatabase
 import org.ailingo.app.features.registration.presentation.uploadavatar.UploadAvatarViewModel
 import org.w3c.dom.Audio
 import org.w3c.dom.HTMLInputElement
-import org.w3c.dom.Worker
 import org.w3c.files.File
 import org.w3c.files.FileReader
 import org.w3c.files.get
@@ -62,16 +58,6 @@ internal actual fun getConfiguration(): Pair<Int, Int> {
     return Pair(width.toInt(), height.toInt())
 }
 
-actual class DriverFactory {
-    actual suspend fun createDriver(): SqlDriver {
-        return WebWorkerDriver(
-            Worker(
-                js("""new URL("sqlite.worker.js", import.meta.url)""")
-            )
-        ).also { HistoryDictionaryDatabase.Schema.create(it).await() }
-    }
-}
-
 actual fun selectImageWebAndDesktop(scope: CoroutineScope, callback: (String?) -> Unit) {
     scope.launch {
         val file = withContext(Dispatchers.Default) {
@@ -102,7 +88,7 @@ actual fun selectImageWebAndDesktop(scope: CoroutineScope, callback: (String?) -
     }
 }
 
-private suspend fun encodeFileToBase64(file: File): String? = withContext(Dispatchers.Default){
+private suspend fun encodeFileToBase64(file: File): String? = withContext(Dispatchers.Default) {
     val reader = FileReader()
     val promise = Promise<String> { resolve, reject ->
         reader.onload = {
@@ -123,7 +109,6 @@ private suspend fun encodeFileToBase64(file: File): String? = withContext(Dispat
 }
 
 
-
 @Composable
 actual fun UploadAvatarForPhone(
     uploadAvatarViewModel: UploadAvatarViewModel,
@@ -133,6 +118,4 @@ actual fun UploadAvatarForPhone(
     name: String,
     onNavigateToRegisterScreen: () -> Unit
 ) {
-
-
 }

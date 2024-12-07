@@ -13,7 +13,7 @@ class DictionaryRepositoryImpl(
     db: HistoryDictionaryDatabase
 ) : DictionaryRepository {
 
-    private val queries = db.historydictionaryQueries
+    private val queries = db.historyDictionaryDatabaseQueries
 
     override fun getDictionaryHistory(): Flow<List<HistoryDictionary>> {
         val response = queries
@@ -25,7 +25,6 @@ class DictionaryRepositoryImpl(
                     historyEntity.toHistoryDictionary()
                 }
             }
-        println(response.toString())
         return response
     }
 

@@ -8,12 +8,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.viewmodel.compose.viewModel
 import org.ailingo.app.core.utils.voice.VoiceToTextParser
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.chat.presentation.desktop.ChatScreenDesktop
 import org.ailingo.app.features.chat.presentation.mobile.ChatScreenMobile
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun ChatScreen(
     voiceToTextParser: VoiceToTextParser,
@@ -26,8 +28,7 @@ fun ChatScreen(
     var userTextField by rememberSaveable {
         mutableStateOf("")
     }
-
-    val chatViewModel: ChatViewModel = viewModel { ChatViewModel() }
+    val chatViewModel = koinViewModel<ChatViewModel>()
     val chatState = chatViewModel.chatState
     val isActiveJob = chatViewModel.isActiveJob.collectAsState(false)
 

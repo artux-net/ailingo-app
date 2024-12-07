@@ -2,6 +2,8 @@ package org.ailingo.app
 
 import android.Manifest
 import android.app.Application
+import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -14,7 +16,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import org.ailingo.app.core.utils.voice.VoiceToTextParser
-import org.ailingo.app.features.dictionary.history.di.AppModule
+import org.ailingo.app.di.initKoin
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.logger.Level
 
 class AndroidApp : Application() {
     companion object {
@@ -23,16 +28,21 @@ class AndroidApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        initKoin {
+            androidLogger(if (isDebug()) Level.ERROR else Level.NONE)
+            androidContext(this@AndroidApp)
+        }
         INSTANCE = this
     }
 }
+
+fun Context.isDebug() = 0 != applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE
 
 class AppActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         actionBar?.hide()
-
         setContent {
             var canRecord by remember {
                 mutableStateOf(false)
@@ -54,8 +64,7 @@ class AppActivity : ComponentActivity() {
             }
 
             App(
-                voiceToTextParser,
-                AppModule(this).dictionaryRepository
+                voiceToTextParser
             )
         }
     }
