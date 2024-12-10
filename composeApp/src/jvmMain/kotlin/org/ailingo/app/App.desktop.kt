@@ -3,8 +3,6 @@ package org.ailingo.app
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalWindowInfo
-import app.cash.sqldelight.db.SqlDriver
-import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import javazoom.jl.player.advanced.AdvancedPlayer
 import javazoom.jl.player.advanced.PlaybackEvent
 import javazoom.jl.player.advanced.PlaybackListener
@@ -19,7 +17,6 @@ import kotlinx.coroutines.swing.Swing
 import kotlinx.coroutines.withContext
 import org.ailingo.app.core.utils.voice.VoiceStates
 import org.ailingo.app.core.utils.windowinfo.util.PlatformName
-import org.ailingo.app.database.HistoryDictionaryDatabase
 import org.ailingo.app.features.registration.presentation.uploadavatar.UploadAvatarViewModel
 import java.awt.Desktop
 import java.io.BufferedInputStream
@@ -141,17 +138,6 @@ internal actual fun playSound(sound: String) {
 internal actual fun getConfiguration(): Pair<Int, Int> {
     val containerSize = LocalWindowInfo.current.containerSize
     return Pair(containerSize.width, containerSize.height)
-}
-
-actual class DriverFactory {
-    actual suspend fun createDriver(): SqlDriver {
-        val driver =
-            JdbcSqliteDriver(url = "jdbc:sqlite:dictionary_database.db")
-                .also {
-                    HistoryDictionaryDatabase.Schema.create(driver = it).await()
-                }
-        return driver
-    }
 }
 
 actual fun selectImageWebAndDesktop(scope: CoroutineScope, callback: (String?) -> Unit) {

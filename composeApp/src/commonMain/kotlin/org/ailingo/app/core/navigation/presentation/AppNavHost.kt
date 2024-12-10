@@ -5,12 +5,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import kotlinx.coroutines.Deferred
 import org.ailingo.app.ChatPage
 import org.ailingo.app.DictionaryPage
 import org.ailingo.app.GetStartedPage
@@ -23,7 +21,6 @@ import org.ailingo.app.UploadAvatarPage
 import org.ailingo.app.core.utils.voice.VoiceToTextParser
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.chat.presentation.ChatScreen
-import org.ailingo.app.features.dictionary.history.domain.DictionaryRepository
 import org.ailingo.app.features.dictionary.main.presentation.DictionaryScreen
 import org.ailingo.app.features.dictionary.main.presentation.DictionaryViewModel
 import org.ailingo.app.features.introduction.presentation.GetStartedScreen
@@ -37,14 +34,16 @@ import org.ailingo.app.features.registration.presentation.uploadavatar.UploadAva
 import org.ailingo.app.features.registration.presentation.uploadavatar.UploadAvatarViewModel
 import org.ailingo.app.features.resetpass.presentation.ResetPasswordScreen
 import org.ailingo.app.features.topics.presentation.TopicsScreen
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun AppNavHost(
     navController: NavHostController,
     loginViewModel: LoginViewModel,
     voiceToTextParser: VoiceToTextParser,
     registerViewModel: RegisterViewModel,
-    dictionaryLocalDataBase: Deferred<DictionaryRepository>,
     innerPadding: PaddingValues,
     windowInfo: WindowInfo,
     modifier: Modifier = Modifier
@@ -114,7 +113,7 @@ fun AppNavHost(
         }
         composable<UploadAvatarPage> { backStackEntry ->
             val args = backStackEntry.toRoute<UploadAvatarPage>()
-            val uploadAvatarViewModel: UploadAvatarViewModel = viewModel { UploadAvatarViewModel() }
+            val uploadAvatarViewModel: UploadAvatarViewModel = koinViewModel<UploadAvatarViewModel>()
             UploadAvatarScreen(
                 login = args.login,
                 password = args.password,
@@ -139,11 +138,7 @@ fun AppNavHost(
             TopicsScreen(windowInfo = windowInfo)
         }
         composable<DictionaryPage> {
-            val dictionaryViewModel: DictionaryViewModel = viewModel {
-                DictionaryViewModel(
-                    dictionaryLocalDataBase
-                )
-            }
+            val dictionaryViewModel: DictionaryViewModel = koinViewModel<DictionaryViewModel>()
             DictionaryScreen(dictionaryViewModel)
         }
         composable<ProfilePage> {

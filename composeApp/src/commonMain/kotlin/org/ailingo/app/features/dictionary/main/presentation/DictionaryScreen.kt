@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.ailingo.app.core.utils.presentation.ErrorScreen
 import org.ailingo.app.core.utils.presentation.LoadingScreen
+import org.ailingo.app.features.dictionary.history.domain.HistoryDictionaryUiState
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -39,8 +40,7 @@ fun DictionaryScreen(
     dictionaryViewModel: DictionaryViewModel
 ) {
     val uiState = dictionaryViewModel.uiState.collectAsState()
-
-    val historyState = dictionaryViewModel.historyOfDictionaryState.collectAsState()
+    val historyViewModelState = dictionaryViewModel.historyOfDictionaryState.collectAsState()
     val textFieldValue = rememberSaveable { mutableStateOf("") }
     val active = remember {
         mutableStateOf(false)
@@ -69,25 +69,40 @@ fun DictionaryScreen(
                 }
             }
             if (uiState.value is DictionaryUiState.Empty) {
-                items(historyState.value) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(14.dp).clickable {
-                            textFieldValue.value = it.text
-                            dictionaryViewModel.onEvent(
-                                DictionaryScreenEvents.SearchWordDefinition(
-                                    it.text
-                                )
-                            )
-                            active.value = false
+                when (val historyState = historyViewModelState.value) {
+                    is HistoryDictionaryUiState.Error -> {
+                        item {
+                            ErrorScreen(errorMessage =  historyState.message)
                         }
-                    ) {
-                        Icon(
-                            modifier = Modifier.padding(end = 10.dp),
-                            imageVector = Icons.Default.History,
-                            contentDescription = null
-                        )
-                        Text(text = it.text)
+                    }
+                    HistoryDictionaryUiState.Loading -> {
+                        item {
+                            LoadingScreen()
+                        }
+                    }
+                    is HistoryDictionaryUiState.Success -> {
+                        items(historyState.history.reversed()) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(14.dp).clickable {
+                                    textFieldValue.value = it.text
+                                    dictionaryViewModel.onEvent(
+                                        DictionaryScreenEvents.SearchWordDefinition(
+                                            it.text
+                                        )
+                                    )
+                                    active.value = false
+                                }
+                            ) {
+                                Icon(
+                                    modifier = Modifier.padding(end = 10.dp),
+                                    imageVector = Icons.Default.History,
+                                    contentDescription = null
+                                )
+                                Text(text = it.text)
+                            }
+                        }
+
                     }
                 }
             }
@@ -148,7 +163,7 @@ fun DictionaryScreen(
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             when (val state = uiState.value) {
                 DictionaryUiState.Empty -> {
-                    if (historyState.value.isEmpty()) {
+                    if (historyViewModelState.value is HistoryDictionaryUiState.Success && (historyViewModelState.value as HistoryDictionaryUiState.Success).history.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize()
                                 .padding(top = searchBarHeight.value.dp),
