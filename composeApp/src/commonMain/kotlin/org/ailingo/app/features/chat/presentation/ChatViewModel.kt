@@ -21,15 +21,15 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import org.ailingo.app.di.NetworkErrorMapper
-import org.ailingo.app.features.auth.domain.TokenRepository
+import org.ailingo.app.di.ErrorMapper
 import org.ailingo.app.features.chat.data.model.Message
+import org.ailingo.app.features.jwt.domain.repository.TokenRepository
 import org.jetbrains.compose.resources.getString
 import kotlin.random.Random
 
 class ChatViewModel(
     private val httpClient: HttpClient,
-    private val errorMapper: NetworkErrorMapper,
+    private val errorMapper: ErrorMapper,
     private val tokenRepositoryDeferred: Deferred<TokenRepository>
 ) : ViewModel() {
     private val _chatState = mutableStateListOf<Message>()

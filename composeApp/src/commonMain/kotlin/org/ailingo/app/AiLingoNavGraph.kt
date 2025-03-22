@@ -2,7 +2,6 @@ package org.ailingo.app
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
@@ -15,20 +14,19 @@ import org.ailingo.app.core.utils.voice.VoiceToTextParser
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.core.utils.windowinfo.info.rememberWindowInfo
 import org.ailingo.app.features.login.presentation.LoginViewModel
-import org.ailingo.app.features.registration.presentation.RegisterViewModel
+import org.ailingo.app.features.registration.presentation.RegisterUserViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
 fun AiLingoNavGraph(
-    modifier: Modifier = Modifier,
     voiceToTextParser: VoiceToTextParser,
     navController: NavHostController = rememberNavController()
 ) {
     val loginViewModel: LoginViewModel = koinViewModel<LoginViewModel>()
     val loginState = loginViewModel.loginState.collectAsStateWithLifecycle().value
-    val registerViewModel: RegisterViewModel = koinViewModel<RegisterViewModel>()
+    val registerViewModel: RegisterUserViewModel = koinViewModel<RegisterUserViewModel>()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
@@ -38,6 +36,7 @@ fun AiLingoNavGraph(
         TopicsPage::class,
         ProfilePage::class,
         ProfileUpdatePage::class,
+        FavouriteWordsPage::class,
     )
 
     val isTopAppBarWithProfileVisible = currentDestination?.let { dest ->
@@ -48,10 +47,8 @@ fun AiLingoNavGraph(
 
     val routesWithStandardTopAppBar = listOf(
         LoginPage::class,
-        RegisterPage::class,
-        UploadAvatarPage::class,
-        GetStartedPage::class,
-        ResetPasswordPage::class
+        RegistrationPage::class,
+        GetStartedPage::class
     )
 
     val isStandardCenterTopAppBarVisible = currentDestination?.let { dest ->
@@ -76,7 +73,7 @@ fun AiLingoNavGraph(
                 loginViewModel = loginViewModel,
                 loginState = loginState,
                 voiceToTextParser = voiceToTextParser,
-                registerViewModel = registerViewModel,
+                registrationViewModel = registerViewModel,
                 innerPadding = innerPadding,
                 windowInfo = windowInfo
             )
@@ -95,7 +92,7 @@ fun AiLingoNavGraph(
                 loginViewModel = loginViewModel,
                 loginState = loginState,
                 voiceToTextParser = voiceToTextParser,
-                registerViewModel = registerViewModel,
+                registrationViewModel = registerViewModel,
                 innerPadding = innerPadding,
                 windowInfo = windowInfo
             )

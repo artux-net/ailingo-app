@@ -1,38 +1,40 @@
 package org.ailingo.app.features.registration.presentation
 
 import ailingo.composeapp.generated.resources.Res
-import ailingo.composeapp.generated.resources.already_have_an_account
-import ailingo.composeapp.generated.resources.create_your_account
+import ailingo.composeapp.generated.resources.already_have_account
+import ailingo.composeapp.generated.resources.continue_app
 import ailingo.composeapp.generated.resources.email
-import ailingo.composeapp.generated.resources.error
-import ailingo.composeapp.generated.resources.invalid_email_format
-import ailingo.composeapp.generated.resources.log_in
+import ailingo.composeapp.generated.resources.email_invalid
+import ailingo.composeapp.generated.resources.enter_password
+import ailingo.composeapp.generated.resources.enter_your_email
+import ailingo.composeapp.generated.resources.enter_your_login
+import ailingo.composeapp.generated.resources.enter_your_name
 import ailingo.composeapp.generated.resources.login
-import ailingo.composeapp.generated.resources.login_must_be_between
-import ailingo.composeapp.generated.resources.name
-import ailingo.composeapp.generated.resources.name_cannot_be_blank
-import ailingo.composeapp.generated.resources.next
+import ailingo.composeapp.generated.resources.login_invalid
+import ailingo.composeapp.generated.resources.name_invalid
 import ailingo.composeapp.generated.resources.password
-import ailingo.composeapp.generated.resources.password_must_be_between
+import ailingo.composeapp.generated.resources.password_invalid
+import ailingo.composeapp.generated.resources.register_subtitle
+import ailingo.composeapp.generated.resources.register_title
+import ailingo.composeapp.generated.resources.username
+import ailingo.composeapp.generated.resources.visibility
+import ailingo.composeapp.generated.resources.visibility_off
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,281 +45,290 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.delay
-import org.ailingo.app.core.utils.presentation.LoadingScreen
+import org.ailingo.app.core.presentation.UiState
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun RegisterScreen(
-    onNavigateToLoginScreen: () -> Unit,
-    onNavigateToUploadAvatarScreen: (
-        login: String,
-        password: String,
-        email: String,
-        name: String
-    ) -> Unit,
-    registerViewModel: RegisterViewModel
+fun RegistrationScreen(
+    onNavigateToLoginPage: () -> Unit,
+    onNavigateToVerifyEmail: (email: String, password: String) -> Unit,
+    onRegisterUser: (login: String, password: String, email: String, name: String) -> Unit,
+    pendingRegistrationState: UiState<Unit>,
+    onBackRegistrationState: () -> Unit
 ) {
-    val uiState by registerViewModel.uiState.collectAsStateWithLifecycle()
-    val isLoading = uiState.isLoading
+    var login by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        registerViewModel.onLoadingChange(true)
-        delay(250) // Just for cute ui
-        registerViewModel.onLoadingChange(false)
-    }
+    var isLoginValid by remember { mutableStateOf(true) }
+    var isNameValid by remember { mutableStateOf(true) }
+    var isEmailValid by remember { mutableStateOf(true) }
+    var isPasswordValid by remember { mutableStateOf(true) }
 
-    if (isLoading) {
-        LoadingScreen()
-    } else {
-        RegistrationFormContent(
-            onNavigateToLoginScreen,
-            onNavigateToUploadAvatarScreen,
-            registerViewModel,
-            uiState
-        )
+    RegistrationContent(
+        login = login,
+        name = name,
+        email = email,
+        password = password,
+        passwordVisible = passwordVisible,
+        isLoginValid = isLoginValid,
+        isNameValid = isNameValid,
+        isEmailValid = isEmailValid,
+        isPasswordValid = isPasswordValid,
+        onLoginChange = { newLogin ->
+            login = newLogin.trim()
+        },
+        onNameChange = { newName ->
+            name = newName.trim()
+        },
+        onEmailChange = { newEmail ->
+            email = newEmail.trim()
+        },
+        onPasswordChange = { newPassword ->
+            password = newPassword.trim()
+        },
+        onPasswordVisibleChange = { newPasswordVisible ->
+            passwordVisible = newPasswordVisible
+        },
+        onNavigateToLoginPage = onNavigateToLoginPage,
+        onRegisterClick = {
+            isNameValid = name.length in 2..24 && name.isNotBlank()
+            isEmailValid = isValidEmail(email)
+            isPasswordValid = password.length in 8..24 && password.isNotBlank()
+            isLoginValid = login.length in 4..16 && password.isNotBlank()
+
+            if (isNameValid && isEmailValid && isPasswordValid && isLoginValid) {
+                onRegisterUser(login, password, email, name)
+            }
+        },
+        pendingRegistrationState = pendingRegistrationState
+    )
+
+    LaunchedEffect(key1 = pendingRegistrationState) {
+        if (pendingRegistrationState is UiState.Success) {
+            onNavigateToVerifyEmail(email, password)
+            onBackRegistrationState()
+        }
     }
 }
 
 @Composable
-fun RegistrationFormContent(
-    onNavigateToLoginScreen: () -> Unit,
-    onNavigateToUploadAvatarScreen: (login: String, password: String, email: String, name: String) -> Unit,
-    registerViewModel: RegisterViewModel,
-    uiState: RegisterUiState
+fun RegistrationContent(
+    modifier: Modifier = Modifier,
+    login: String,
+    name: String,
+    email: String,
+    password: String,
+    passwordVisible: Boolean,
+    isLoginValid: Boolean,
+    isNameValid: Boolean,
+    isEmailValid: Boolean,
+    isPasswordValid: Boolean,
+    onLoginChange: (String) -> Unit,
+    onNameChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onPasswordVisibleChange: (Boolean) -> Unit,
+    onNavigateToLoginPage: () -> Unit,
+    onRegisterClick: () -> Unit,
+    pendingRegistrationState: UiState<Unit>
 ) {
-    val login = uiState.login
-    val password = uiState.password
-    val email = uiState.email
-    val name = uiState.name
+    val focusRequesterLogin = remember { FocusRequester() }
+    val focusRequesterName = remember { FocusRequester() }
+    val focusRequesterEmail = remember { FocusRequester() }
+    val focusRequesterPassword = remember { FocusRequester() }
 
-    var passwordVisible by rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    val passwordFieldFocusRequester = rememberUpdatedState(FocusRequester())
-    val emailFieldFocusRequester = rememberUpdatedState(FocusRequester())
-    val nameFieldFocusRequester = rememberUpdatedState(FocusRequester())
-
-    val isLoginValid = uiState.isLoginValid
-    val isPasswordValid = uiState.isPasswordValid
-    val isEmailValid = uiState.isEmailValid
-    val isNameValid = uiState.isNameValid
-
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
-        Text(
-            stringResource(Res.string.create_your_account),
-            style = MaterialTheme.typography.headlineLarge
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Box(
-            contentAlignment = Alignment.Center
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
         ) {
-            Column {
-                OutlinedTextField(
-                    value = login,
-                    onValueChange = {
-                        registerViewModel.onLoginChange(it)
-                    },
-                    label = { Text(text = stringResource(Res.string.login)) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Next
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = {
-                            passwordFieldFocusRequester.value.requestFocus()
-                        }
-                    ),
-                    isError = !isLoginValid,
-                    trailingIcon = {
-                        if (!isLoginValid) {
-                            Icon(
-                                Icons.Filled.Error,
-                                stringResource(Res.string.error),
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        }
-                    }
-                )
-                if (!isLoginValid) {
-                    Text(
-                        stringResource(Res.string.login_must_be_between),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
+            Text(
+                stringResource(Res.string.register_title),
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold
+            )
+            VerticalSpacer(4.dp)
+            Text(
+                stringResource(Res.string.register_subtitle),
+                color = Color.Gray,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            VerticalSpacer(8.dp)
 
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = {
-                        registerViewModel.onPasswordChange(it)
-                    },
-                    label = { Text(text = stringResource(Res.string.password)) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Next
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = {
-                            emailFieldFocusRequester.value.requestFocus()
-                        }
-                    ),
-                    isError = !isPasswordValid,
-                    trailingIcon = {
-                        val icon =
-                            if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                        IconButton(onClick = {
-                            passwordVisible = !passwordVisible
-                        }) {
-                            Icon(icon, contentDescription = null, tint = Color.Black)
-                        }
-                    },
-                    modifier = Modifier.focusRequester(passwordFieldFocusRequester.value),
-                )
-                if (!isPasswordValid) {
-                    Text(
-                        stringResource(Res.string.password_must_be_between),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
+            InputTextField(
+                labelResId = Res.string.login,
+                placeholderResId = Res.string.enter_your_login,
+                value = login,
+                onValueChange = onLoginChange,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { focusRequesterName.requestFocus() }),
+                focusRequester = focusRequesterLogin,
+                isError = !isLoginValid,
+                errorMessage = if (!isLoginValid) stringResource(Res.string.login_invalid) else null
+            )
+            VerticalSpacer(8.dp)
+            InputTextField(
+                labelResId = Res.string.username,
+                placeholderResId = Res.string.enter_your_name,
+                value = name,
+                onValueChange = onNameChange,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { focusRequesterEmail.requestFocus() }),
+                focusRequester = focusRequesterName,
+                isError = !isNameValid,
+                errorMessage = if (!isNameValid) stringResource(Res.string.name_invalid) else null
+            )
+            VerticalSpacer(8.dp)
 
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = {
-                        registerViewModel.onEmailChange(it)
-                    },
-                    label = { Text(text = stringResource(Res.string.email)) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Next
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = {
-                            nameFieldFocusRequester.value.requestFocus()
-                        }
-                    ),
-                    modifier = Modifier.focusRequester(emailFieldFocusRequester.value),
-                    isError = !isEmailValid,
-                    trailingIcon = {
-                        if (!isEmailValid) {
-                            Icon(
-                                Icons.Filled.Error,
-                                stringResource(Res.string.error),
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        }
-                    }
-                )
-                if (!isEmailValid) {
-                    Text(
-                        stringResource(Res.string.invalid_email_format),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
+            InputTextField(
+                labelResId = Res.string.email,
+                placeholderResId = Res.string.enter_your_email,
+                value = email,
+                onValueChange = onEmailChange,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { focusRequesterPassword.requestFocus() }),
+                focusRequester = focusRequesterEmail,
+                isError = !isEmailValid,
+                errorMessage = if (!isEmailValid) stringResource(Res.string.email_invalid) else null
+            )
+            VerticalSpacer(8.dp)
 
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = {
-                        registerViewModel.onNameChange(it)
-                    },
-                    label = { Text(text = stringResource(Res.string.name)) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Next
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onNext = {
-                            registerViewModel.register {
-                                onNavigateToUploadAvatarScreen(
-                                    uiState.login,
-                                    uiState.password,
-                                    uiState.email,
-                                    uiState.name
-                                )
-                            }
-                        }
-                    ),
-                    modifier = Modifier.focusRequester(nameFieldFocusRequester.value),
-                    isError = !isNameValid,
-                    trailingIcon = {
-                        if (!isNameValid) {
-                            Icon(
-                                Icons.Filled.Error,
-                                stringResource(Res.string.error),
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        }
+            InputTextField(
+                labelResId = Res.string.password,
+                placeholderResId = Res.string.enter_password,
+                value = password,
+                onValueChange = onPasswordChange,
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = {
+                    if (isNameValid && isEmailValid && isPasswordValid && isLoginValid) {
+                        onRegisterClick()
                     }
+                }),
+                focusRequester = focusRequesterPassword,
+                trailingIcon = {
+                    val image =
+                        if (passwordVisible) Res.drawable.visibility else Res.drawable.visibility_off
+                    IconButton(onClick = {
+                        onPasswordVisibleChange(!passwordVisible)
+                    }) {
+                        Icon(painter = painterResource(image), contentDescription = null)
+                    }
+                },
+                isError = !isPasswordValid,
+                errorMessage = if (!isPasswordValid) stringResource(Res.string.password_invalid) else null
+            )
+            VerticalSpacer(8.dp)
+            Button(
+                onClick = {
+                    onRegisterClick()
+                },
+                modifier = Modifier
+                    .width(OutlinedTextFieldDefaults.MinWidth)
+                    .defaultMinSize(minHeight = OutlinedTextFieldDefaults.MinHeight),
+                enabled = pendingRegistrationState !is UiState.Loading,
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text(
+                    stringResource(Res.string.continue_app),
+                    style = MaterialTheme.typography.titleLarge
                 )
-                if (!isNameValid) {
-                    Text(
-                        stringResource(Res.string.name_cannot_be_blank),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    modifier = Modifier
-                        .width(OutlinedTextFieldDefaults.MinWidth)
-                        .height(OutlinedTextFieldDefaults.MinHeight),
-                    shape = MaterialTheme.shapes.small,
-                    onClick = {
-                        registerViewModel.register {
-                            onNavigateToUploadAvatarScreen(
-                                uiState.login,
-                                uiState.password,
-                                uiState.email,
-                                uiState.name
-                            )
-                        }
-                    }
-                ) {
-                    Text(stringResource(Res.string.next))
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Row {
-                    Text(
-                        stringResource(Res.string.already_have_an_account)
-                    )
-                    Text(" ")
-                    Text(
-                        color = MaterialTheme.colorScheme.primary,
-                        text = stringResource(Res.string.log_in),
-                        modifier = Modifier.clickable {
-                            onNavigateToLoginScreen()
-                        }
-                    )
+                if (pendingRegistrationState is UiState.Loading) {
+                    Spacer(modifier = Modifier.width(16.dp))
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
+            if (pendingRegistrationState is UiState.Error) {
+                Text(
+                    text = pendingRegistrationState.message,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(stringResource(Res.string.already_have_account), modifier = Modifier
+                .padding(bottom = 16.dp)
+                .clickable {
+                    onNavigateToLoginPage()
+                }
+            )
         }
     }
+}
+
+@Composable
+fun VerticalSpacer(height: Dp) {
+    Spacer(modifier = Modifier.height(height))
+}
+
+@Composable
+fun InputTextField(
+    labelResId: StringResource,
+    placeholderResId: StringResource,
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    focusRequester: FocusRequester,
+    isError: Boolean = false,
+    errorMessage: String? = null
+) {
+    Text(stringResource(labelResId), style = MaterialTheme.typography.titleMedium)
+    VerticalSpacer(4.dp)
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        singleLine = true,
+        modifier = modifier
+            .width(OutlinedTextFieldDefaults.MinWidth)
+            .focusRequester(focusRequester),
+        shape = RoundedCornerShape(16.dp),
+        placeholder = {
+            Text(stringResource(placeholderResId), color = Color.Gray)
+        },
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        visualTransformation = visualTransformation,
+        trailingIcon = trailingIcon,
+        isError = isError
+    )
+    if (isError && errorMessage != null) {
+        Text(
+            text = errorMessage,
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(start = 16.dp)
+        )
+    }
+}
+
+fun isValidEmail(email: String): Boolean {
+    val emailRegex = "^[A-Za-z](.*)(@{1})(.{1,})(\\.)(.{1,})"
+    return email.matches(emailRegex.toRegex())
 }

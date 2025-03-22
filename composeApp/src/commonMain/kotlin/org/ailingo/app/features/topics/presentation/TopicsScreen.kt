@@ -1,5 +1,7 @@
 package org.ailingo.app.features.topics.presentation
 
+import ailingo.composeapp.generated.resources.Res
+import ailingo.composeapp.generated.resources.topic_list_empty
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,38 +11,39 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.ailingo.app.core.utils.presentation.ErrorScreen
-import org.ailingo.app.core.utils.presentation.LoadingScreen
+import org.ailingo.app.core.presentation.EmptyScreen
+import org.ailingo.app.core.presentation.ErrorScreen
+import org.ailingo.app.core.presentation.LoadingScreen
+import org.ailingo.app.core.presentation.UiState
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.core.utils.windowinfo.util.DeviceType
-import org.ailingo.app.features.topics.data.Topic
+import org.ailingo.app.features.topics.data.model.Topic
 
 @Composable
 fun TopicsScreen(
     windowInfo: WindowInfo,
-    topicsViewModel: TopicViewModel
+    topicsUiState: UiState<List<Topic>>
 ) {
-    val topicsUiState = topicsViewModel.topicState.collectAsStateWithLifecycle()
-
     val deviceType = if (windowInfo.screenWidthInfo is WindowInfo.WindowType.DesktopWindowInfo) {
         DeviceType.Desktop
     } else {
         DeviceType.Mobile
     }
 
-    when (val state = topicsUiState.value) {
-        TopicUiState.Empty -> {}
-        is TopicUiState.Error -> {
-            ErrorScreen(errorMessage = state.message)
+    when (topicsUiState) {
+        is UiState.Error -> {
+            ErrorScreen(errorMessage = topicsUiState.message)
         }
-
-        TopicUiState.Loading -> {
-            LoadingScreen()
+        is UiState.Idle -> {}
+        is UiState.Loading -> {
+            LoadingScreen(modifier = Modifier.fillMaxSize())
         }
-
-        is TopicUiState.Success -> {
-            TopicsContent(state.topics, deviceType)
+        is UiState.Success -> {
+            if (topicsUiState.data.isEmpty()) {
+                EmptyScreen(text = Res.string.topic_list_empty, modifier = Modifier.fillMaxSize())
+            } else {
+                TopicsContent(topicsUiState.data, deviceType)
+            }
         }
     }
 }

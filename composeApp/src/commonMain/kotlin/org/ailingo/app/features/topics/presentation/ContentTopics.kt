@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,9 +27,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
+import org.ailingo.app.core.presentation.LoadingScreen
 import org.ailingo.app.core.utils.windowinfo.util.DeviceType
-import org.ailingo.app.features.topics.data.Topic
+import org.ailingo.app.features.topics.data.model.Topic
 
 @Composable
 fun ContentTopics(
@@ -47,7 +49,7 @@ fun ContentTopics(
             contentAlignment = Alignment.Center
         ) {
             Card {
-                AsyncImage(
+                SubcomposeAsyncImage(
                     model = topic.imageUrl,
                     contentScale = ContentScale.Crop,
                     contentDescription = null,
@@ -58,7 +60,12 @@ fun ContentTopics(
                                 drawContent()
                                 drawRect(gradient, blendMode = BlendMode.Multiply)
                             }
+                        },
+                    loading = {
+                        Box(modifier = Modifier.fillMaxSize().aspectRatio(1f), contentAlignment = Alignment.Center) {
+                            LoadingScreen()
                         }
+                    }
                 )
             }
             Text(
@@ -124,7 +131,6 @@ fun ContentTopics(
                     }
                 }
             }
-
         }
     }
 }

@@ -3,36 +3,24 @@ package org.ailingo.app
 import kotlinx.serialization.Serializable
 
 @Serializable
-object LandingPage
-
-@Serializable
 object LoginPage
 
 @Serializable
 object ChatPage
 
 @Serializable
-object RegisterPage
-
-@Serializable
-object ResetPasswordPage
+object RegistrationPage
 
 @Serializable
 object GetStartedPage
 
 @Serializable
-data class UploadAvatarPage(
-    val login: String,
-    val password: String,
-    val email: String,
-    val name: String
-)
-
-@Serializable
 object TopicsPage
 
 @Serializable
-object DictionaryPage
+data class DictionaryPage(
+    val word: String?
+)
 
 @Serializable
 object ProfilePage
@@ -41,5 +29,14 @@ object ProfilePage
 data class ProfileUpdatePage(
     val name: String,
     val email: String,
-    var avatar: String
+    var avatar: String?
+)
+
+@Serializable
+object FavouriteWordsPage
+
+@Serializable
+data class VerifyEmailPage(
+    val email: String,
+    val password: String,
 )

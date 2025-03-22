@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ListOfDefinitions(listOfDefinitions: List<String>?) {
-    listOfDefinitions?.forEachIndexed { index, def ->
+fun ListOfDefinitions(listOfDefinitions: List<String?>) {
+    listOfDefinitions.forEachIndexed { index, def ->
         val newIndex = index + 1
         Column {
             Row {
@@ -20,9 +20,11 @@ fun ListOfDefinitions(listOfDefinitions: List<String>?) {
                     text = newIndex.toString(),
                     modifier = Modifier.widthIn(min = 22.dp)
                 )
-                Text(
-                    text = def,
-                )
+                if (def != null) {
+                    Text(
+                        text = def,
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
         }

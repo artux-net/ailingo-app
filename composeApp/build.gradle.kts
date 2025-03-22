@@ -110,6 +110,8 @@ kotlin {
             implementation(libs.logback.classic)
             // Playing audio
             implementation(libs.jlayer)
+            //Logger
+            implementation(libs.slf4j.simple)
         }
 
         jsMain.dependencies {
@@ -216,12 +218,12 @@ allprojects {
 }
 
 buildConfig {
-    // BuildConfig configuration here.
-    // https://github.com/gmazzo/gradle-buildconfig-plugin#usage-in-kts
+//    FOR PROD
+//    buildConfigField("BASE_URL", "https://app.artux.net/ailingo")
 
-    buildConfigField("BASE_URL", "https://app.artux.net/ailingo")
 //    FOR TESTING
-//    buildConfigField("BASE_URL", "http://localhost:8080/ailingo")
+    buildConfigField("BASE_URL", "http://localhost:8080/ailingo")
+
     buildConfigField("API_ENDPOINT_USER", "/api/v1/user")
     buildConfigField("API_ENDPOINT_TOPICS", "/api/v1/topics")
     buildConfigField(

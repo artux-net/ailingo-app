@@ -29,7 +29,7 @@ class AndroidApp : Application() {
     override fun onCreate() {
         super.onCreate()
         initKoin {
-            androidLogger(if (isDebug()) Level.ERROR else Level.NONE)
+            androidLogger(Level.ERROR)
             androidContext(this@AndroidApp)
         }
         INSTANCE = this

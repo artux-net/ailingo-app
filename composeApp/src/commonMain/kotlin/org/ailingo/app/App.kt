@@ -2,12 +2,10 @@ package org.ailingo.app
 
 import androidx.compose.runtime.Composable
 import coil3.compose.setSingletonImageLoaderFactory
-import kotlinx.coroutines.CoroutineScope
 import org.ailingo.app.core.utils.coil.asyncImageLoader
 import org.ailingo.app.core.utils.coil.enableDiskCache
 import org.ailingo.app.core.utils.voice.VoiceToTextParser
 import org.ailingo.app.core.utils.windowinfo.util.PlatformName
-import org.ailingo.app.features.registration.presentation.uploadavatar.UploadAvatarViewModel
 import org.koin.compose.KoinContext
 
 @Composable
@@ -34,15 +32,3 @@ internal expect fun playSound(sound: String)
 
 @Composable
 internal expect fun getConfiguration(): Pair<Int, Int>
-
-expect fun selectImageWebAndDesktop(scope: CoroutineScope, callback: (String?) -> Unit)
-
-@Composable
-expect fun UploadAvatarForPhone(
-    uploadAvatarViewModel: UploadAvatarViewModel,
-    login: String,
-    password: String,
-    email: String,
-    name: String,
-    onNavigateToRegisterScreen: () -> Unit
-)

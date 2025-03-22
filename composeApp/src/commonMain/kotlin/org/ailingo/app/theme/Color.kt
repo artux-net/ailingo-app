@@ -8,8 +8,6 @@ internal val WhiteBlueForBot = Color(0xFFABE6FF)
 internal val WhiteBlueForUser = Color(0xFFDDF2FD)
 internal val ColorForMainTextDictionary = Color(0xFF39A7FF)
 internal val ColorForSynonymsDictionary = Color(0xFF87C4FF)
-internal val ColorForDrawerLayout = (0xFFF1EAFF)
-internal val ColorForAppBar = Color(0xFFF1EAFF)
 internal val ColorForFindWords = Color(0xFFA8DF8E)
 
 val primaryLight = Color(0xFF415F91)

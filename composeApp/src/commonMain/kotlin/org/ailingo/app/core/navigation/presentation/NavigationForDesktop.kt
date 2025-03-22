@@ -25,6 +25,7 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import org.ailingo.app.ChatPage
 import org.ailingo.app.DictionaryPage
+import org.ailingo.app.FavouriteWordsPage
 import org.ailingo.app.LoginPage
 import org.ailingo.app.ProfilePage
 import org.ailingo.app.ProfileUpdatePage
@@ -56,6 +57,7 @@ fun NavigationForDesktop(
         DictionaryPage::class,
         ProfilePage::class,
         ProfileUpdatePage::class,
+        FavouriteWordsPage::class,
     )
 
     val isNavigationDrawerVisible = currentDestination?.let { dest ->
@@ -68,6 +70,7 @@ fun NavigationForDesktop(
         DrawerItems.ChatMode,
         DrawerItems.Topics,
         DrawerItems.Dictionary,
+        DrawerItems.FavouriteWords,
         DrawerItems.Profile,
         DrawerItems.Exit,
     )
@@ -81,6 +84,7 @@ fun NavigationForDesktop(
                     DrawerItems.ChatMode -> destination.hasRoute(ChatPage::class)
                     DrawerItems.Topics -> destination.hasRoute(TopicsPage::class)
                     DrawerItems.Dictionary -> destination.hasRoute(DictionaryPage::class)
+                    DrawerItems.FavouriteWords -> destination.hasRoute(FavouriteWordsPage::class)
                     DrawerItems.Profile -> destination.hasRoute(ProfilePage::class)
                     else -> false
                 }
@@ -124,7 +128,7 @@ fun NavigationForDesktop(
                                             DrawerItems.ChatMode -> navController.navigate(ChatPage)
                                             DrawerItems.Topics -> navController.navigate(TopicsPage)
                                             DrawerItems.Dictionary -> navController.navigate(
-                                                DictionaryPage
+                                                DictionaryPage("")
                                             )
 
                                             DrawerItems.Profile -> navController.navigate(
@@ -134,6 +138,10 @@ fun NavigationForDesktop(
                                             DrawerItems.Exit -> {
                                                 navController.navigate(LoginPage)
                                                 loginViewModel.onEvent(LoginScreenEvent.OnBackToEmptyState)
+                                            }
+
+                                            DrawerItems.FavouriteWords -> {
+                                                navController.navigate(FavouriteWordsPage)
                                             }
                                         }
                                     },

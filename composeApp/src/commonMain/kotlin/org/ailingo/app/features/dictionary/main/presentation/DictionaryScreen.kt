@@ -2,7 +2,6 @@ package org.ailingo.app.features.dictionary.main.presentation
 
 import ailingo.composeapp.generated.resources.Res
 import ailingo.composeapp.generated.resources.definitions
-import ailingo.composeapp.generated.resources.history_of_search
 import ailingo.composeapp.generated.resources.no_definitions
 import ailingo.composeapp.generated.resources.usage_examples
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -22,29 +21,40 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.ailingo.app.core.utils.presentation.ErrorScreen
-import org.ailingo.app.core.utils.presentation.LoadingScreen
-import org.ailingo.app.features.dictionary.history.domain.HistoryDictionaryUiState
+import org.ailingo.app.core.presentation.ErrorScreen
+import org.ailingo.app.core.presentation.LoadingScreen
+import org.ailingo.app.core.presentation.UiState
+import org.ailingo.app.features.dictionary.examples.data.model.WordInfoItem
+import org.ailingo.app.features.dictionary.historysearch.data.model.DictionarySearchHistory
+import org.ailingo.app.features.dictionary.main.data.model.DictionaryResponse
+import org.ailingo.app.features.dictionary.predictor.data.model.PredictorRequest
+import org.ailingo.app.features.dictionary.predictor.data.model.PredictorResponse
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DictionaryScreen(
-    dictionaryViewModel: DictionaryViewModel
+    dictionaryState: UiState<DictionaryResponse>,
+    examplesState: UiState<List<WordInfoItem>>,
+    searchHistoryState: UiState<List<DictionarySearchHistory>>,
+    favoriteDictionaryState: UiState<List<String>>,
+    predictorState: UiState<PredictorResponse>,
+    onGetWordInfo: (String) -> Unit,
+    onPredictNextWords: (PredictorRequest) -> Unit,
+    onSaveSearchedWord: (DictionarySearchHistory) -> Unit,
+    onAddToFavourite: (String) -> Unit,
+    onRemoveFromFavourites: (String) -> Unit
 ) {
-    val dictionaryState = dictionaryViewModel.dictionaryUiState.collectAsState()
-    val historyDictionaryState = dictionaryViewModel.historyOfDictionaryState.collectAsState()
-    val favoriteDictionaryState =
-        dictionaryViewModel.favoriteWords.collectAsStateWithLifecycle().value
-    val textFieldValue = rememberSaveable { mutableStateOf("") }
+    var textFieldValue by remember {
+        mutableStateOf("")
+    }
     val active = remember {
         mutableStateOf(false)
     }
@@ -56,142 +66,150 @@ fun DictionaryScreen(
         ) {
             stickyHeader {
                 SearchTextFieldDictionary(
-                    dictionaryViewModel = dictionaryViewModel,
+                    predictorState = predictorState,
                     textFieldValue = textFieldValue,
                     onTextFieldValueChange = { newTextFieldValue ->
-                        textFieldValue.value = newTextFieldValue
+                        textFieldValue = newTextFieldValue
                     },
                     active = active,
-                    searchBarHeight = searchBarHeight
-                ) { searchWord ->
-                    dictionaryViewModel.onEvent(
-                        DictionaryScreenEvents.SearchWordDefinition(
-                            searchWord
-                        )
-                    )
+                    searchBarHeight = searchBarHeight,
+                    onSearchClick = { searchWord ->
+                        onGetWordInfo(searchWord)
+                    },
+                    onPredictWords = {
+                        onPredictNextWords(it)
+                    },
+                    onSaveSearchedWord = {
+                        onSaveSearchedWord(it)
+                    }
+                )
+            }
+            if (dictionaryState is UiState.Idle) {
+                when (searchHistoryState) {
+                    is UiState.Error -> {
+                        item {
+                            ErrorScreen(searchHistoryState.message)
+                        }
+                    }
+
+                    is UiState.Loading -> {
+                        item {
+                            LoadingScreen(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+
+                    is UiState.Success -> {
+                        items(searchHistoryState.data.reversed()) { searchHistoryItem ->
+                            SearchHistoryItem(
+                                searchHistoryItem = searchHistoryItem,
+                                onGetWordInfo = { word ->
+                                    onGetWordInfo(word)
+                                },
+                                onTextFieldChange = { text ->
+                                    textFieldValue = text
+                                },
+                                onActiveChange = {
+                                    active.value = it
+                                }
+                            )
+                        }
+                    }
+
+                    is UiState.Idle -> {}
                 }
             }
-            if (dictionaryState.value is DictionaryUiState.Empty) {
-                when (val historyState = historyDictionaryState.value) {
-                    is HistoryDictionaryUiState.Error -> {
-                        item {
-                            ErrorScreen(errorMessage = historyState.message)
-                        }
-                    }
+            when (examplesState) {
+                is UiState.Error -> {
+                    item { ErrorScreen(modifier = Modifier.fillMaxSize()) }
+                }
 
-                    HistoryDictionaryUiState.Loading -> {
-                        item {
-                            LoadingScreen()
-                        }
-                    }
+                is UiState.Idle -> {}
+                is UiState.Loading -> {
+                    item { LoadingScreen(modifier = Modifier.fillMaxSize()) }
+                }
 
-                    is HistoryDictionaryUiState.Success -> {
-                        items(historyState.history.reversed()) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(14.dp).clickable {
-                                    textFieldValue.value = it.text
-                                    dictionaryViewModel.onEvent(
-                                        DictionaryScreenEvents.SearchWordDefinition(
-                                            it.text
-                                        )
-                                    )
-                                    active.value = false
-                                }
-                            ) {
-                                Icon(
-                                    modifier = Modifier.padding(end = 10.dp),
-                                    imageVector = Icons.Default.History,
-                                    contentDescription = null
-                                )
-                                Text(text = it.text)
+                is UiState.Success -> {
+                    val listOfExamples = examplesState.data.flatMap {
+                        it.meanings.flatMap { meaning ->
+                            meaning.definitions.mapNotNull { def ->
+                                def.example
                             }
                         }
-
                     }
-                }
-            }
-
-            if (dictionaryState.value is DictionaryUiState.Success) {
-                val response = (dictionaryState.value as DictionaryUiState.Success).response
-                val responseForExamples =
-                    (dictionaryState.value as DictionaryUiState.Success).responseExample
-                val listOfExamples = responseForExamples?.flatMap {
-                    it.meanings.flatMap { meaning ->
-                        meaning.definitions.mapNotNull { def ->
-                            def.example
+                    val listOfDefinitions = examplesState.data.flatMap {
+                        it.meanings.flatMap { meaning ->
+                            meaning.definitions.mapNotNull { def ->
+                                def.definition
+                            }
                         }
                     }
-                }
-                val listOfDefinitions = responseForExamples?.flatMap {
-                    it.meanings.flatMap { meaning ->
-                        meaning.definitions.map { def ->
-                            def.definition
+                    if (dictionaryState is UiState.Success) {
+                        if (dictionaryState.data.definitions.isNotEmpty()) {
+                            items(dictionaryState.data.definitions) { definition ->
+                                DefinitionRowInfo(
+                                    definition,
+                                    examplesState.data,
+                                    favoriteDictionaryState,
+                                    onAddToFavourite = onAddToFavourite,
+                                    onRemoveFromFavourites = onRemoveFromFavourites
+                                )
+                            }
+                            item {
+                                if (listOfExamples.isNotEmpty()) {
+                                    Text(
+                                        stringResource(Res.string.usage_examples),
+                                        style = MaterialTheme.typography.titleLarge
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                }
+                            }
+                            item {
+                                ListOfExample(listOfExamples, textFieldValue)
+                            }
+                            item {
+                                if (listOfDefinitions.isNotEmpty()) {
+                                    Text(
+                                        stringResource(Res.string.definitions),
+                                        style = MaterialTheme.typography.titleLarge
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                }
+                            }
+                            item {
+                                ListOfDefinitions(listOfDefinitions)
+                            }
+                        } else {
+                            item {
+                                Text(stringResource(Res.string.no_definitions))
+                            }
                         }
-                    }
-                }
-                if (response.def?.isNotEmpty() == true) {
-                    items(response.def) { definition ->
-                        DefinitionRowInfo(definition, responseForExamples, favoriteDictionaryState, dictionaryViewModel)
-                    }
-                    item {
-                        if (listOfExamples?.isNotEmpty() == true) {
-                            Text(
-                                stringResource(Res.string.usage_examples),
-                                style = MaterialTheme.typography.titleLarge
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                        }
-                    }
-                    item {
-                        ListOfExample(listOfExamples, textFieldValue.value)
-                    }
-                    item {
-                        if (listOfDefinitions?.isNotEmpty() == true) {
-                            Text(
-                                stringResource(Res.string.definitions),
-                                style = MaterialTheme.typography.titleLarge
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                        }
-                    }
-                    item {
-                        ListOfDefinitions(listOfDefinitions)
-                    }
-                } else {
-                    item {
-                        Text(stringResource(Res.string.no_definitions))
                     }
                 }
             }
         }
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            when (val state = dictionaryState.value) {
-                DictionaryUiState.Empty -> {
-                    if (historyDictionaryState.value is HistoryDictionaryUiState.Success && (historyDictionaryState.value as HistoryDictionaryUiState.Success).history.isEmpty()) {
-                        Box(
-                            modifier = Modifier.fillMaxSize()
-                                .padding(top = searchBarHeight.value.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(stringResource(Res.string.history_of_search))
-                        }
-                    }
-                }
+    }
+}
 
-                is DictionaryUiState.Error -> {
-                    ErrorScreen(
-                        errorMessage = state.message,
-                        modifier = Modifier.padding(top = searchBarHeight.value.dp)
-                    )
-                }
-
-                DictionaryUiState.Loading -> {
-                    LoadingScreen(modifier = Modifier.padding(top = searchBarHeight.value.dp))
-                }
-
-                else -> {}
-            }
+@Composable
+fun SearchHistoryItem(
+    searchHistoryItem: DictionarySearchHistory,
+    onGetWordInfo: (String) -> Unit,
+    onTextFieldChange: (String) -> Unit,
+    onActiveChange: (Boolean) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(14.dp).clickable {
+            onTextFieldChange(searchHistoryItem.text)
+            onGetWordInfo(searchHistoryItem.text)
+            onActiveChange(false)
         }
+    ) {
+        Icon(
+            modifier = Modifier.padding(end = 10.dp),
+            imageVector = Icons.Default.History,
+            contentDescription = null
+        )
+        Text(text = searchHistoryItem.text)
     }
 }

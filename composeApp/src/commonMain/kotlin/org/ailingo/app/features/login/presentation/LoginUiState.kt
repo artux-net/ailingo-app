@@ -1,7 +1,7 @@
 package org.ailingo.app.features.login.presentation
 
 import kotlinx.serialization.Serializable
-import org.ailingo.app.features.login.data.User
+import org.ailingo.app.features.login.data.model.User
 
 @Serializable
 sealed class LoginUiState {

@@ -35,7 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import org.ailingo.app.core.utils.presentation.LoadingScreen
+import org.ailingo.app.core.presentation.LoadingScreen
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.login.presentation.LoginUiState
 import org.ailingo.app.theme.inversePrimaryLight
@@ -93,7 +93,7 @@ fun TopAppBarWithProfile(
                                 .padding(4.dp).padding(start = 2.dp).padding(end = 2.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            if (loginState.user.avatar.isNotEmpty()) {
+                            if (loginState.user.avatar?.isNotEmpty() == true) {
                                 Box(
                                     contentAlignment = Alignment.Center
                                 ) {

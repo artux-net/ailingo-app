@@ -17,7 +17,9 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import org.ailingo.app.ChatPage
 import org.ailingo.app.DictionaryPage
+import org.ailingo.app.FavouriteWordsPage
 import org.ailingo.app.ProfilePage
+import org.ailingo.app.ProfileUpdatePage
 import org.ailingo.app.TopicsPage
 import org.ailingo.app.core.navigation.model.BottomNavItem
 import org.ailingo.app.core.presentation.topappbar.TopAppBarCenter
@@ -41,7 +43,9 @@ fun NavigationForMobile(
         ChatPage::class,
         TopicsPage::class,
         DictionaryPage::class,
+        FavouriteWordsPage::class,
         ProfilePage::class,
+        ProfileUpdatePage::class,
     )
 
     val isBottomBarVisible = currentDestination?.let { dest ->
@@ -54,6 +58,7 @@ fun NavigationForMobile(
         BottomNavItem.ChatMode,
         BottomNavItem.Topics,
         BottomNavItem.Dictionary,
+        BottomNavItem.FavouriteWords,
         BottomNavItem.Profile,
     )
 
@@ -68,6 +73,7 @@ fun NavigationForMobile(
                     BottomNavItem.ChatMode -> destination.hasRoute(ChatPage::class)
                     BottomNavItem.Topics -> destination.hasRoute(TopicsPage::class)
                     BottomNavItem.Dictionary -> destination.hasRoute(DictionaryPage::class)
+                    BottomNavItem.FavouriteWords -> destination.hasRoute(FavouriteWordsPage::class)
                     BottomNavItem.Profile -> destination.hasRoute(ProfilePage::class)
                 }
             }
@@ -98,7 +104,12 @@ fun NavigationForMobile(
                                     Text(stringResource(item.title))
                                 },
                                 onClick = {
-                                    navController.navigate(item.route) {
+                                    val route = if (item == BottomNavItem.Dictionary) {
+                                        DictionaryPage("") // Construct the route string with the argument
+                                    } else {
+                                        item.route
+                                    }
+                                    navController.navigate(route) {
 //                                        navController.graph.findStartDestination().route?.let {
 //                                            popUpTo(it) {
 //                                                saveState = true

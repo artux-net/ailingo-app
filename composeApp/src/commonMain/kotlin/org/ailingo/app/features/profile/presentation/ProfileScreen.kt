@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,6 +32,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -51,8 +54,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
-import org.ailingo.app.core.utils.presentation.ErrorScreen
-import org.ailingo.app.core.utils.presentation.LoadingScreen
+import org.ailingo.app.core.presentation.ErrorScreen
+import org.ailingo.app.core.presentation.LoadingScreen
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.login.presentation.LoginUiState
 import org.jetbrains.compose.resources.DrawableResource
@@ -69,7 +72,7 @@ fun ProfileScreen(
     onNavigateProfileChange: (
         name: String,
         email: String,
-        avatar: String
+        avatar: String?
     ) -> Unit
 ) {
     when (loginUiState) {
@@ -78,7 +81,7 @@ fun ProfileScreen(
         }
 
         LoginUiState.Loading -> {
-            LoadingScreen()
+            LoadingScreen(modifier = Modifier.fillMaxSize())
         }
 
         is LoginUiState.Success -> {
@@ -187,7 +190,7 @@ fun ProfileHeader(loginUiState: LoginUiState.Success) {
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxWidth().height(200.dp),
         )
-        if (loginUiState.user.avatar.isBlank()) {
+        if (loginUiState.user.avatar?.isBlank() == true) {
             Card(
                 modifier = Modifier.padding(top = 100.dp).align(Alignment.Center).size(200.dp),
                 shape = CircleShape
@@ -219,7 +222,7 @@ fun ProfileHeader(loginUiState: LoginUiState.Success) {
                         }
 
                         is AsyncImagePainter.State.Loading -> {
-                            LoadingScreen()
+                            LoadingScreen(modifier = Modifier.fillMaxSize())
                         }
 
                         is AsyncImagePainter.State.Success -> {
@@ -359,7 +362,7 @@ fun StatItem(value: String, label: String, icon: DrawableResource) {
 fun ColumnScope.ProfileExitButton(onExit: () -> Unit, cardWidth: Dp) {
     Button(
         onClick = onExit,
-        modifier = Modifier.width(cardWidth).align(Alignment.CenterHorizontally)
+        modifier = Modifier.width(cardWidth).align(Alignment.CenterHorizontally).defaultMinSize(minHeight = OutlinedTextFieldDefaults.MinHeight)
     ) {
         Text(stringResource(Res.string.exit))
     }
@@ -371,7 +374,7 @@ fun ColumnScope.ProfileChangeDataButton(cardWidth: Dp, onNavigateProfileChange: 
         onClick = {
             onNavigateProfileChange()
         },
-        modifier = Modifier.width(cardWidth).align(Alignment.CenterHorizontally)
+        modifier = Modifier.width(cardWidth).align(Alignment.CenterHorizontally).defaultMinSize(minHeight = OutlinedTextFieldDefaults.MinHeight)
     ) {
         Text(stringResource(Res.string.change_user_data))
     }

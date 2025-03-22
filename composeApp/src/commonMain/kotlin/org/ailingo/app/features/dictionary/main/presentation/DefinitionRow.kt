@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Volume2
+import org.ailingo.app.core.presentation.UiState
 import org.ailingo.app.features.dictionary.examples.data.model.WordInfoItem
 import org.ailingo.app.features.dictionary.main.data.model.Def
 import org.ailingo.app.features.dictionary.main.presentation.utils.getPartOfSpeechLabel
@@ -32,8 +33,9 @@ import org.ailingo.app.playSound
 fun DefinitionRowInfo(
     definition: Def,
     responseForExamples: List<WordInfoItem>?,
-    favoriteDictionaryState: List<String>,
-    dictionaryViewModel: DictionaryViewModel
+    favoriteDictionaryState: UiState<List<String>>,
+    onRemoveFromFavourites: (String) -> Unit,
+    onAddToFavourite: (String) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -47,14 +49,14 @@ fun DefinitionRowInfo(
         // val fontFamilyForTranscription: FontFamily = fontFamilyResource(SharedRes.fonts.NotoSans.light)
         // Text("[" + definition.ts + "]", fontFamily = fontFamilyForTranscription, fontSize = 16.sp)
         Spacer(modifier = Modifier.width(8.dp))
-        Text(getPartOfSpeechLabel(definition.pos))
+        Text(getPartOfSpeechLabel(definition.partOfSpeech))
         val listOfAllAudio = responseForExamples?.flatMap { wordInfoItem ->
             wordInfoItem.phonetics
-                .mapNotNull {
+                ?.mapNotNull {
                     it.audio.takeIf { audio ->
                         audio?.isNotBlank() ?: false
                     }
-                }
+                } ?: emptyList()
         }
         val firstNonEmptyAudio = listOfAllAudio?.firstOrNull()
         if (firstNonEmptyAudio != null) {
@@ -70,27 +72,25 @@ fun DefinitionRowInfo(
                 }
             }
         }
-        if (favoriteDictionaryState.contains(definition.text)) {
-            IconButton(onClick = {
-                dictionaryViewModel.onEvent(DictionaryScreenEvents.RemoveFromFavorites(
-                    definition.text
-                ))
-            }) {
-                Icon(imageVector = Icons.Filled.Favorite, contentDescription = null, tint = Color.Red)
-            }
-        } else {
-            IconButton(onClick = {
-                dictionaryViewModel.onEvent(DictionaryScreenEvents.AddToFavorites(
-                    definition.text
-                ))
-            }) {
-                Icon(imageVector = Icons.Outlined.Favorite, contentDescription = null)
+        if (favoriteDictionaryState is UiState.Success) {
+            if (favoriteDictionaryState.data.contains(definition.text)) {
+                IconButton(onClick = {
+                    onRemoveFromFavourites(definition.text)
+                }) {
+                    Icon(imageVector = Icons.Filled.Favorite, contentDescription = null, tint = Color.Red)
+                }
+            } else {
+                IconButton(onClick = {
+                    onAddToFavourite(definition.text)
+                }) {
+                    Icon(imageVector = Icons.Outlined.Favorite, contentDescription = null)
+                }
             }
         }
     }
     Spacer(modifier = Modifier.height(8.dp))
 
-    definition.tr.forEachIndexed { index, tr ->
+    definition.translations.forEachIndexed { index, tr ->
         DefinitionEntry(index, tr)
     }
 }

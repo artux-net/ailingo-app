@@ -6,6 +6,5 @@ import kotlinx.serialization.Serializable
 data class Phonetic(
     val audio: String? = null,
     val license: License? = null,
-    val sourceUrl: String? = null,
-    val text: String
+    val sourceUrl: String? = null
 )
