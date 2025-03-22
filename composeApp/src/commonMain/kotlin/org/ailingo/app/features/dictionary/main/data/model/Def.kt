@@ -1,11 +1,16 @@
 package org.ailingo.app.features.dictionary.main.data.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Def(
-    val pos: String,
+    @SerialName("pos")
+    val partOfSpeech: String,
+    @SerialName("text")
     val text: String,
-    val tr: List<Tr>,
-    val ts: String
+    @SerialName("tr")
+    val translations: List<Tr>,
+    @SerialName("ts")
+    val transcription: String
 )

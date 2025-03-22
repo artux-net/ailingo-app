@@ -1,139 +1,146 @@
 package org.ailingo.app.features.dictionary.main.presentation
 
-import AiLingo.composeApp.BuildConfig.API_KEY_DICTIONARY
-import AiLingo.composeApp.BuildConfig.BASE_URL_FREE_DICTIONARY
-import AiLingo.composeApp.BuildConfig.BASE_URL_YANEX_DICTIONARY
-import AiLingo.composeApp.BuildConfig.PREDICTOR_BASE_URL
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
+import org.ailingo.app.core.presentation.UiState
 import org.ailingo.app.features.dictionary.examples.data.model.WordInfoItem
-import org.ailingo.app.features.dictionary.history.domain.DictionaryRepository
-import org.ailingo.app.features.dictionary.history.domain.HistoryDictionaryUiState
+import org.ailingo.app.features.dictionary.examples.domain.repository.DictionaryExampleRepository
+import org.ailingo.app.features.dictionary.historysearch.data.model.DictionarySearchHistory
+import org.ailingo.app.features.dictionary.historysearch.domain.repository.DictionarySearchHistoryRepository
 import org.ailingo.app.features.dictionary.main.data.model.DictionaryResponse
-import org.ailingo.app.features.dictionary.predictor.data.PredictorResponse
+import org.ailingo.app.features.dictionary.main.domain.repository.DictionaryRepository
+import org.ailingo.app.features.dictionary.predictor.data.model.PredictorRequest
+import org.ailingo.app.features.dictionary.predictor.data.model.PredictorResponse
+import org.ailingo.app.features.dictionary.predictor.domain.repository.PredictWordsRepository
+import org.ailingo.app.features.favouritewords.domain.repository.FavouriteWordsRepository
 
 class DictionaryViewModel(
-    private val historyDictionaryRepository: Deferred<DictionaryRepository>
+    private val historyDictionarySearchHistoryRepository: Deferred<DictionarySearchHistoryRepository>,
+    private val favouriteWordsRepository: FavouriteWordsRepository,
+    private val predictorRepository: PredictWordsRepository,
+    private val exampleRepository: DictionaryExampleRepository,
+    private val dictionaryRepository: DictionaryRepository
 ) : ViewModel() {
 
-    private val _historyOfDictionaryState = MutableStateFlow<HistoryDictionaryUiState>(HistoryDictionaryUiState.Loading)
+    private val _historyOfDictionaryState = MutableStateFlow<UiState<List<DictionarySearchHistory>>>(UiState.Idle())
     val historyOfDictionaryState = _historyOfDictionaryState.asStateFlow()
 
-    private val httpClient = HttpClient {
-        install(ContentNegotiation) {
-            json(
-                Json {
-                    ignoreUnknownKeys = true
-                }
-            )
-        }
-    }
+    private val _favoriteWordsState = MutableStateFlow<UiState<List<String>>>(UiState.Idle())
+    val favouriteWordsState = _favoriteWordsState.asStateFlow()
+
+    private val _dictionaryUiState = MutableStateFlow<UiState<DictionaryResponse>>(UiState.Idle())
+    val dictionaryUiState = _dictionaryUiState.asStateFlow()
+
+    private val _examplesUiState =  MutableStateFlow<UiState<List<WordInfoItem>>>(UiState.Idle())
+    val examplesUiState = _examplesUiState.asStateFlow()
+
+    private var _predictorState = MutableStateFlow<UiState<PredictorResponse>>(UiState.Idle())
+    val predictorState = _predictorState.asStateFlow()
 
     init {
-        loadHistory()
+        onEvent(DictionaryEvents.GetSearchHistory)
+        onEvent(DictionaryEvents.GetFavouriteWords)
     }
 
-    private fun loadHistory() {
-        _historyOfDictionaryState.value = HistoryDictionaryUiState.Loading
-        viewModelScope.launch {
-            historyDictionaryRepository.await().getDictionaryHistory().onEach { history ->
-                _historyOfDictionaryState.value = HistoryDictionaryUiState.Success(history)
-            }.launchIn(viewModelScope)
+    fun onEvent(event: DictionaryEvents) {
+        when (event) {
+            is DictionaryEvents.PredictNextWords -> {
+                predictNextWords(event.request)
+            }
+
+            is DictionaryEvents.SaveSearchedWord -> {
+                saveToSearchHistory(event.word)
+            }
+
+            is DictionaryEvents.GetWordInfo -> {
+                getWordInfo(event.word)
+            }
+
+            is DictionaryEvents.DeleteFromSearchHistory -> {
+                deleteFromSearchHistory(event.id)
+            }
+
+            is DictionaryEvents.AddToFavorites -> {
+                addToFavourite(event.word)
+            }
+
+            is DictionaryEvents.RemoveFromFavorites -> {
+                removeFromFavourite(event.word)
+            }
+
+            DictionaryEvents.GetSearchHistory -> {
+                loadSearchHistory()
+            }
+
+            DictionaryEvents.GetFavouriteWords -> {
+                loadFavoriteWords()
+            }
         }
     }
 
-    private val _uiState = MutableStateFlow<DictionaryUiState>(DictionaryUiState.Empty)
-    val uiState: StateFlow<DictionaryUiState> = _uiState.asStateFlow()
-
-    private var _items = MutableStateFlow<PredictorResponse?>(null)
-    val items: StateFlow<PredictorResponse?> = _items.asStateFlow()
-
-    fun onEvent(event: DictionaryScreenEvents) {
-        when (event) {
-            is DictionaryScreenEvents.PredictNextWords -> {
-                viewModelScope.launch {
-                    val response = httpClient.post(PREDICTOR_BASE_URL) {
-                        header(HttpHeaders.ContentType, ContentType.Application.Json)
-                        setBody(event.request)
-                    }
-                    _items.update {
-                        response.body<PredictorResponse>()
-                    }
-                }
+    private fun getWordInfo(word: String) {
+        viewModelScope.launch {
+            dictionaryRepository.getWordInfo(word).collect { state->
+                _dictionaryUiState.update { state }
             }
-
-            is DictionaryScreenEvents.SaveSearchedWord -> {
-                viewModelScope.launch {
-                    try {
-                        historyDictionaryRepository.await().insertWordToHistory(event.word)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
+            exampleRepository.getExamples(word).collect { state->
+                _examplesUiState.update { state  }
             }
+        }
+    }
 
-            is DictionaryScreenEvents.SearchWordDefinition -> {
-                viewModelScope.launch {
-                    try {
-                        _uiState.value = DictionaryUiState.Loading
-
-                        val deferredResponse = async {
-                            try {
-                                httpClient.get("$BASE_URL_YANEX_DICTIONARY?key=$API_KEY_DICTIONARY&lang=en-ru&text=${event.word}")
-                                    .body<DictionaryResponse>()
-                            } catch (e: Exception) {
-                                DictionaryResponse(emptyList())
-                            }
-                        }
-
-                        val deferredResponseExample = async {
-                            try {
-                                httpClient.get("$BASE_URL_FREE_DICTIONARY/${event.word}")
-                                    .body<List<WordInfoItem>>()
-                            } catch (e: Exception) {
-                                emptyList()
-                            }
-                        }
-                        val response = deferredResponse.await()
-                        val responseExample = deferredResponseExample.await()
-
-                        _uiState.value = DictionaryUiState.Success(response, responseExample)
-                    } catch (e: Exception) {
-                        _uiState.value =
-                            DictionaryUiState.Error("Error occurred while fetching data. ${e.message}")
-                    }
-                }
+    private fun predictNextWords(request: PredictorRequest) {
+        viewModelScope.launch {
+            predictorRepository.predictNextWords(request).collect { state->
+                _predictorState.update { state }
             }
+        }
+    }
 
-            is DictionaryScreenEvents.DeleteFromHistory -> {
-                viewModelScope.launch {
-                    try {
-                        historyDictionaryRepository.await().deleteWordFromHistory(event.id)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
+    private fun loadFavoriteWords() {
+        viewModelScope.launch {
+            favouriteWordsRepository.getFavouriteWords().collect { state ->
+                _favoriteWordsState.update { state }
             }
+        }
+    }
+
+    private fun addToFavourite(word: String) {
+        viewModelScope.launch {
+            favouriteWordsRepository.addFavouriteWord(word)
+            loadFavoriteWords()
+        }
+    }
+
+    private fun removeFromFavourite(word: String) {
+        viewModelScope.launch {
+            favouriteWordsRepository.deleteFavouriteWord(word)
+            loadFavoriteWords()
+        }
+    }
+
+    private fun loadSearchHistory() {
+        viewModelScope.launch {
+            historyDictionarySearchHistoryRepository.await().getSearchHistory().collect { state ->
+                _historyOfDictionaryState.update { state }
+            }
+        }
+    }
+
+    private fun saveToSearchHistory(word: DictionarySearchHistory) {
+        viewModelScope.launch {
+            historyDictionarySearchHistoryRepository.await().insertWordToSearchHistory(word)
+        }
+    }
+
+    private fun deleteFromSearchHistory(id: Long) {
+        viewModelScope.launch {
+            historyDictionarySearchHistoryRepository.await().deleteWordFromSearchHistory(id)
         }
     }
 }

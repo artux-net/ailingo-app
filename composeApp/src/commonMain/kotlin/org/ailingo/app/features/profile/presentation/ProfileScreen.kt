@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,9 +32,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -46,9 +51,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
-import org.ailingo.app.core.utils.presentation.ErrorScreen
-import org.ailingo.app.core.utils.presentation.LoadingScreen
+import coil3.compose.AsyncImagePainter
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
+import org.ailingo.app.core.presentation.ErrorScreen
+import org.ailingo.app.core.presentation.LoadingScreen
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.login.presentation.LoginUiState
 import org.jetbrains.compose.resources.DrawableResource
@@ -61,7 +68,12 @@ fun ProfileScreen(
     modifier: Modifier = Modifier,
     loginUiState: LoginUiState,
     windowInfo: WindowInfo,
-    onExit: () -> Unit
+    onExit: () -> Unit,
+    onNavigateProfileChange: (
+        name: String,
+        email: String,
+        avatar: String?
+    ) -> Unit
 ) {
     when (loginUiState) {
         is LoginUiState.Error -> {
@@ -69,7 +81,7 @@ fun ProfileScreen(
         }
 
         LoginUiState.Loading -> {
-            LoadingScreen()
+            LoadingScreen(modifier = Modifier.fillMaxSize())
         }
 
         is LoginUiState.Success -> {
@@ -77,11 +89,18 @@ fun ProfileScreen(
                 modifier = modifier,
                 loginUiState = loginUiState,
                 onExit = onExit,
-                windowInfo = windowInfo
+                windowInfo = windowInfo,
+                onNavigateProfileChange = {
+                    onNavigateProfileChange(
+                        loginUiState.user.name,
+                        loginUiState.user.email,
+                        loginUiState.user.avatar
+                    )
+                }
             )
         }
 
-        LoginUiState.Empty -> {}
+        LoginUiState.Unauthenticated -> {}
     }
 }
 
@@ -90,7 +109,8 @@ fun ProfileContent(
     modifier: Modifier,
     windowInfo: WindowInfo,
     loginUiState: LoginUiState.Success,
-    onExit: () -> Unit
+    onExit: () -> Unit,
+    onNavigateProfileChange: () -> Unit
 ) {
     val statisticCardWidth = remember {
         mutableStateOf(0.dp)
@@ -155,7 +175,7 @@ fun ProfileContent(
                 )
             }
         }
-        ProfileChangeDataButton(statisticCardWidth.value)
+        ProfileChangeDataButton(statisticCardWidth.value, onNavigateProfileChange = onNavigateProfileChange)
         ProfileExitButton(onExit, statisticCardWidth.value)
     }
 }
@@ -170,7 +190,7 @@ fun ProfileHeader(loginUiState: LoginUiState.Success) {
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxWidth().height(200.dp),
         )
-        if (loginUiState.avatar.isBlank()) {
+        if (loginUiState.user.avatar?.isBlank() == true) {
             Card(
                 modifier = Modifier.padding(top = 100.dp).align(Alignment.Center).size(200.dp),
                 shape = CircleShape
@@ -186,11 +206,30 @@ fun ProfileHeader(loginUiState: LoginUiState.Success) {
                 modifier = Modifier.padding(top = 100.dp).align(Alignment.Center).size(200.dp),
                 shape = CircleShape
             ) {
-                AsyncImage(
-                    model = loginUiState.avatar,
+                SubcomposeAsyncImage(
+                    model = loginUiState.user.avatar,
                     contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                )
+                    contentScale = ContentScale.Crop
+                ) {
+                    val state by painter.state.collectAsState()
+                    when (state) {
+                        AsyncImagePainter.State.Empty -> {}
+                        is AsyncImagePainter.State.Error -> {
+                            Image(
+                                painter = painterResource(Res.drawable.defaultProfilePhoto),
+                                contentDescription = null
+                            )
+                        }
+
+                        is AsyncImagePainter.State.Loading -> {
+                            LoadingScreen(modifier = Modifier.fillMaxSize())
+                        }
+
+                        is AsyncImagePainter.State.Success -> {
+                            SubcomposeAsyncImageContent()
+                        }
+                    }
+                }
             }
         }
     }
@@ -214,17 +253,17 @@ fun ProfileData(
             modifier = Modifier.padding(start = 16.dp, end = 16.dp).height(statisticsHeight)
         ) {
             Text(
-                loginUiState.name,
+                loginUiState.user.name,
                 style = MaterialTheme.typography.displayMedium,
                 textAlign = TextAlign.Center,
             )
             Text(
-                loginUiState.login,
+                loginUiState.user.login,
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center
             )
             Text(
-                loginUiState.email,
+                loginUiState.user.email,
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center
             )
@@ -271,19 +310,19 @@ fun StatRow(loginUiState: LoginUiState.Success) {
         modifier = Modifier.padding(8.dp)
     ) {
         StatItem(
-            value = loginUiState.coins.toString(),
+            value = loginUiState.user.coins.toString(),
             label = stringResource(Res.string.coins),
             icon = Res.drawable.coins
         )
         HorizontalDivider(modifier = Modifier.height(32.dp).width(2.dp))
         StatItem(
-            value = loginUiState.streak.toString(),
+            value = loginUiState.user.streak.toString(),
             label = stringResource(Res.string.streak),
             icon = Res.drawable.streak
         )
         HorizontalDivider(modifier = Modifier.height(32.dp).width(2.dp))
         StatItem(
-            value = loginUiState.xp.toString(),
+            value = loginUiState.user.xp.toString(),
             label = stringResource(Res.string.xp),
             icon = Res.drawable.icon_experience
         )
@@ -323,19 +362,19 @@ fun StatItem(value: String, label: String, icon: DrawableResource) {
 fun ColumnScope.ProfileExitButton(onExit: () -> Unit, cardWidth: Dp) {
     Button(
         onClick = onExit,
-        modifier = Modifier.width(cardWidth).align(Alignment.CenterHorizontally)
+        modifier = Modifier.width(cardWidth).align(Alignment.CenterHorizontally).defaultMinSize(minHeight = OutlinedTextFieldDefaults.MinHeight)
     ) {
         Text(stringResource(Res.string.exit))
     }
 }
 
 @Composable
-fun ColumnScope.ProfileChangeDataButton(cardWidth: Dp) {
+fun ColumnScope.ProfileChangeDataButton(cardWidth: Dp, onNavigateProfileChange: () -> Unit) {
     Button(
         onClick = {
-
+            onNavigateProfileChange()
         },
-        modifier = Modifier.width(cardWidth).align(Alignment.CenterHorizontally)
+        modifier = Modifier.width(cardWidth).align(Alignment.CenterHorizontally).defaultMinSize(minHeight = OutlinedTextFieldDefaults.MinHeight)
     ) {
         Text(stringResource(Res.string.change_user_data))
     }

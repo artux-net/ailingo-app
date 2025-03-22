@@ -4,7 +4,7 @@ googleAuthLibraryOauth2Http = "1.7.0"
 jlayer = "1.0.1"
 kotlin = "2.0.20"
 compose = "1.7.0"
-agp = "8.6.1"
+agp = "8.7.3"
 androidx-activityCompose = "1.9.3"
 androidx-uiTest = "1.7.4"
 kermit = "2.0.4"
@@ -17,6 +17,7 @@ koin = "3.6.0-Beta4"
 koinComposeMultiplatform = "1.2.0-Beta4"
 coil = "3.0.0-rc01"
 logbackClassic = "1.2.6"
+slf4jSimple = "2.0.9"
 sqlDelight = "2.0.2"
 buildConfig = "5.4.0"
 composeIcons = "1.1.1"
@@ -63,6 +64,7 @@ coil-mp = { module = "io.coil-kt.coil3:coil", version.ref = "coil" }
 
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logbackClassic" }
 
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4jSimple" }
 sqlDelight-driver-sqlite = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
 sqlDelight-driver-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
 sqlDelight-driver-native = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }

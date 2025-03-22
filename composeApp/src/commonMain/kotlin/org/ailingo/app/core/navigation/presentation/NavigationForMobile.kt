@@ -14,17 +14,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import org.ailingo.app.ChatPage
 import org.ailingo.app.DictionaryPage
+import org.ailingo.app.FavouriteWordsPage
 import org.ailingo.app.ProfilePage
+import org.ailingo.app.ProfileUpdatePage
 import org.ailingo.app.TopicsPage
 import org.ailingo.app.core.navigation.model.BottomNavItem
 import org.ailingo.app.core.presentation.topappbar.TopAppBarCenter
 import org.ailingo.app.core.presentation.topappbar.TopAppBarWithProfile
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
-import org.ailingo.app.features.login.presentation.LoginViewModel
+import org.ailingo.app.features.login.presentation.LoginUiState
 import org.ailingo.app.theme.AppTheme
 import org.jetbrains.compose.resources.stringResource
 
@@ -34,7 +35,7 @@ fun NavigationForMobile(
     currentDestination: NavDestination?,
     isStandardCenterTopAppBarVisible: Boolean,
     isTopAppBarWithProfileVisible: Boolean,
-    loginViewModel: LoginViewModel,
+    loginState: LoginUiState,
     windowInfo: WindowInfo,
     contentNavHost: @Composable (padding: PaddingValues) -> Unit,
 ) {
@@ -42,7 +43,9 @@ fun NavigationForMobile(
         ChatPage::class,
         TopicsPage::class,
         DictionaryPage::class,
+        FavouriteWordsPage::class,
         ProfilePage::class,
+        ProfileUpdatePage::class,
     )
 
     val isBottomBarVisible = currentDestination?.let { dest ->
@@ -55,6 +58,7 @@ fun NavigationForMobile(
         BottomNavItem.ChatMode,
         BottomNavItem.Topics,
         BottomNavItem.Dictionary,
+        BottomNavItem.FavouriteWords,
         BottomNavItem.Profile,
     )
 
@@ -69,6 +73,7 @@ fun NavigationForMobile(
                     BottomNavItem.ChatMode -> destination.hasRoute(ChatPage::class)
                     BottomNavItem.Topics -> destination.hasRoute(TopicsPage::class)
                     BottomNavItem.Dictionary -> destination.hasRoute(DictionaryPage::class)
+                    BottomNavItem.FavouriteWords -> destination.hasRoute(FavouriteWordsPage::class)
                     BottomNavItem.Profile -> destination.hasRoute(ProfilePage::class)
                 }
             }
@@ -82,7 +87,7 @@ fun NavigationForMobile(
         Scaffold(
             topBar = {
                 if (isTopAppBarWithProfileVisible) {
-                    TopAppBarWithProfile(loginViewModel = loginViewModel, windowInfo = windowInfo)
+                    TopAppBarWithProfile(loginState = loginState, windowInfo = windowInfo)
                 } else {
                     if (isStandardCenterTopAppBarVisible) {
                         TopAppBarCenter()
@@ -99,12 +104,17 @@ fun NavigationForMobile(
                                     Text(stringResource(item.title))
                                 },
                                 onClick = {
-                                    navController.navigate(item.route) {
-                                        navController.graph.findStartDestination().route?.let {
-                                            popUpTo(it) {
-                                                saveState = true
-                                            }
-                                        }
+                                    val route = if (item == BottomNavItem.Dictionary) {
+                                        DictionaryPage("") // Construct the route string with the argument
+                                    } else {
+                                        item.route
+                                    }
+                                    navController.navigate(route) {
+//                                        navController.graph.findStartDestination().route?.let {
+//                                            popUpTo(it) {
+//                                                saveState = true
+//                                            }
+//                                        }
                                         launchSingleTop = true
                                         restoreState = true
                                     }

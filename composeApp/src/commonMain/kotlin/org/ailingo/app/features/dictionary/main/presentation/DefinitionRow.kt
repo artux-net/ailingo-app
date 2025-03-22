@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -16,18 +18,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Volume2
+import org.ailingo.app.core.presentation.UiState
 import org.ailingo.app.features.dictionary.examples.data.model.WordInfoItem
 import org.ailingo.app.features.dictionary.main.data.model.Def
 import org.ailingo.app.features.dictionary.main.presentation.utils.getPartOfSpeechLabel
 import org.ailingo.app.playSound
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DefinitionRowInfo(definition: Def, responseForExamples: List<WordInfoItem>?) {
+fun DefinitionRowInfo(
+    definition: Def,
+    responseForExamples: List<WordInfoItem>?,
+    favoriteDictionaryState: UiState<List<String>>,
+    onRemoveFromFavourites: (String) -> Unit,
+    onAddToFavourite: (String) -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
@@ -40,14 +49,14 @@ fun DefinitionRowInfo(definition: Def, responseForExamples: List<WordInfoItem>?)
         // val fontFamilyForTranscription: FontFamily = fontFamilyResource(SharedRes.fonts.NotoSans.light)
         // Text("[" + definition.ts + "]", fontFamily = fontFamilyForTranscription, fontSize = 16.sp)
         Spacer(modifier = Modifier.width(8.dp))
-        Text(getPartOfSpeechLabel(definition.pos))
+        Text(getPartOfSpeechLabel(definition.partOfSpeech))
         val listOfAllAudio = responseForExamples?.flatMap { wordInfoItem ->
             wordInfoItem.phonetics
-                .mapNotNull {
+                ?.mapNotNull {
                     it.audio.takeIf { audio ->
                         audio?.isNotBlank() ?: false
                     }
-                }
+                } ?: emptyList()
         }
         val firstNonEmptyAudio = listOfAllAudio?.firstOrNull()
         if (firstNonEmptyAudio != null) {
@@ -63,10 +72,25 @@ fun DefinitionRowInfo(definition: Def, responseForExamples: List<WordInfoItem>?)
                 }
             }
         }
+        if (favoriteDictionaryState is UiState.Success) {
+            if (favoriteDictionaryState.data.contains(definition.text)) {
+                IconButton(onClick = {
+                    onRemoveFromFavourites(definition.text)
+                }) {
+                    Icon(imageVector = Icons.Filled.Favorite, contentDescription = null, tint = Color.Red)
+                }
+            } else {
+                IconButton(onClick = {
+                    onAddToFavourite(definition.text)
+                }) {
+                    Icon(imageVector = Icons.Outlined.Favorite, contentDescription = null)
+                }
+            }
+        }
     }
     Spacer(modifier = Modifier.height(8.dp))
 
-    definition.tr.forEachIndexed { index, tr ->
+    definition.translations.forEachIndexed { index, tr ->
         DefinitionEntry(index, tr)
     }
 }

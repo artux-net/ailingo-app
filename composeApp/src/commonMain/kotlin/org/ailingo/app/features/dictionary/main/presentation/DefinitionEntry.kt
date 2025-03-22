@@ -41,15 +41,15 @@ fun DefinitionEntry(index: Int, tr: Tr) {
                     .clip(RoundedCornerShape(16.dp))
                     .background(color = ColorForMainTextDictionary)
             ) {
-                DefinitionAndSynonymText(tr.text, tr.gen)
+                DefinitionAndSynonymText(tr.text, tr.gender)
             }
-            tr.syn?.forEach { syn ->
+            tr.synonyms?.forEach { syn ->
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(16.dp))
                         .background(color = ColorForSynonymsDictionary)
                 ) {
-                    DefinitionAndSynonymText(syn.text, syn.gen)
+                    DefinitionAndSynonymText(syn.text, syn.gender)
                 }
             }
         }
@@ -57,7 +57,7 @@ fun DefinitionEntry(index: Int, tr: Tr) {
     Spacer(modifier = Modifier.height(4.dp))
     FlowRow {
         Spacer(modifier = Modifier.width(34.dp))
-        val meanText = tr.mean?.joinToString(", ") { it.text }
+        val meanText = tr.meanings?.joinToString(", ") { it.text }
         if (meanText?.isNotBlank() == true) {
             Text(meanText, color = Color.DarkGray, fontSize = 14.sp)
         }
