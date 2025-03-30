@@ -1,5 +1,6 @@
 package org.ailingo.app.features.topics.presentation
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -36,13 +37,15 @@ import org.ailingo.app.features.topics.data.model.Topic
 fun ContentTopics(
     topic: Topic,
     deviceType: DeviceType,
-    modifier: Modifier = Modifier
+    onTopicClick: (String, String) -> Unit
 ) {
     val gradient = Brush.verticalGradient(
         colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.4f), Color.Transparent)
     )
     Box(
-        modifier = modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd
+        modifier = Modifier.fillMaxSize().clickable {
+            onTopicClick(topic.name, topic.imageUrl)
+        }, contentAlignment = Alignment.BottomEnd
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),

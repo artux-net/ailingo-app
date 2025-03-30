@@ -6,8 +6,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import org.ailingo.app.AppDatabase
-import org.ailingo.app.features.jwt.data.model.AuthResponse
-import org.ailingo.app.features.jwt.data.model.JwtInfo
+import org.ailingo.app.features.jwt.data.model.RefreshTokenResponse
+import org.ailingo.app.features.jwt.data.model.Token
 import org.ailingo.app.features.jwt.domain.repository.TokenRepository
 
 class TokenRepositoryImpl(
@@ -16,24 +16,24 @@ class TokenRepositoryImpl(
 
     private val tokenQueries = database.tokenQueries
 
-    override suspend fun saveTokens(authResponse: AuthResponse) {
+    override suspend fun saveTokens(tokensInfo: RefreshTokenResponse) {
         tokenQueries.transaction {
             tokenQueries.deleteTokens()
             tokenQueries.insertTokens(
-                token = authResponse.token,
-                refreshToken = authResponse.refreshToken
+                token = tokensInfo.accessToken,
+                refreshToken = tokensInfo.refreshToken
             )
         }
     }
 
-    override suspend fun getTokens(): JwtInfo? {
+    override suspend fun getTokens(): Token? {
         return tokenQueries
             .getTokens()
             .asFlow()
             .mapToList(Dispatchers.Default)
             .map { tokenEntities ->
                 tokenEntities.firstOrNull()?.let {
-                    JwtInfo(
+                    Token(
                         id = it.id,
                         token = it.token,
                         refreshToken = it.refresh_token

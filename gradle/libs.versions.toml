@@ -2,8 +2,8 @@
 
 googleAuthLibraryOauth2Http = "1.7.0"
 jlayer = "1.0.1"
-kotlin = "2.0.20"
-compose = "1.7.0"
+kotlin = "2.1.20"
+compose = "1.8.0-beta01"
 agp = "8.7.3"
 androidx-activityCompose = "1.9.3"
 androidx-uiTest = "1.7.4"
@@ -22,6 +22,8 @@ sqlDelight = "2.0.2"
 buildConfig = "5.4.0"
 composeIcons = "1.1.1"
 google-cloud-speech = "2.5.1"
+datetime = "0.6.2"
+
 [libraries]
 
 androidx-activityCompose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
@@ -69,7 +71,9 @@ sqlDelight-driver-sqlite = { module = "app.cash.sqldelight:sqlite-driver", versi
 sqlDelight-driver-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
 sqlDelight-driver-native = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }
 sqlDelight-driver-js = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqlDelight" }
-sqlDelight-driver-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight"}
+sqlDelight-driver-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
+
+datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
 [plugins]
 
 multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

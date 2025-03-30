@@ -34,8 +34,7 @@ fun DefinitionRowInfo(
     definition: Def,
     responseForExamples: List<WordInfoItem>?,
     favoriteDictionaryState: UiState<List<String>>,
-    onRemoveFromFavourites: (String) -> Unit,
-    onAddToFavourite: (String) -> Unit
+    onEvent: (DictionaryEvents) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -75,13 +74,13 @@ fun DefinitionRowInfo(
         if (favoriteDictionaryState is UiState.Success) {
             if (favoriteDictionaryState.data.contains(definition.text)) {
                 IconButton(onClick = {
-                    onRemoveFromFavourites(definition.text)
+                    onEvent(DictionaryEvents.RemoveFromFavorites(definition.text))
                 }) {
                     Icon(imageVector = Icons.Filled.Favorite, contentDescription = null, tint = Color.Red)
                 }
             } else {
                 IconButton(onClick = {
-                    onAddToFavourite(definition.text)
+                    onEvent(DictionaryEvents.AddToFavorites(definition.text))
                 }) {
                     Icon(imageVector = Icons.Outlined.Favorite, contentDescription = null)
                 }

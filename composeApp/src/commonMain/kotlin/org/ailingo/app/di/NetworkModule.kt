@@ -19,6 +19,7 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.HttpRequestPipeline
 import io.ktor.client.request.header
+import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
@@ -35,11 +36,11 @@ import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.AttributeKey
 import kotlinx.coroutines.Deferred
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import org.ailingo.app.features.jwt.data.model.AuthResponse
+import org.ailingo.app.features.jwt.data.model.RefreshTokenRequest
+import org.ailingo.app.features.jwt.data.model.RefreshTokenResponse
 import org.ailingo.app.features.jwt.domain.repository.TokenRepository
 import org.jetbrains.compose.resources.getString
 import org.koin.core.qualifier.named
@@ -72,7 +73,8 @@ val networkModule = module {
                     "/ailingo/api/v1/user/info" to HttpMethod.Get,
                     "/ailingo/api/v1/user/register" to HttpMethod.Post,
                     "/ailingo/api/v1/user/verifyEmail" to HttpMethod.Post,
-                    "/ailingo/api/v1/user/refreshToken" to HttpMethod.Post
+                    "/ailingo/api/v1/user/refreshToken" to HttpMethod.Post,
+                    "/ailingo/api/v1/user/resendVerificationCode" to HttpMethod.Post
                 )
             }
         }
@@ -86,6 +88,7 @@ val networkModule = module {
                         val errorBody = httpResponse.body<JsonObject>()
                         errorBody["message"]?.jsonPrimitive?.content ?: getString(Res.string.unexpected_error)
                     } catch (e: Exception) {
+                        e.printStackTrace()
                         getString(Res.string.unexpected_error)
                     }
                 }
@@ -144,26 +147,35 @@ class AuthTokenInterceptor(config: Config) {
                 proceed()
             }
             scope.responsePipeline.intercept(HttpResponsePipeline.Receive) {
-                if (context.response.status == HttpStatusCode.Forbidden) {
-                    println("Received 403, attempting to refresh token")
+                val originalCall = context
+                val originalResponse = originalCall.response
+                if (originalResponse.status == HttpStatusCode.Forbidden) {
+                    println("Received 403/Forbidden, attempting to refresh token")
                     val refreshedTokens = plugin.refreshToken(plugin.tokenRepository.await(), scope)
                     if (refreshedTokens != null) {
                         println("Token refreshed successfully, retrying original request")
+                        val originalRequest = context.request
                         scope.request {
-                            takeFrom(context.request)
-                            headers.remove(HttpHeaders.Authorization)
-                            headers[HttpHeaders.Authorization] = "Bearer ${refreshedTokens.token}"
+                            HttpRequestBuilder().apply {
+                                takeFrom(originalRequest)
+                                headers {
+                                    remove(HttpHeaders.Authorization)
+                                    set(HttpHeaders.Authorization, "Bearer ${refreshedTokens.accessToken}")
+                                }
+                            }
                         }
                     } else {
-                        //TODO
+                        //TODO NAVIGATE TO LOGIN
                         println("Token refresh failed, user needs to re-login")
                     }
+                } else {
+                    proceed()
                 }
             }
         }
     }
 
-    private suspend fun refreshToken(tokenRepository: TokenRepository, httpClient: HttpClient): AuthResponse? {
+    private suspend fun refreshToken(tokenRepository: TokenRepository, httpClient: HttpClient): RefreshTokenResponse? {
         val currentRefreshToken = tokenRepository.getTokens()?.refreshToken
         if (currentRefreshToken == null) {
             println("No refresh token found")
@@ -177,8 +189,8 @@ class AuthTokenInterceptor(config: Config) {
             }
 
             if (refreshResponse.status.isSuccess()) {
-                val authResponse = refreshResponse.body<AuthResponse>()
-                tokenRepository.saveTokens(authResponse)
+                val authResponse = refreshResponse.body<RefreshTokenResponse>()
+                tokenRepository.saveTokens(RefreshTokenResponse(authResponse.accessToken, authResponse.refreshToken))
                 println("New tokens saved successfully.")
                 authResponse
             } else {
@@ -206,6 +218,3 @@ class AuthTokenInterceptor(config: Config) {
         }
     }
 }
-
-@Serializable
-data class RefreshTokenRequest(val refreshToken: String)

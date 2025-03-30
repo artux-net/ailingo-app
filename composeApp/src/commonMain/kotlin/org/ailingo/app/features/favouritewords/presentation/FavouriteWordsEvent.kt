@@ -1,4 +1,4 @@
-package org.ailingo.app.features.favouritewords
+package org.ailingo.app.features.favouritewords.presentation
 
 sealed class FavouriteWordsEvent {
     data object OnGetFavouriteWords : FavouriteWordsEvent()

@@ -36,7 +36,7 @@ class DictionaryViewModel(
     private val _dictionaryUiState = MutableStateFlow<UiState<DictionaryResponse>>(UiState.Idle())
     val dictionaryUiState = _dictionaryUiState.asStateFlow()
 
-    private val _examplesUiState =  MutableStateFlow<UiState<List<WordInfoItem>>>(UiState.Idle())
+    private val _examplesUiState = MutableStateFlow<UiState<List<WordInfoItem>>>(UiState.Idle())
     val examplesUiState = _examplesUiState.asStateFlow()
 
     private var _predictorState = MutableStateFlow<UiState<PredictorResponse>>(UiState.Idle())
@@ -83,20 +83,22 @@ class DictionaryViewModel(
         }
     }
 
-    private fun getWordInfo(word: String) {
-        viewModelScope.launch {
-            dictionaryRepository.getWordInfo(word).collect { state->
-                _dictionaryUiState.update { state }
-            }
-            exampleRepository.getExamples(word).collect { state->
-                _examplesUiState.update { state  }
+    private fun getWordInfo(word: String?) {
+        if (word != null && word != "") {
+            viewModelScope.launch {
+                dictionaryRepository.getWordInfo(word).collect { state ->
+                    _dictionaryUiState.update { state }
+                }
+                exampleRepository.getExamples(word).collect { state ->
+                    _examplesUiState.update { state }
+                }
             }
         }
     }
 
     private fun predictNextWords(request: PredictorRequest) {
         viewModelScope.launch {
-            predictorRepository.predictNextWords(request).collect { state->
+            predictorRepository.predictNextWords(request).collect { state ->
                 _predictorState.update { state }
             }
         }

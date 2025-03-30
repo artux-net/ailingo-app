@@ -1,100 +1,129 @@
 package org.ailingo.app.features.chat.presentation
 
-import AiLingo.composeApp.BuildConfig.BASE_URL
-import ailingo.composeapp.generated.resources.Res
-import ailingo.composeapp.generated.resources.bot_greeting_topic1
-import ailingo.composeapp.generated.resources.bot_greeting_topic2
-import ailingo.composeapp.generated.resources.bot_greeting_topic3
-import ailingo.composeapp.generated.resources.bot_greeting_topic4
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.isSuccess
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.ailingo.app.di.ErrorMapper
-import org.ailingo.app.features.chat.data.model.Message
-import org.ailingo.app.features.jwt.domain.repository.TokenRepository
-import org.jetbrains.compose.resources.getString
-import kotlin.random.Random
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import org.ailingo.app.core.presentation.UiState
+import org.ailingo.app.features.chat.data.model.Conversation
+import org.ailingo.app.features.chat.domain.repository.ChatRepository
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class ChatViewModel(
-    private val httpClient: HttpClient,
-    private val errorMapper: ErrorMapper,
-    private val tokenRepositoryDeferred: Deferred<TokenRepository>
+    private val chatRepository: ChatRepository,
+    topicName: String
 ) : ViewModel() {
-    private val _chatState = mutableStateListOf<Message>()
-    val chatState: List<Message> = _chatState
+    private val _chatState = MutableStateFlow<UiState<MutableList<Conversation>>>(UiState.Idle())
+    val chatState = _chatState.asStateFlow()
+    private var conversationId by mutableStateOf("")
 
-    private val _isActiveJob = MutableSharedFlow<Boolean>()
-    val isActiveJob = _isActiveJob.asSharedFlow()
+    private val _messages = MutableStateFlow<List<Conversation>>(mutableListOf())
+    val messages = _messages.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            val randomGreeting = when (Random.nextInt(4)) {
-                0 -> getString(Res.string.bot_greeting_topic1)
-                1 -> getString(Res.string.bot_greeting_topic2)
-                2 -> getString(Res.string.bot_greeting_topic3)
-                else -> getString(Res.string.bot_greeting_topic4)
+        onEvent(ChatEvents.OnStartConversation(topicName))
+    }
+
+    fun onEvent(event: ChatEvents) {
+        when (event) {
+            is ChatEvents.OnStartConversation -> {
+                startConversation(event.topicName)
             }
-            _chatState.add(Message(randomGreeting, false))
+
+            is ChatEvents.OnSendMessage -> {
+                sendMessage(conversationId = conversationId, message = event.message)
+            }
         }
     }
 
-    private val API_ENDPOINT = "/api/v1/chat/message"
+    private fun startConversation(topicName: String) {
+        _chatState.value = UiState.Loading()
+        viewModelScope.launch {
+            chatRepository.startChat(topicName).collect { state ->
+                when (state) {
+                    is UiState.Success -> {
+                        conversationId = state.data.conversationId
+                        _messages.value = mutableListOf(state.data)
+                        _chatState.value = UiState.Success(mutableListOf(state.data))
+                    }
 
-    fun onEvent(event: ChatScreenEvents) {
-        when (event) {
-            is ChatScreenEvents.MessageSent -> {
-                _chatState.add(Message(event.message, isSentByUser = true))
-                _chatState.add(Message("Waiting for response...", isSentByUser = false))
-                viewModelScope.launch {
-                    try {
-                        val token = tokenRepositoryDeferred.await().getTokens()?.token
-                        val response = httpClient.post("$BASE_URL$API_ENDPOINT") {
-                            header(HttpHeaders.Authorization, "Bearer $token")
-                            header(HttpHeaders.ContentType, ContentType.Application.Json)
-                            setBody(event.message)
-                        }
-                        if (token == null) {
-                            _chatState.removeAt(_chatState.size - 1)
-                            _chatState.add(Message("Please login", isSentByUser = false))
-                            _isActiveJob.emit(false)
-                            return@launch
-                        }
-                        when {
-                            response.status.isSuccess() -> {
-                                val responseBody = response.body<String>()
-                                _chatState.removeAt(_chatState.size - 1)
-                                _chatState.add(Message(responseBody, isSentByUser = false))
-                                _isActiveJob.emit(false)
-                            } else -> {
-                                _chatState.removeAt(_chatState.size - 1)
-                                _chatState.add(
-                                    Message(
-                                        "Request failed with ${response.status}",
-                                        isSentByUser = false
-                                    )
-                                )
-                                _isActiveJob.emit(false)
-                            }
-                        }
-                    } catch (e: Exception) {
-                        _chatState.removeAt(_chatState.size - 1)
-                        _chatState.add(Message(errorMapper.mapError(e), isSentByUser = false))
-                        _isActiveJob.emit(false)
+                    is UiState.Error -> {
+                        _chatState.value = UiState.Error(state.message)
+                    }
+
+                    is UiState.Loading -> {
+                        _chatState.value = UiState.Loading()
+                    }
+
+                    is UiState.Idle -> {
+                        _chatState.value = UiState.Idle()
                     }
                 }
             }
         }
+    }
+
+    private fun sendMessage(conversationId: String, message: String) {
+        if (message.isBlank()) return
+        val userMessage = Conversation(
+            id = generateUniqueId(),
+            conversationId = conversationId,
+            content = message,
+            timestamp = getCurrentTimestamp(),
+            type = "USER"
+        )
+
+        val currentMessages = _messages.value.toMutableList()
+        currentMessages.add(userMessage)
+        _messages.value = currentMessages
+
+        _chatState.value = UiState.Loading()
+        viewModelScope.launch {
+            chatRepository.sendMessage(conversationId, message).collect { state ->
+                when (state) {
+                    is UiState.Success -> {
+                        val updatedMessages = _messages.value.toMutableList()
+                        updatedMessages.add(state.data)
+                        _messages.value = updatedMessages
+                        _chatState.value = UiState.Success(_messages.value.toMutableList())
+                    }
+
+                    is UiState.Error -> {
+                        _chatState.value = UiState.Error(state.message)
+                    }
+
+                    is UiState.Loading -> {
+                        _chatState.value = UiState.Loading()
+                    }
+
+                    is UiState.Idle -> {
+                        _chatState.value = UiState.Idle()
+                    }
+                }
+            }
+        }
+    }
+
+
+    @Suppress("MemberExtensionConflict")
+    @OptIn(ExperimentalUuidApi::class)
+    private fun generateUniqueId(): String {
+        return Uuid.random().toString()
+    }
+
+    private fun getCurrentTimestamp(): String {
+        val currentInstant: Instant = Clock.System.now()
+        val timeZone: TimeZone = TimeZone.UTC
+        val localDateTime = currentInstant.toLocalDateTime(timeZone)
+        return localDateTime.toString() + "Z"
     }
 }

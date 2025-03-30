@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import org.ailingo.app.core.presentation.UiState
 import org.ailingo.app.features.profileupdate.data.model.ProfileUpdateRequest
 import org.ailingo.app.features.profileupdate.data.model.ProfileUpdateResponse
+import org.ailingo.app.features.profileupdate.data.model.imageuploader.ImageUploaderResponse
 import org.ailingo.app.features.profileupdate.domain.repository.ProfileUpdateRepository
 
 class ProfileUpdateViewModel(
@@ -16,6 +17,9 @@ class ProfileUpdateViewModel(
 ) : ViewModel() {
     private val _profileUpdateUiState = MutableStateFlow<UiState<ProfileUpdateResponse>>(UiState.Idle())
     val profileUpdateUiState = _profileUpdateUiState.asStateFlow()
+
+    private val _uploadAvatarState = MutableStateFlow<UiState<ImageUploaderResponse>>(UiState.Idle())
+    val uploadAvatarState = _uploadAvatarState.asStateFlow()
 
     fun onEvent(event: ProfileUpdateEvent) {
         when (event) {
@@ -25,6 +29,16 @@ class ProfileUpdateViewModel(
 
             ProfileUpdateEvent.OnBackToEmptyState -> {
                 backToEmptyState()
+            }
+
+            is ProfileUpdateEvent.OnUploadAvatar -> uploadAvatar(event.imageBase64)
+        }
+    }
+
+    private fun uploadAvatar(imageBase64: String) {
+        viewModelScope.launch {
+            profileUpdateRepository.uploadAvatar(imageBase64).collect { state->
+                _uploadAvatarState.update { state }
             }
         }
     }

@@ -1,4 +1,4 @@
-package org.ailingo.app.features.favouritewords
+package org.ailingo.app.features.favouritewords.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

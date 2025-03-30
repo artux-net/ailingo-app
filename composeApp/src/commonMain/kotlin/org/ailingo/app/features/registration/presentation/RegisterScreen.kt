@@ -60,6 +60,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.ailingo.app.core.presentation.UiState
+import org.ailingo.app.features.registration.data.model.RegistrationRequest
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -68,9 +69,8 @@ import org.jetbrains.compose.resources.stringResource
 fun RegistrationScreen(
     onNavigateToLoginPage: () -> Unit,
     onNavigateToVerifyEmail: (email: String, password: String) -> Unit,
-    onRegisterUser: (login: String, password: String, email: String, name: String) -> Unit,
     pendingRegistrationState: UiState<Unit>,
-    onBackRegistrationState: () -> Unit
+    onEvent: (RegistrationEvent) -> Unit
 ) {
     var login by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
@@ -116,7 +116,7 @@ fun RegistrationScreen(
             isLoginValid = login.length in 4..16 && password.isNotBlank()
 
             if (isNameValid && isEmailValid && isPasswordValid && isLoginValid) {
-                onRegisterUser(login, password, email, name)
+                onEvent(RegistrationEvent.OnRegisterUser(RegistrationRequest(login, password, email, name)))
             }
         },
         pendingRegistrationState = pendingRegistrationState
@@ -125,14 +125,13 @@ fun RegistrationScreen(
     LaunchedEffect(key1 = pendingRegistrationState) {
         if (pendingRegistrationState is UiState.Success) {
             onNavigateToVerifyEmail(email, password)
-            onBackRegistrationState()
+            onEvent(RegistrationEvent.OnBackToEmptyState)
         }
     }
 }
 
 @Composable
 fun RegistrationContent(
-    modifier: Modifier = Modifier,
     login: String,
     name: String,
     email: String,
@@ -269,11 +268,12 @@ fun RegistrationContent(
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Text(stringResource(Res.string.already_have_account), modifier = Modifier
-                .padding(bottom = 16.dp)
-                .clickable {
-                    onNavigateToLoginPage()
-                }
+            Text(
+                stringResource(Res.string.already_have_account), modifier = Modifier
+                    .padding(bottom = 16.dp)
+                    .clickable {
+                        onNavigateToLoginPage()
+                    }
             )
         }
     }

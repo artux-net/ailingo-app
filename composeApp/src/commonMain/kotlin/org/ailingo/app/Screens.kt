@@ -6,7 +6,10 @@ import kotlinx.serialization.Serializable
 object LoginPage
 
 @Serializable
-object ChatPage
+data class ChatPage(
+    val topicName: String,
+    val topicImage: String
+)
 
 @Serializable
 object RegistrationPage

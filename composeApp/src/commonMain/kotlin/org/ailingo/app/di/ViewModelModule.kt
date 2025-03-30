@@ -2,7 +2,7 @@ package org.ailingo.app.di
 
 import org.ailingo.app.features.chat.presentation.ChatViewModel
 import org.ailingo.app.features.dictionary.main.presentation.DictionaryViewModel
-import org.ailingo.app.features.favouritewords.FavouriteWordsViewModel
+import org.ailingo.app.features.favouritewords.presentation.FavouriteWordsViewModel
 import org.ailingo.app.features.login.presentation.LoginViewModel
 import org.ailingo.app.features.profileupdate.presentation.ProfileUpdateViewModel
 import org.ailingo.app.features.registration.presentation.RegisterUserViewModel
@@ -16,7 +16,7 @@ val viewModelModule = module {
     viewModel { LoginViewModel(get()) }
     viewModel { RegisterUserViewModel(get(), get()) }
     viewModel { OtpViewModel() }
-    viewModel { ChatViewModel(get(), get(), get(named("tokenRepository"))) }
+    factory { (topicName: String) -> ChatViewModel(get(), topicName) }
     viewModel {
         DictionaryViewModel(
             get(named("dictionaryRepository")),

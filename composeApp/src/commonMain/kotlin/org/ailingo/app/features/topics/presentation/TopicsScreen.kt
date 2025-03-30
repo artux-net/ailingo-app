@@ -22,7 +22,8 @@ import org.ailingo.app.features.topics.data.model.Topic
 @Composable
 fun TopicsScreen(
     windowInfo: WindowInfo,
-    topicsUiState: UiState<List<Topic>>
+    topicsUiState: UiState<List<Topic>>,
+    onTopicClick: (String, String)->Unit
 ) {
     val deviceType = if (windowInfo.screenWidthInfo is WindowInfo.WindowType.DesktopWindowInfo) {
         DeviceType.Desktop
@@ -42,7 +43,7 @@ fun TopicsScreen(
             if (topicsUiState.data.isEmpty()) {
                 EmptyScreen(text = Res.string.topic_list_empty, modifier = Modifier.fillMaxSize())
             } else {
-                TopicsContent(topicsUiState.data, deviceType)
+                TopicsContent(topicsUiState.data, deviceType, onTopicClick)
             }
         }
     }
@@ -51,7 +52,8 @@ fun TopicsScreen(
 @Composable
 fun TopicsContent(
     topics: List<Topic>,
-    deviceType: DeviceType
+    deviceType: DeviceType,
+    onTopicClick: (String, String) -> Unit
 ) {
     if (deviceType == DeviceType.Desktop) {
         LazyVerticalStaggeredGrid(
@@ -62,7 +64,7 @@ fun TopicsContent(
             modifier = Modifier.fillMaxSize()
         ) {
             items(topics) { photo ->
-                ContentTopics(photo, deviceType = deviceType)
+                ContentTopics(photo, deviceType = deviceType, onTopicClick)
             }
         }
     } else {
@@ -74,7 +76,7 @@ fun TopicsContent(
             modifier = Modifier.fillMaxSize()
         ) {
             items(topics) { photo ->
-                ContentTopics(photo, deviceType = deviceType)
+                ContentTopics(photo, deviceType = deviceType, onTopicClick)
             }
         }
     }

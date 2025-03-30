@@ -4,7 +4,7 @@ import org.ailingo.app.features.dictionary.historysearch.data.model.DictionarySe
 import org.ailingo.app.features.dictionary.predictor.data.model.PredictorRequest
 
 sealed class DictionaryEvents {
-    data class GetWordInfo(val word: String) : DictionaryEvents()
+    data class GetWordInfo(val word: String?) : DictionaryEvents()
     data class PredictNextWords(val request: PredictorRequest) : DictionaryEvents()
     data class SaveSearchedWord(val word: DictionarySearchHistory) : DictionaryEvents()
     data class DeleteFromSearchHistory(val id: Long) : DictionaryEvents()

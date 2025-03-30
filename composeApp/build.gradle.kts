@@ -77,6 +77,7 @@ kotlin {
             implementation(compose.materialIconsExtended)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.sqlDelight.driver.coroutines)
+            implementation(libs.datetime)
         }
 
         commonTest.dependencies {

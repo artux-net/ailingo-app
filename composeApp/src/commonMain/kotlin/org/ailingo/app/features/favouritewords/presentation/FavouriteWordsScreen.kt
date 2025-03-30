@@ -1,4 +1,4 @@
-package org.ailingo.app.features.favouritewords
+package org.ailingo.app.features.favouritewords.presentation
 
 import ailingo.composeapp.generated.resources.Res
 import ailingo.composeapp.generated.resources.empty_favourite_words
@@ -31,10 +31,9 @@ import org.ailingo.app.core.presentation.UiState
 
 @Composable
 fun FavouriteScreen(
-    modifier: Modifier = Modifier,
     favouriteWordsState: UiState<List<String>>,
     onNavigateToDictionaryScreen: (word: String) -> Unit,
-    onDeleteFavouriteWord: (word: String) -> Unit
+    onEvent: (FavouriteWordsEvent)-> Unit
 ) {
     when (favouriteWordsState) {
         is UiState.Error -> {
@@ -52,7 +51,7 @@ fun FavouriteScreen(
             } else {
                 FavouriteWordsContent(favouriteWordsState.data, onNavigateToDictionaryScreen = {
                     onNavigateToDictionaryScreen(it)
-                }, onDeleteFavouriteWord = onDeleteFavouriteWord)
+                }, onEvent = onEvent)
             }
         }
     }
@@ -62,7 +61,7 @@ fun FavouriteScreen(
 fun FavouriteWordsContent(
     words: List<String>,
     onNavigateToDictionaryScreen: (word: String) -> Unit,
-    onDeleteFavouriteWord: (word: String) -> Unit
+    onEvent: (FavouriteWordsEvent)-> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -86,7 +85,7 @@ fun FavouriteWordsContent(
                     }) {
                         Icon(imageVector = Icons.Filled.Search, contentDescription = "Search")
                     }
-                    IconButton(onClick = { onDeleteFavouriteWord(word) }) {
+                    IconButton(onClick = { onEvent(FavouriteWordsEvent.OnDeleteFavouriteWord(word)) }) {
                         Icon(imageVector = Icons.Filled.Delete, contentDescription = "Remove")
                     }
                 }

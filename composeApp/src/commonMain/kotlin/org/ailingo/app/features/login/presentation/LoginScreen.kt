@@ -58,10 +58,9 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun LoginScreen(
     loginState: LoginUiState,
-    onBackToEmptyState: () -> Unit,
     onNavigateToHomeScreen: () -> Unit,
-    onLoginUser: (email: String, password: String) -> Unit,
-    onNavigateToRegisterScreen: () -> Unit
+    onNavigateToRegisterScreen: () -> Unit,
+    onEvent: (LoginScreenEvent) -> Unit
 ) {
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
@@ -72,7 +71,7 @@ fun LoginScreen(
     when (loginState) {
         is LoginUiState.Error -> {
             ErrorScreen(modifier = Modifier.fillMaxSize(), errorMessage = loginState.message, onButtonClick = {
-                onBackToEmptyState()
+                onEvent(LoginScreenEvent.OnBackToEmptyState)
             }, buttonMessage = stringResource(Res.string.back), textStyle = MaterialTheme.typography.bodyMedium)
         }
 
@@ -123,7 +122,7 @@ fun LoginScreen(
                         visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(onDone = {
-                            onLoginUser(email.value, password.value)
+                            onEvent(LoginScreenEvent.OnLoginUser(email.value, password.value))
                         }),
                         focusRequester = focusRequesterPassword,
                         trailingIcon = {
@@ -139,9 +138,7 @@ fun LoginScreen(
                     VerticalSpacer(16.dp)
                     Button(
                         onClick = {
-                            onLoginUser(
-                                email.value, password.value
-                            )
+                            onEvent(LoginScreenEvent.OnLoginUser(email.value, password.value))
                         },
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier

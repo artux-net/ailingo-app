@@ -38,6 +38,7 @@
     <string name="business">Бизнес</string>
     <string name="back">Назад</string>
     <string name="message">Сообщение</string>
+    <string name="send_message">Отправить</string>
     <string name="no_definitions">Нет определений для этого слова</string>
     <string name="usage_examples">Примеры использования</string>
     <string name="definitions">Определения</string>
