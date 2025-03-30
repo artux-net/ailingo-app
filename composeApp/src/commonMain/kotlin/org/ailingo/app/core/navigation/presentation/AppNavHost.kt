@@ -1,5 +1,15 @@
 package org.ailingo.app.core.navigation.presentation
 
+import ChatPage
+import DictionaryPage
+import FavouriteWordsPage
+import GetStartedPage
+import LoginPage
+import ProfilePage
+import ProfileUpdatePage
+import RegistrationPage
+import TopicsPage
+import VerifyEmailPage
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
@@ -19,16 +29,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import org.ailingo.app.ChatPage
-import org.ailingo.app.DictionaryPage
-import org.ailingo.app.FavouriteWordsPage
-import org.ailingo.app.GetStartedPage
-import org.ailingo.app.LoginPage
-import org.ailingo.app.ProfilePage
-import org.ailingo.app.ProfileUpdatePage
-import org.ailingo.app.RegistrationPage
-import org.ailingo.app.TopicsPage
-import org.ailingo.app.VerifyEmailPage
 import org.ailingo.app.core.utils.voice.VoiceToTextParser
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.chat.presentation.ChatScreen

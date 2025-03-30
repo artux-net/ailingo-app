@@ -1,5 +1,12 @@
 package org.ailingo.app.core.navigation.presentation
 
+import ChatPage
+import DictionaryPage
+import FavouriteWordsPage
+import LoginPage
+import ProfilePage
+import ProfileUpdatePage
+import TopicsPage
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -23,13 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
-import org.ailingo.app.ChatPage
-import org.ailingo.app.DictionaryPage
-import org.ailingo.app.FavouriteWordsPage
-import org.ailingo.app.LoginPage
-import org.ailingo.app.ProfilePage
-import org.ailingo.app.ProfileUpdatePage
-import org.ailingo.app.TopicsPage
 import org.ailingo.app.core.presentation.model.DrawerItems
 import org.ailingo.app.core.presentation.topappbar.TopAppBarCenter
 import org.ailingo.app.core.presentation.topappbar.TopAppBarWithProfile

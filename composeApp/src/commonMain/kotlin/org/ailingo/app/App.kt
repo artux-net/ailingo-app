@@ -1,6 +1,8 @@
 package org.ailingo.app
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import coil3.compose.setSingletonImageLoaderFactory
 import org.ailingo.app.core.utils.coil.asyncImageLoader
 import org.ailingo.app.core.utils.coil.enableDiskCache
@@ -11,6 +13,7 @@ import org.koin.compose.KoinContext
 @Composable
 internal fun App(
     voiceToTextParser: VoiceToTextParser,
+    navController: NavHostController = rememberNavController(),
 ) {
     KoinContext {
         setSingletonImageLoaderFactory { context ->
@@ -22,6 +25,7 @@ internal fun App(
         }
         AiLingoNavGraph(
             voiceToTextParser = voiceToTextParser,
+            navController = navController
         )
     }
 }

@@ -1,5 +1,11 @@
 package org.ailingo.app.core.navigation.presentation
 
+import ChatPage
+import DictionaryPage
+import FavouriteWordsPage
+import ProfilePage
+import ProfileUpdatePage
+import TopicsPage
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -15,12 +21,6 @@ import androidx.compose.runtime.setValue
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
-import org.ailingo.app.ChatPage
-import org.ailingo.app.DictionaryPage
-import org.ailingo.app.FavouriteWordsPage
-import org.ailingo.app.ProfilePage
-import org.ailingo.app.ProfileUpdatePage
-import org.ailingo.app.TopicsPage
 import org.ailingo.app.core.navigation.model.BottomNavItem
 import org.ailingo.app.core.presentation.topappbar.TopAppBarCenter
 import org.ailingo.app.core.presentation.topappbar.TopAppBarWithProfile

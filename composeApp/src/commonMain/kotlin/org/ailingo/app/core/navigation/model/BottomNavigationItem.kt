@@ -1,5 +1,10 @@
 package org.ailingo.app.core.navigation.model
 
+import ChatPage
+import DictionaryPage
+import FavouriteWordsPage
+import ProfilePage
+import TopicsPage
 import ailingo.composeapp.generated.resources.Res
 import ailingo.composeapp.generated.resources.dictionary
 import ailingo.composeapp.generated.resources.favourite_words
@@ -18,11 +23,6 @@ import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Topic
 import androidx.compose.ui.graphics.vector.ImageVector
-import org.ailingo.app.ChatPage
-import org.ailingo.app.DictionaryPage
-import org.ailingo.app.FavouriteWordsPage
-import org.ailingo.app.ProfilePage
-import org.ailingo.app.TopicsPage
 import org.jetbrains.compose.resources.StringResource
 
 sealed class BottomNavItem(

@@ -1,12 +1,20 @@
 package org.ailingo.app
 
+import ChatPage
+import DictionaryPage
+import FavouriteWordsPage
+import GetStartedPage
+import LoginPage
+import ProfilePage
+import ProfileUpdatePage
+import RegistrationPage
+import TopicsPage
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import org.ailingo.app.core.navigation.presentation.AppNavHost
 import org.ailingo.app.core.navigation.presentation.NavigationForDesktop
 import org.ailingo.app.core.navigation.presentation.NavigationForMobile
@@ -22,7 +30,7 @@ import org.koin.core.annotation.KoinExperimentalAPI
 @Composable
 fun AiLingoNavGraph(
     voiceToTextParser: VoiceToTextParser,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController
 ) {
     val loginViewModel: LoginViewModel = koinViewModel<LoginViewModel>()
     val loginState = loginViewModel.loginState.collectAsStateWithLifecycle().value

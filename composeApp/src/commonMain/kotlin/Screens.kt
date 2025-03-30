@@ -1,5 +1,3 @@
-package org.ailingo.app
-
 import kotlinx.serialization.Serializable
 
 @Serializable

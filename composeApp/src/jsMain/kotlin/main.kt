@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -18,7 +19,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.ComposeViewport
+import androidx.navigation.ExperimentalBrowserHistoryApi
+import androidx.navigation.bindToNavigation
+import androidx.navigation.compose.rememberNavController
 import kotlinx.browser.document
+import kotlinx.browser.window
 import org.ailingo.app.App
 import org.ailingo.app.core.utils.voice.VoiceToTextParser
 import org.ailingo.app.di.initKoin
@@ -26,12 +31,18 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.preloadFont
 import org.jetbrains.skiko.wasm.onWasmReady
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalResourceApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalResourceApi::class, ExperimentalBrowserHistoryApi::class)
 fun main() {
     initKoin()
     onWasmReady {
         val body = document.body ?: return@onWasmReady
         ComposeViewport(body) {
+            val navController = rememberNavController()
+
+            LaunchedEffect(Unit) {
+                window.bindToNavigation(navController)
+            }
+
             val voiceToTextParser by lazy {
                 VoiceToTextParser()
             }
@@ -61,7 +72,8 @@ fun main() {
 
             if (fontsReady) {
                 App(
-                    voiceToTextParser
+                    voiceToTextParser,
+                    navController
                 )
             } else {
                 Box(modifier = Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.8f))) {
