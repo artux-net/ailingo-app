@@ -17,7 +17,7 @@
     <string name="get_started">Выбери</string>
     <string name="back_to_the_selection">Вернуться к выбору</string>
     <string name="reset_your_password">Сбросить пароль</string>
-    <string name="free_mode">Чат</string>
+    <string name="chat">Чат</string>
     <string name="topics">Темы</string>
     <string name="dictionary">Словарь</string>
     <string name="exit">Выход</string>

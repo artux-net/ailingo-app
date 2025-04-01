@@ -17,13 +17,14 @@ val viewModelModule = module {
     viewModel { RegisterUserViewModel(get(), get()) }
     viewModel { OtpViewModel() }
     factory { (topicName: String) -> ChatViewModel(get(), topicName) }
-    viewModel {
+    factory { (word: String) ->
         DictionaryViewModel(
             get(named("dictionaryRepository")),
             get(),
             get(),
             get(),
-            get()
+            get(),
+            word
         )
     }
     viewModel { TopicViewModel(get()) }

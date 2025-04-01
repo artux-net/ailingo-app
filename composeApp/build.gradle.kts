@@ -78,6 +78,11 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.sqlDelight.driver.coroutines)
             implementation(libs.datetime)
+            implementation("org.jetbrains.compose.material3.adaptive:adaptive:1.1.0-beta01")
+            implementation("org.jetbrains.compose.material3.adaptive:adaptive-layout:1.1.0-beta01")
+            implementation("org.jetbrains.compose.material3.adaptive:adaptive-navigation:1.1.0-beta01")
+            implementation("org.jetbrains.compose.material3:material3-window-size-class:1.7.3")
+            implementation(compose.material3AdaptiveNavigationSuite)
         }
 
         commonTest.dependencies {
@@ -95,6 +100,7 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
             implementation(libs.sqlDelight.driver.android)
+            implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.4.0-alpha11")
         }
 
         jvmMain.dependencies {

@@ -49,7 +49,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun ChatScreen(
     topicName: String,
     topicImage: String,
-    uiState: UiState<MutableList<Conversation>>,
+    chatUiState: UiState<MutableList<Conversation>>,
     messagesState: List<Conversation>,
     onEvent: (ChatEvents) -> Unit,
 ) {
@@ -62,7 +62,7 @@ fun ChatScreen(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
+    Column(modifier = Modifier.fillMaxSize().padding(start = 16.dp, end = 16.dp, bottom = 8.dp)) {
         Card(
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer
@@ -105,12 +105,26 @@ fun ChatScreen(
                 items(messagesState) { message ->
                     ChatMessageItem(message = message)
                 }
+                when (chatUiState) {
+                    is UiState.Error -> {
+                        item {
+                            ChatMessageItem(message = Conversation(id = "", conversationId = "", content = chatUiState.message, timestamp = "", type = MessageType.BOT.name))
+                        }
+                    }
+                    is UiState.Idle -> {}
+                    is UiState.Loading -> {
+                        item {
+                            ChatMessageItem(message = Conversation(id = "", conversationId = "", content = "Waiting for response...", timestamp = "", type = MessageType.BOT.name))
+                        }
+                    }
+                    is UiState.Success -> {}
+                }
             }
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 8.dp, end = 8.dp, top = 8.dp),
+                    .padding(top = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
@@ -129,7 +143,7 @@ fun ChatScreen(
                             messageInput = ""
                         }
                     },
-                    enabled = uiState !is UiState.Loading,
+                    enabled = chatUiState !is UiState.Loading,
                     modifier = Modifier.height(OutlinedTextFieldDefaults.MinHeight),
                     shape = RoundedCornerShape(32.dp)
                 ) {
@@ -170,9 +184,14 @@ fun ChatMessageItem(message: Conversation) {
             )
         }
         val timestampString = message.timestamp
-        val datePart = timestampString.substringBefore('T')
-        val timePart = timestampString.substringAfter('T').substring(0, 5)
-        val displayTimestamp = "$datePart $timePart".trim()
+        var displayTimestamp: String
+        if (timestampString.contains("T") && timestampString.length > timestampString.indexOf("T") + 5) {
+            val datePart = timestampString.substringBefore('T')
+            val timePart = timestampString.substringAfter('T').substring(0, 5)
+            displayTimestamp = "$datePart $timePart".trim()
+        } else {
+            displayTimestamp = ""
+        }
         Text(
             text = displayTimestamp,
             style = MaterialTheme.typography.labelSmall,
@@ -220,7 +239,7 @@ fun PreviewChatScreen() {
         ChatScreen(
             topicName = "Name",
             topicImage = "",
-            uiState = UiState.Success(previewMessages),
+            chatUiState = UiState.Success(previewMessages),
             messagesState = previewMessages,
             onEvent = { }
         )

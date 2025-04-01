@@ -24,7 +24,8 @@ class DictionaryViewModel(
     private val favouriteWordsRepository: FavouriteWordsRepository,
     private val predictorRepository: PredictWordsRepository,
     private val exampleRepository: DictionaryExampleRepository,
-    private val dictionaryRepository: DictionaryRepository
+    private val dictionaryRepository: DictionaryRepository,
+    word: String?
 ) : ViewModel() {
 
     private val _historyOfDictionaryState = MutableStateFlow<UiState<List<DictionarySearchHistory>>>(UiState.Idle())
@@ -43,6 +44,9 @@ class DictionaryViewModel(
     val predictorState = _predictorState.asStateFlow()
 
     init {
+        if (word != null) {
+            onEvent(DictionaryEvents.GetWordInfo(word))
+        }
         onEvent(DictionaryEvents.GetSearchHistory)
         onEvent(DictionaryEvents.GetFavouriteWords)
     }

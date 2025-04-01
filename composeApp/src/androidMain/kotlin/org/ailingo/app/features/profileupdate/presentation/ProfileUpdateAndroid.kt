@@ -12,7 +12,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.ailingo.app.di.provideAppContext
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 actual suspend fun selectImage(): String? = withContext(Dispatchers.IO) {
     val context = provideAppContext()
@@ -20,12 +19,8 @@ actual suspend fun selectImage(): String? = withContext(Dispatchers.IO) {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         val launcher = getImagePickerLauncher(context) { uri ->
             uri?.let {
-                try {
-                    val base64String = uriToBase64(context, it)
-                    continuation.resume(base64String)
-                } catch (e: Exception) {
-                    continuation.resumeWithException(e)
-                }
+                val base64String = uriToBase64(context, it)
+                continuation.resume(base64String)
             } ?: continuation.resume(null)
         }
         launcher.launch(intent)
