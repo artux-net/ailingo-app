@@ -8,7 +8,7 @@ import org.ailingo.app.features.profileupdate.presentation.ProfileUpdateViewMode
 import org.ailingo.app.features.registration.presentation.RegisterUserViewModel
 import org.ailingo.app.features.registration.presentation.email_verification.OtpViewModel
 import org.ailingo.app.features.topics.presentation.TopicViewModel
-import org.koin.compose.viewmodel.dsl.viewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 

@@ -97,7 +97,6 @@ fun LoginScreen(
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold
                     )
-                    VerticalSpacer(4.dp)
                     Text(
                         stringResource(Res.string.login_to_countinue),
                         color = Color.Gray,

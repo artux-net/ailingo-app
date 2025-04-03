@@ -18,6 +18,7 @@ To build the application bundle:
 
 ### Desktop
 Run the desktop application: `./gradlew :composeApp:run`
+Run hot reload desktop: `./gradlew composeApp:runHot`
 Run desktop UI tests: `./gradlew :composeApp:jvmTest`
 
 ### iOS
