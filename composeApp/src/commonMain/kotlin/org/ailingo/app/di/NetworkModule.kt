@@ -6,6 +6,7 @@ import ailingo.composeapp.generated.resources.connection_timeout
 import ailingo.composeapp.generated.resources.could_not_connect
 import ailingo.composeapp.generated.resources.request_timeout
 import ailingo.composeapp.generated.resources.unexpected_error
+import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.network.sockets.ConnectTimeoutException
@@ -35,10 +36,17 @@ import io.ktor.http.encodedPath
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.AttributeKey
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import org.ailingo.app.core.presentation.navigation.NavigationController
+import org.ailingo.app.core.presentation.navigation.NavigationEvent
+import org.ailingo.app.core.presentation.snackbar.SnackbarController
+import org.ailingo.app.core.presentation.snackbar.SnackbarEvent
 import org.ailingo.app.features.jwt.data.model.RefreshTokenRequest
 import org.ailingo.app.features.jwt.data.model.RefreshTokenResponse
 import org.ailingo.app.features.jwt.domain.repository.TokenRepository
@@ -138,11 +146,11 @@ class AuthTokenInterceptor(config: Config) {
                 }
 
                 val tokens = plugin.tokenRepository.await().getTokens()
-                println("Tokens retrieved: $tokens")
+                Logger.i("Tokens retrieved: $tokens")
                 if (tokens != null) {
                     context.header(HttpHeaders.Authorization, "Bearer ${tokens.token}")
                 } else {
-                    println("Tokens are null, Authorization header not added.")
+                    Logger.i("Tokens are null, Authorization header not added.")
                 }
                 proceed()
             }
@@ -150,10 +158,10 @@ class AuthTokenInterceptor(config: Config) {
                 val originalCall = context
                 val originalResponse = originalCall.response
                 if (originalResponse.status == HttpStatusCode.Forbidden) {
-                    println("Received 403/Forbidden, attempting to refresh token")
+                    Logger.i("Received 403/Forbidden, attempting to refresh token")
                     val refreshedTokens = plugin.refreshToken(plugin.tokenRepository.await(), scope)
                     if (refreshedTokens != null) {
-                        println("Token refreshed successfully, retrying original request")
+                        Logger.i("Token refreshed successfully, retrying original request")
                         val originalRequest = context.request
                         scope.request {
                             HttpRequestBuilder().apply {
@@ -166,7 +174,15 @@ class AuthTokenInterceptor(config: Config) {
                         }
                     } else {
                         //TODO NAVIGATE TO LOGIN
-                        println("Token refresh failed, user needs to re-login")
+                        CoroutineScope(Dispatchers.Main.immediate).launch {
+                            SnackbarController.sendEvent(
+                                event = SnackbarEvent(
+                                    message = "Token refresh failed, need to re-login",
+                                )
+                            )
+                        }
+                        NavigationController.sendNavigationEvent(NavigationEvent.NavigateToLogin)
+                        Logger.i("Token refresh failed, user needs to re-login")
                     }
                 } else {
                     proceed()
@@ -178,7 +194,7 @@ class AuthTokenInterceptor(config: Config) {
     private suspend fun refreshToken(tokenRepository: TokenRepository, httpClient: HttpClient): RefreshTokenResponse? {
         val currentRefreshToken = tokenRepository.getTokens()?.refreshToken
         if (currentRefreshToken == null) {
-            println("No refresh token found")
+            Logger.i("No refresh token found")
             return null
         }
 
@@ -191,15 +207,15 @@ class AuthTokenInterceptor(config: Config) {
             if (refreshResponse.status.isSuccess()) {
                 val authResponse = refreshResponse.body<RefreshTokenResponse>()
                 tokenRepository.saveTokens(RefreshTokenResponse(authResponse.accessToken, authResponse.refreshToken))
-                println("New tokens saved successfully.")
+                Logger.i("New tokens saved successfully.")
                 authResponse
             } else {
-                println("Refresh token request failed with status: ${refreshResponse.status}")
+                Logger.i("Refresh token request failed with status: ${refreshResponse.status}")
                 tokenRepository.deleteTokens()
                 null
             }
         } catch (e: Exception) {
-            println("Error during refresh token request: ${e.message}")
+            Logger.i("Error during refresh token request: ${e.message}")
             tokenRepository.deleteTokens()
             null
         }

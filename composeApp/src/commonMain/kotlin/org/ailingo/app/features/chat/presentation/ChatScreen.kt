@@ -19,8 +19,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -29,18 +33,28 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import co.touchlab.kermit.Logger
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.launch
 import org.ailingo.app.core.presentation.UiState
+import org.ailingo.app.core.presentation.snackbar.SnackbarController
+import org.ailingo.app.core.presentation.snackbar.SnackbarEvent
+import org.ailingo.app.core.utils.deviceinfo.util.PlatformName
+import org.ailingo.app.core.utils.voice.VoiceToTextState
+import org.ailingo.app.core.utils.voice.rememberVoiceToTextHandler
 import org.ailingo.app.features.chat.data.model.Conversation
-import org.ailingo.app.features.chat.presentation.utils.MessageType
+import org.ailingo.app.features.chat.presentation.model.MessageType
+import org.ailingo.app.getPlatformName
 import org.ailingo.app.theme.AppTheme
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -55,6 +69,22 @@ fun ChatScreen(
 ) {
     var messageInput by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
+    val voiceToTextHandler = rememberVoiceToTextHandler()
+    val voiceState by voiceToTextHandler.state.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(voiceState) {
+        if (voiceState is VoiceToTextState.Result) {
+            val resultText = (voiceState as VoiceToTextState.Result).text
+            if (resultText.isNotBlank()) {
+                messageInput = resultText
+            }
+        } else if (voiceState is VoiceToTextState.Error) {
+            val errorMessage = (voiceState as VoiceToTextState.Error).message
+            Logger.i("Voice Recognition Error: $errorMessage")
+            SnackbarController.sendEvent(SnackbarEvent(message = errorMessage))
+        }
+    }
 
     LaunchedEffect(messagesState) {
         if (messagesState.isNotEmpty()) {
@@ -133,7 +163,25 @@ fun ChatScreen(
                     modifier = Modifier.weight(1f),
                     placeholder = { Text(stringResource(Res.string.message)) },
                     shape = RoundedCornerShape(32.dp),
-                    maxLines = 3
+                    maxLines = 3,
+                    trailingIcon = {
+                        if (getPlatformName() != PlatformName.Web) {
+                            IconButton(onClick = {
+                                if (voiceToTextHandler.isAvailable) {
+                                    coroutineScope.launch {
+                                        if (voiceState is VoiceToTextState.Listening) {
+                                            voiceToTextHandler.stopListening()
+                                        } else {
+                                            messageInput = ""
+                                            voiceToTextHandler.startListening("en-US")
+                                        }
+                                    }
+                                }
+                            }) {
+                                Icon(imageVector = Icons.Filled.Mic, contentDescription = "mic")
+                            }
+                        }
+                    }
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 OutlinedButton(
@@ -158,8 +206,7 @@ fun ChatScreen(
 fun ChatMessageItem(message: Conversation) {
 
     val alignment = if (message.type == MessageType.USER.name) Alignment.End else Alignment.Start
-    val backgroundColor =
-        if (message.type == MessageType.USER.name) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer
+    val backgroundColor = if (message.type == MessageType.USER.name) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer
 
     Column(
         modifier = Modifier

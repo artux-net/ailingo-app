@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.ailingo.app.core.presentation.UiState
+import org.ailingo.app.core.presentation.snackbar.SnackbarAction
+import org.ailingo.app.core.presentation.snackbar.SnackbarController
+import org.ailingo.app.core.presentation.snackbar.SnackbarEvent
 import org.ailingo.app.features.dictionary.examples.data.model.WordInfoItem
 import org.ailingo.app.features.dictionary.examples.domain.repository.DictionaryExampleRepository
 import org.ailingo.app.features.dictionary.historysearch.data.model.DictionarySearchHistory
@@ -120,6 +123,17 @@ class DictionaryViewModel(
         viewModelScope.launch {
             favouriteWordsRepository.addFavouriteWord(word)
             loadFavoriteWords()
+            SnackbarController.sendEvent(
+                event = SnackbarEvent(
+                    message = "$word added to favorites",
+                    action = SnackbarAction(
+                        name = "Undo",
+                        action = {
+                            removeFromFavourite(word)
+                        }
+                    )
+                )
+            )
         }
     }
 
@@ -127,6 +141,17 @@ class DictionaryViewModel(
         viewModelScope.launch {
             favouriteWordsRepository.deleteFavouriteWord(word)
             loadFavoriteWords()
+            SnackbarController.sendEvent(
+                event = SnackbarEvent(
+                    message = "$word removed from favorites",
+                    action = SnackbarAction(
+                        name = "Undo",
+                        action = {
+                            addToFavourite(word)
+                        }
+                    )
+                )
+            )
         }
     }
 

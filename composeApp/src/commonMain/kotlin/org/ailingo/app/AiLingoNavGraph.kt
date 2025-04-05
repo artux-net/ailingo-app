@@ -1,14 +1,5 @@
 package org.ailingo.app
 
-import ChatPage
-import DictionaryPage
-import FavouriteWordsPage
-import LoginPage
-import ProfilePage
-import ProfileUpdatePage
-import RegistrationPage
-import TopicsPage
-import VerifyEmailPage
 import ailingo.composeapp.generated.resources.Res
 import ailingo.composeapp.generated.resources.exit
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,18 +9,25 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldValue
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.adaptive.navigationsuite.rememberNavigationSuiteScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
@@ -44,8 +42,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.toRoute
 import androidx.window.core.layout.WindowWidthSizeClass
 import kotlinx.coroutines.launch
+import org.ailingo.app.core.presentation.navigation.NavigationHandler
+import org.ailingo.app.core.presentation.snackbar.ObserveAsEvents
+import org.ailingo.app.core.presentation.snackbar.SnackbarController
+import org.ailingo.app.core.presentation.topappbar.TopAppBarCenter
 import org.ailingo.app.core.presentation.topappbar.TopAppBarWithProfile
-import org.ailingo.app.core.utils.voice.VoiceToTextParser
 import org.ailingo.app.features.chat.presentation.ChatScreen
 import org.ailingo.app.features.chat.presentation.ChatViewModel
 import org.ailingo.app.features.dictionary.main.presentation.DictionaryScreen
@@ -73,12 +74,11 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.core.parameter.parametersOf
-import screens
+import kotlin.io.encoding.ExperimentalEncodingApi
 
-@OptIn(KoinExperimentalAPI::class, ExperimentalMaterial3Api::class)
+@OptIn(KoinExperimentalAPI::class, ExperimentalMaterial3Api::class, ExperimentalEncodingApi::class)
 @Composable
 fun AiLingoNavGraph(
-    voiceToTextParser: VoiceToTextParser,
     navController: NavHostController
 ) {
     val loginViewModel: LoginViewModel = koinViewModel<LoginViewModel>()
@@ -94,8 +94,29 @@ fun AiLingoNavGraph(
             NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
         }
     }
-    val navigationSuiteState = rememberNavigationSuiteScaffoldState()
+    NavigationHandler(navController = navController, loginViewModel = loginViewModel)
+    val navigationSuiteState = rememberNavigationSuiteScaffoldState(initialValue = NavigationSuiteScaffoldValue.Hidden)
+    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    ObserveAsEvents(
+        flow = SnackbarController.events,
+        snackbarHostState
+    ) { event ->
+        scope.launch {
+            snackbarHostState.currentSnackbarData?.dismiss()
+
+            val result = snackbarHostState.showSnackbar(
+                message = event.message,
+                actionLabel = event.action?.name,
+                duration = SnackbarDuration.Short
+            )
+
+            if (result == SnackbarResult.ActionPerformed) {
+                event.action?.action?.invoke()
+            }
+        }
+    }
 
     val routesWithNavigationDrawer = listOf(
         ChatPage::class,
@@ -122,10 +143,19 @@ fun AiLingoNavGraph(
         }
     }
 
+    var selectedTopicImage by remember {
+        mutableStateOf("")
+    }
+
     AppTheme {
         Scaffold(
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             topBar = {
-                TopAppBarWithProfile(loginState = loginState)
+                if (isNavigationDrawerVisible) {
+                    TopAppBarWithProfile(loginState = loginState)
+                } else {
+                    TopAppBarCenter()
+                }
             }
         ) { innerPadding ->
             NavigationSuiteScaffold(
@@ -149,10 +179,10 @@ fun AiLingoNavGraph(
                             selected = it == currentDestination,
                             onClick = {
                                 navController.navigate(it.route) {
-                                    //TODO SINGLE LAUNCH SCREEN
-                                    /*launchSingleTop = true
+                                    launchSingleTop = true
                                     restoreState = true
-                                    popUpTo(LoginPage) {
+                                    //TODO SINGLE LAUNCH SCREEN (status: web problems)
+                                    /*popUpTo(LoginPage) {
                                         saveState = true
                                     }*/
                                 }
@@ -197,7 +227,12 @@ fun AiLingoNavGraph(
                         TopicsScreen(
                             topicsUiState = topicsUiState,
                             onTopicClick = { topicName, topicImage ->
-                                navController.navigate(ChatPage(topicName = topicName, topicImage = topicImage))
+                                selectedTopicImage = topicImage
+                                navController.navigate(
+                                    ChatPage(
+                                        topicName = topicName
+                                    )
+                                )
                             }
                         )
                     }
@@ -206,9 +241,10 @@ fun AiLingoNavGraph(
                         val chatViewModel: ChatViewModel = koinViewModel { parametersOf(args.topicName) }
                         val chatUiState = chatViewModel.chatState.collectAsStateWithLifecycle().value
                         val messagesState = chatViewModel.messages.collectAsStateWithLifecycle().value
+
                         ChatScreen(
                             topicName = args.topicName,
-                            topicImage = args.topicImage,
+                            topicImage = selectedTopicImage,
                             chatUiState = chatUiState,
                             messagesState = messagesState,
                             onEvent = { event ->
@@ -317,7 +353,7 @@ fun AiLingoNavGraph(
                             }
                         )
                     }
-                    composable<VerifyEmailPage>{ backStack ->
+                    composable<VerifyEmailPage> { backStack ->
                         val args = backStack.toRoute<VerifyEmailPage>()
                         val registrationState = registerViewModel.registrationUiState.collectAsStateWithLifecycle().value
                         val otpViewModel: OtpViewModel = koinViewModel<OtpViewModel>()

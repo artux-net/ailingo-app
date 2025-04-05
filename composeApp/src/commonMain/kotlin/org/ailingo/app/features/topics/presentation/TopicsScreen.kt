@@ -80,9 +80,7 @@ fun TopicsScreenPreview_Success() {
     AppTheme {
         TopicsScreen(
             topicsUiState = UiState.Success(createSampleTopics()),
-            onTopicClick = { topicName, topicImage ->
-                println("Clicked Topic: $topicName, Topic image: $topicImage")
-            }
+            onTopicClick = { topicName, topicImage -> }
         )
     }
 }

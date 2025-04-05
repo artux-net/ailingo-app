@@ -52,41 +52,45 @@ fun TopAppBarWithProfile(
     TopAppBar(
         modifier = Modifier,
         title = {
-            if (adaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
-                Box(
-                    modifier = Modifier
-                        .height(TopAppBarDefaults.TopAppBarExpandedHeight)
-                        .width(360.dp)
-                        .offset((-16).dp, 0.dp)
-                        .background(Color.White)
-                )
-                Icon(
-                    painter = painterResource(Res.drawable.ailingologowithoutbackground),
-                    contentDescription = null,
-                    tint = Color.Black,
-                    modifier = Modifier.padding(top = 10.dp).height(40.dp)
-                )
-            } else if (adaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM){
-                Box(
-                    modifier = Modifier
-                        .height(TopAppBarDefaults.TopAppBarExpandedHeight)
-                        .width(103.dp)
-                        .offset((-16).dp, 0.dp)
-                        .background(Color.White)
-                )
-                Icon(
-                    painter = painterResource(Res.drawable.logo),
-                    contentDescription = null,
-                    tint = Color.Black,
-                    modifier = Modifier.padding(top = 10.dp).padding(start = 15.dp).height(40.dp)
-                )
-            } else {
-                Icon(
-                    painter = painterResource(Res.drawable.logo),
-                    contentDescription = null,
-                    tint = Color.Black,
-                    modifier = Modifier.height(40.dp)
-                )
+            when (adaptiveInfo.windowSizeClass.windowWidthSizeClass) {
+                WindowWidthSizeClass.EXPANDED -> {
+                    Box(
+                        modifier = Modifier
+                            .height(TopAppBarDefaults.TopAppBarExpandedHeight)
+                            .width(360.dp)
+                            .offset((-16).dp, 0.dp)
+                            .background(Color.White)
+                    )
+                    Icon(
+                        painter = painterResource(Res.drawable.ailingologowithoutbackground),
+                        contentDescription = null,
+                        tint = Color.Black,
+                        modifier = Modifier.padding(top = 10.dp).height(40.dp)
+                    )
+                }
+                WindowWidthSizeClass.MEDIUM -> {
+                    Box(
+                        modifier = Modifier
+                            .height(TopAppBarDefaults.TopAppBarExpandedHeight)
+                            .width(103.dp)
+                            .offset((-16).dp, 0.dp)
+                            .background(Color.White)
+                    )
+                    Icon(
+                        painter = painterResource(Res.drawable.logo),
+                        contentDescription = null,
+                        tint = Color.Black,
+                        modifier = Modifier.padding(top = 10.dp).padding(start = 15.dp).height(40.dp)
+                    )
+                }
+                else -> {
+                    Icon(
+                        painter = painterResource(Res.drawable.logo),
+                        contentDescription = null,
+                        tint = Color.Black,
+                        modifier = Modifier.height(40.dp)
+                    )
+                }
             }
         },
         actions = {

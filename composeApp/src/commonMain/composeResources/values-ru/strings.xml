@@ -80,7 +80,7 @@
     <string name="change_user_data">Изменить данные</string>
     <string name="favourite_words">Избранные слова</string>
     <string name="login_to_countinue">Войдите чтобы пользоваться приложением</string>
-    <string name="already_have_account">Уже есть аккаунт? Войти</string>
+    <string name="already_have_account">Уже есть аккаунт?</string>
     <string name="enter_your_email">Введите ваш email</string>
     <string name="enter_password">Введите пароль</string>
     <string name="name_invalid">Имя должно содержать от 2 до 24 символов</string>

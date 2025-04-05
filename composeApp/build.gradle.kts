@@ -16,8 +16,7 @@ plugins {
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.sqlDelight)
     id("kotlin-parcelize")
-    val detektVersion = "1.23.7"
-    id("io.gitlab.arturbosch.detekt") version detektVersion
+    alias(libs.plugins.detekt)
 }
 
 detekt {
@@ -45,7 +44,7 @@ kotlin {
     }
      */
 
-    js {
+    wasmJs {
         browser()
         binaries.executable()
     }
@@ -69,6 +68,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.androidx.navigation.composee)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.serialization.core)
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
@@ -78,12 +78,12 @@ kotlin {
             implementation(libs.coil.network.ktor)
             implementation(libs.kotlinx.datetime)
             implementation(libs.composeIcons.featherIcons)
-            implementation(libs.sqlDelight.driver.coroutines)
+            implementation(libs.sqldelight.coroutines.extension)
             implementation(compose.material3AdaptiveNavigationSuite)
-            implementation("org.jetbrains.compose.material3.adaptive:adaptive:1.1.0-beta01")
-            implementation("org.jetbrains.compose.material3.adaptive:adaptive-layout:1.1.0-beta01")
-            implementation("org.jetbrains.compose.material3.adaptive:adaptive-navigation:1.1.0-beta01")
-            implementation("org.jetbrains.compose.material3:material3-window-size-class:1.7.3")
+            implementation(libs.compose.adaptive)
+            implementation(libs.compose.adaptive.layout)
+            implementation(libs.compose.adaptive.navigation)
+            implementation(libs.compose.m3.windowSizeClass)
         }
 
         commonTest.dependencies {
@@ -98,31 +98,32 @@ kotlin {
             implementation(libs.androidx.activityCompose)
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.ktor.client.okhttp)
-            implementation(libs.sqlDelight.driver.android)
-            implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.4.0-alpha11")
+            implementation(libs.sqldelight.android.driver)
+            implementation(libs.koin.android)
+            implementation(libs.koin.androidx.compose)
+            implementation(libs.androidx.m3.adaptiveNavSuite)
         }
 
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
             implementation(libs.ktor.client.okhttp)
-            implementation(libs.sqlDelight.driver.sqlite)
-
+            implementation(libs.sqldelight.driver)
+            //Logger
+            implementation(libs.slf4j.simple)
             //Playing audio
             implementation(libs.jlayer)
         }
 
-        jsMain.dependencies {
-            implementation(compose.html.core)
+        wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)
-            implementation(libs.sqlDelight.driver.js)
-
             // sqlDelight for local database
-            implementation("app.cash.sqldelight:web-worker-driver:2.0.2")
+            implementation(libs.sqldelight.webworker.driver)
             implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.0.2"))
             implementation(npm("sql.js", "1.8.0"))
             implementation(npm("copy-webpack-plugin", "11.0.0"))
             implementation(npm("@sqlite.org/sqlite-wasm", "3.43.2-build1"))
+
         }
 
         /* TODO IOS
@@ -253,7 +254,7 @@ sqldelight {
 }
 
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.7")
+    detektPlugins(libs.detekt.formatting)
     //https://developer.android.com/develop/ui/compose/testing#setup
     androidTestImplementation(libs.androidx.uitest.junit4)
     debugImplementation(libs.androidx.uitest.testManifest)
