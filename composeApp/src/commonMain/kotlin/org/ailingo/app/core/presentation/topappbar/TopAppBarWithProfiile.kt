@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,9 +35,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.compose.AsyncImage
 import org.ailingo.app.core.presentation.LoadingScreen
-import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.login.presentation.LoginUiState
 import org.ailingo.app.theme.inversePrimaryLight
 import org.ailingo.app.theme.primaryContainerLight
@@ -45,34 +46,51 @@ import org.jetbrains.compose.resources.painterResource
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBarWithProfile(
-    modifier: Modifier = Modifier,
-    loginState: LoginUiState,
-    windowInfo: WindowInfo
+    loginState: LoginUiState
 ) {
+    val adaptiveInfo = currentWindowAdaptiveInfo()
     TopAppBar(
-        modifier = modifier,
+        modifier = Modifier,
         title = {
-            if (windowInfo.screenWidthInfo is WindowInfo.WindowType.DesktopWindowInfo) {
-                Box(
-                    modifier = Modifier
-                        .height(TopAppBarDefaults.TopAppBarExpandedHeight)
-                        .width(350.dp)
-                        .offset((-16).dp, 0.dp) //need for delete standard padding title
-                        .background(Color.White)
-                )
-                Icon(
-                    painter = painterResource(Res.drawable.ailingologowithoutbackground),
-                    contentDescription = null,
-                    tint = Color.Black,
-                    modifier = Modifier.padding(top = 10.dp).height(40.dp)
-                )
-            } else {
-                Icon(
-                    painter = painterResource(Res.drawable.logo),
-                    contentDescription = null,
-                    tint = Color.Black,
-                    modifier = Modifier.height(40.dp)
-                )
+            when (adaptiveInfo.windowSizeClass.windowWidthSizeClass) {
+                WindowWidthSizeClass.EXPANDED -> {
+                    Box(
+                        modifier = Modifier
+                            .height(TopAppBarDefaults.TopAppBarExpandedHeight)
+                            .width(360.dp)
+                            .offset((-16).dp, 0.dp)
+                            .background(Color.White)
+                    )
+                    Icon(
+                        painter = painterResource(Res.drawable.ailingologowithoutbackground),
+                        contentDescription = null,
+                        tint = Color.Black,
+                        modifier = Modifier.padding(top = 10.dp).height(40.dp)
+                    )
+                }
+                WindowWidthSizeClass.MEDIUM -> {
+                    Box(
+                        modifier = Modifier
+                            .height(TopAppBarDefaults.TopAppBarExpandedHeight)
+                            .width(103.dp)
+                            .offset((-16).dp, 0.dp)
+                            .background(Color.White)
+                    )
+                    Icon(
+                        painter = painterResource(Res.drawable.logo),
+                        contentDescription = null,
+                        tint = Color.Black,
+                        modifier = Modifier.padding(top = 10.dp).padding(start = 15.dp).height(40.dp)
+                    )
+                }
+                else -> {
+                    Icon(
+                        painter = painterResource(Res.drawable.logo),
+                        contentDescription = null,
+                        tint = Color.Black,
+                        modifier = Modifier.height(40.dp)
+                    )
+                }
             }
         },
         actions = {

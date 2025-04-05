@@ -34,7 +34,6 @@ import org.ailingo.app.core.presentation.UiState
 import org.ailingo.app.features.dictionary.examples.data.model.WordInfoItem
 import org.ailingo.app.features.dictionary.historysearch.data.model.DictionarySearchHistory
 import org.ailingo.app.features.dictionary.main.data.model.DictionaryResponse
-import org.ailingo.app.features.dictionary.predictor.data.model.PredictorRequest
 import org.ailingo.app.features.dictionary.predictor.data.model.PredictorResponse
 import org.jetbrains.compose.resources.stringResource
 
@@ -46,11 +45,7 @@ fun DictionaryScreen(
     searchHistoryState: UiState<List<DictionarySearchHistory>>,
     favoriteDictionaryState: UiState<List<String>>,
     predictorState: UiState<PredictorResponse>,
-    onGetWordInfo: (String) -> Unit,
-    onPredictNextWords: (PredictorRequest) -> Unit,
-    onSaveSearchedWord: (DictionarySearchHistory) -> Unit,
-    onAddToFavourite: (String) -> Unit,
-    onRemoveFromFavourites: (String) -> Unit
+    onEvent: (DictionaryEvents) -> Unit
 ) {
     var textFieldValue by remember {
         mutableStateOf("")
@@ -74,13 +69,13 @@ fun DictionaryScreen(
                     active = active,
                     searchBarHeight = searchBarHeight,
                     onSearchClick = { searchWord ->
-                        onGetWordInfo(searchWord)
+                        onEvent(DictionaryEvents.GetWordInfo(searchWord))
                     },
-                    onPredictWords = {
-                        onPredictNextWords(it)
+                    onPredictWords = { chars ->
+                        onEvent(DictionaryEvents.PredictNextWords(chars))
                     },
-                    onSaveSearchedWord = {
-                        onSaveSearchedWord(it)
+                    onSaveSearchedWord = { word ->
+                        onEvent(DictionaryEvents.SaveSearchedWord(word))
                     }
                 )
             }
@@ -102,8 +97,8 @@ fun DictionaryScreen(
                         items(searchHistoryState.data.reversed()) { searchHistoryItem ->
                             SearchHistoryItem(
                                 searchHistoryItem = searchHistoryItem,
-                                onGetWordInfo = { word ->
-                                    onGetWordInfo(word)
+                                onGetWordInfo = { searchWord ->
+                                    onEvent(DictionaryEvents.GetWordInfo(searchWord))
                                 },
                                 onTextFieldChange = { text ->
                                     textFieldValue = text
@@ -150,8 +145,7 @@ fun DictionaryScreen(
                                     definition,
                                     examplesState.data,
                                     favoriteDictionaryState,
-                                    onAddToFavourite = onAddToFavourite,
-                                    onRemoveFromFavourites = onRemoveFromFavourites
+                                    onEvent = onEvent
                                 )
                             }
                             item {

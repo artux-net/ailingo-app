@@ -1,6 +1,8 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.compose.reload.ComposeHotRun
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 
 plugins {
@@ -8,24 +10,23 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose)
     alias(libs.plugins.android.application)
+    alias(libs.plugins.hotReload)
     alias(libs.plugins.kotlinx.serialization)
-    alias(libs.plugins.sqlDelight)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.buildConfig)
+    alias(libs.plugins.sqlDelight)
     id("kotlin-parcelize")
-
-    val detektVersion = "1.23.7"
-    id("io.gitlab.arturbosch.detekt") version detektVersion
+    alias(libs.plugins.detekt)
 }
 
 detekt {
     autoCorrect = true
 }
 
-@OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(11)
     androidTarget {
-//      https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-test.html
+        //https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-test.html
         instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
     }
 
@@ -43,7 +44,7 @@ kotlin {
     }
      */
 
-    js {
+    wasmJs {
         browser()
         binaries.executable()
     }
@@ -53,30 +54,36 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
+            implementation(compose.materialIconsExtended)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.kermit)
             implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.serialization.json)
+            implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.serialization)
             implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.client.serialization.json)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.androidx.navigation.composee)
             implementation(libs.kotlinx.serialization.json)
-            api(libs.koin.core)
+            implementation(libs.kotlinx.serialization.core)
+            implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.coil.compose)
             implementation(libs.coil.compose.core)
             implementation(libs.coil.mp)
             implementation(libs.coil.network.ktor)
+            implementation(libs.kotlinx.datetime)
             implementation(libs.composeIcons.featherIcons)
-            implementation(compose.materialIconsExtended)
-            implementation(libs.kotlinx.serialization.json)
-            implementation(libs.sqlDelight.driver.coroutines)
+            implementation(libs.sqldelight.coroutines.extension)
+            implementation(compose.material3AdaptiveNavigationSuite)
+            implementation(libs.compose.adaptive)
+            implementation(libs.compose.adaptive.layout)
+            implementation(libs.compose.adaptive.navigation)
+            implementation(libs.compose.m3.windowSizeClass)
         }
 
         commonTest.dependencies {
@@ -91,40 +98,32 @@ kotlin {
             implementation(libs.androidx.activityCompose)
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.sqldelight.android.driver)
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
-            implementation(libs.sqlDelight.driver.android)
+            implementation(libs.androidx.m3.adaptiveNavSuite)
         }
 
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
-            implementation(libs.ktor.client.okhttp)
-            implementation(libs.sqlDelight.driver.sqlite)
             implementation(libs.kotlinx.coroutines.swing)
-
-            // Speech client
-            implementation(libs.google.cloud.library)
-            // GoogleCredentials
-            implementation(libs.google.auth.library.oauth2.http)
-            // Logs for speech request
-            implementation(libs.logback.classic)
-            // Playing audio
-            implementation(libs.jlayer)
+            implementation(libs.ktor.client.okhttp)
+            implementation(libs.sqldelight.driver)
             //Logger
             implementation(libs.slf4j.simple)
+            //Playing audio
+            implementation(libs.jlayer)
         }
 
-        jsMain.dependencies {
-            implementation(compose.html.core)
+        wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)
-            implementation(libs.sqlDelight.driver.js)
-
             // sqlDelight for local database
-            implementation("app.cash.sqldelight:web-worker-driver:2.0.2")
+            implementation(libs.sqldelight.webworker.driver)
             implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.0.2"))
             implementation(npm("sql.js", "1.8.0"))
             implementation(npm("copy-webpack-plugin", "11.0.0"))
             implementation(npm("@sqlite.org/sqlite-wasm", "3.43.2-build1"))
+
         }
 
         /* TODO IOS
@@ -187,11 +186,19 @@ compose.desktop {
 
             windows {
                 menuGroup = "Compose Examples"
-                // see https://wixtoolset.org/documentation/manual/v3/howtos/general/generate_guids.html
+                // https://wixtoolset.org/documentation/manual/v3/howtos/general/generate_guids.html
                 upgradeUuid = "BF9CDA6A-1391-46D5-9ED5-383D6E68CCEB"
             }
         }
     }
+}
+
+//https://github.com/JetBrains/compose-hot-reload
+composeCompiler {
+    featureFlags.add(ComposeFeatureFlag.OptimizeNonSkippingGroups)
+}
+tasks.register<ComposeHotRun>("runHot") {
+    mainClass.set("org.ailingo.app.MainKt")
 }
 
 tasks {
@@ -247,9 +254,8 @@ sqldelight {
 }
 
 dependencies {
-    implementation("androidx.core:core:1.10.1")
+    detektPlugins(libs.detekt.formatting)
+    //https://developer.android.com/develop/ui/compose/testing#setup
     androidTestImplementation(libs.androidx.uitest.junit4)
     debugImplementation(libs.androidx.uitest.testManifest)
-
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.7")
 }

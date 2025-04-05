@@ -34,6 +34,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -51,12 +52,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import org.ailingo.app.core.presentation.ErrorScreen
 import org.ailingo.app.core.presentation.LoadingScreen
-import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.login.presentation.LoginUiState
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -66,8 +67,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
-    loginUiState: LoginUiState,
-    windowInfo: WindowInfo,
+    loginState: LoginUiState,
     onExit: () -> Unit,
     onNavigateProfileChange: (
         name: String,
@@ -75,9 +75,9 @@ fun ProfileScreen(
         avatar: String?
     ) -> Unit
 ) {
-    when (loginUiState) {
+    when (loginState) {
         is LoginUiState.Error -> {
-            ErrorScreen(errorMessage = loginUiState.message)
+            ErrorScreen(errorMessage = loginState.message)
         }
 
         LoginUiState.Loading -> {
@@ -87,14 +87,13 @@ fun ProfileScreen(
         is LoginUiState.Success -> {
             ProfileContent(
                 modifier = modifier,
-                loginUiState = loginUiState,
+                loginUiState = loginState,
                 onExit = onExit,
-                windowInfo = windowInfo,
                 onNavigateProfileChange = {
                     onNavigateProfileChange(
-                        loginUiState.user.name,
-                        loginUiState.user.email,
-                        loginUiState.user.avatar
+                        loginState.user.name,
+                        loginState.user.email,
+                        loginState.user.avatar
                     )
                 }
             )
@@ -107,7 +106,6 @@ fun ProfileScreen(
 @Composable
 fun ProfileContent(
     modifier: Modifier,
-    windowInfo: WindowInfo,
     loginUiState: LoginUiState.Success,
     onExit: () -> Unit,
     onNavigateProfileChange: () -> Unit
@@ -120,13 +118,14 @@ fun ProfileContent(
     }
 
     val density = LocalDensity.current
+    val adaptiveInfo = currentWindowAdaptiveInfo()
 
     Column(
-        modifier = modifier.verticalScroll(rememberScrollState()),
+        modifier = modifier.verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         ProfileHeader(loginUiState)
-        if (windowInfo.screenWidthInfo == WindowInfo.WindowType.DesktopWindowInfo) {
+        if (adaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center

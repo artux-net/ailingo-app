@@ -15,7 +15,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import org.ailingo.app.core.utils.voice.VoiceToTextParser
 import org.ailingo.app.di.initKoin
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -48,10 +47,6 @@ class AppActivity : ComponentActivity() {
                 mutableStateOf(false)
             }
 
-            val voiceToTextParser by lazy {
-                VoiceToTextParser()
-            }
-
             val recordAudioLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission(),
                 onResult = { isGranted ->
@@ -63,9 +58,7 @@ class AppActivity : ComponentActivity() {
                 recordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
             }
 
-            App(
-                voiceToTextParser
-            )
+            App()
         }
     }
 }

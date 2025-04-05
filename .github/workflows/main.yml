@@ -29,14 +29,14 @@ jobs:
       - name: Upgrade YarnLock
         run: ./gradlew kotlinUpgradeYarnLock
 
-      - name: Build JS Browser Distribution
-        run: ./gradlew jsBrowserDistribution
+      - name: Build Wasm Browser Distribution
+        run: ./gradlew wasmJsBrowserDistribution
         
       - name: Upload Pages artifact
         uses: actions/upload-artifact@v4
         with:
           name: browser-distribution
-          path: ./composeApp/build/dist/js/productionExecutable
+          path: ./composeApp/build/dist/wasmJs/productionExecutable
 
   deploy:
     needs: build

@@ -27,7 +27,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.ailingo.app.core.utils.windowinfo.util.PlatformName
+import org.ailingo.app.core.utils.deviceinfo.util.PlatformName
 import org.ailingo.app.getPlatformName
 import org.jetbrains.compose.resources.Font
 
@@ -267,7 +267,7 @@ private val AppShapes = Shapes(
     extraLarge = RoundedCornerShape(32.dp)
 )
 
-val AppTypography
+internal val AppTypography
     @Composable
     get() = Typography().let {
         val interTightBold = FontFamily(Font(Res.font.intertight_bold))
@@ -321,7 +321,7 @@ internal fun AppTheme(
         SystemAppearance(!isDark)
         MaterialTheme(
             colorScheme = if (isDark && getPlatformName() != PlatformName.Web && getPlatformName() != PlatformName.Desktop) darkScheme else lightScheme,
-            typography = Typography(),
+            typography = AppTypography,
             shapes = AppShapes,
             content = {
                 Surface(content = content)

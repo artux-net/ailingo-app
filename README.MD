@@ -18,6 +18,7 @@ To build the application bundle:
 
 ### Desktop
 Run the desktop application: `./gradlew :composeApp:run`
+Run hot reload desktop: `./gradlew composeApp:runHot`
 Run desktop UI tests: `./gradlew :composeApp:jvmTest`
 
 ### iOS
@@ -26,7 +27,6 @@ To run the application on iPhone device/simulator:
 - Or use [Kotlin Multiplatform Mobile plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform-mobile) for Android Studio
   Run iOS simulator UI tests: `./gradlew :composeApp:iosSimulatorArm64Test`
 
-### JS Browser (Experimental)
-Ctrl + S запускает пересборку образа, чтобы увидеть изменения на вебе:
-Run the browser application: `./gradlew :composeApp:jsBrowserDevelopmentRun --continuous`
-Run browser UI tests: `./gradlew :composeApp:jsBrowserTest`
+### Wasm Browser (Experimental)
+Run the browser application: `./gradlew :composeApp:wasmJsBrowserDevelopmentRun --continue`
+Run browser UI tests: `./gradlew :composeApp:wasmJsBrowserTest`

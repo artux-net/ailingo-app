@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.ailingo.app.core.presentation.UiState
+import org.ailingo.app.core.presentation.snackbar.SnackbarAction
+import org.ailingo.app.core.presentation.snackbar.SnackbarController
+import org.ailingo.app.core.presentation.snackbar.SnackbarEvent
 import org.ailingo.app.features.dictionary.examples.data.model.WordInfoItem
 import org.ailingo.app.features.dictionary.examples.domain.repository.DictionaryExampleRepository
 import org.ailingo.app.features.dictionary.historysearch.data.model.DictionarySearchHistory
@@ -24,7 +27,8 @@ class DictionaryViewModel(
     private val favouriteWordsRepository: FavouriteWordsRepository,
     private val predictorRepository: PredictWordsRepository,
     private val exampleRepository: DictionaryExampleRepository,
-    private val dictionaryRepository: DictionaryRepository
+    private val dictionaryRepository: DictionaryRepository,
+    word: String?
 ) : ViewModel() {
 
     private val _historyOfDictionaryState = MutableStateFlow<UiState<List<DictionarySearchHistory>>>(UiState.Idle())
@@ -36,13 +40,16 @@ class DictionaryViewModel(
     private val _dictionaryUiState = MutableStateFlow<UiState<DictionaryResponse>>(UiState.Idle())
     val dictionaryUiState = _dictionaryUiState.asStateFlow()
 
-    private val _examplesUiState =  MutableStateFlow<UiState<List<WordInfoItem>>>(UiState.Idle())
+    private val _examplesUiState = MutableStateFlow<UiState<List<WordInfoItem>>>(UiState.Idle())
     val examplesUiState = _examplesUiState.asStateFlow()
 
     private var _predictorState = MutableStateFlow<UiState<PredictorResponse>>(UiState.Idle())
     val predictorState = _predictorState.asStateFlow()
 
     init {
+        if (word != null) {
+            onEvent(DictionaryEvents.GetWordInfo(word))
+        }
         onEvent(DictionaryEvents.GetSearchHistory)
         onEvent(DictionaryEvents.GetFavouriteWords)
     }
@@ -83,20 +90,22 @@ class DictionaryViewModel(
         }
     }
 
-    private fun getWordInfo(word: String) {
-        viewModelScope.launch {
-            dictionaryRepository.getWordInfo(word).collect { state->
-                _dictionaryUiState.update { state }
-            }
-            exampleRepository.getExamples(word).collect { state->
-                _examplesUiState.update { state  }
+    private fun getWordInfo(word: String?) {
+        if (word != null && word != "") {
+            viewModelScope.launch {
+                dictionaryRepository.getWordInfo(word).collect { state ->
+                    _dictionaryUiState.update { state }
+                }
+                exampleRepository.getExamples(word).collect { state ->
+                    _examplesUiState.update { state }
+                }
             }
         }
     }
 
     private fun predictNextWords(request: PredictorRequest) {
         viewModelScope.launch {
-            predictorRepository.predictNextWords(request).collect { state->
+            predictorRepository.predictNextWords(request).collect { state ->
                 _predictorState.update { state }
             }
         }
@@ -114,6 +123,17 @@ class DictionaryViewModel(
         viewModelScope.launch {
             favouriteWordsRepository.addFavouriteWord(word)
             loadFavoriteWords()
+            SnackbarController.sendEvent(
+                event = SnackbarEvent(
+                    message = "$word added to favorites",
+                    action = SnackbarAction(
+                        name = "Undo",
+                        action = {
+                            removeFromFavourite(word)
+                        }
+                    )
+                )
+            )
         }
     }
 
@@ -121,6 +141,17 @@ class DictionaryViewModel(
         viewModelScope.launch {
             favouriteWordsRepository.deleteFavouriteWord(word)
             loadFavoriteWords()
+            SnackbarController.sendEvent(
+                event = SnackbarEvent(
+                    message = "$word removed from favorites",
+                    action = SnackbarAction(
+                        name = "Undo",
+                        action = {
+                            addToFavourite(word)
+                        }
+                    )
+                )
+            )
         }
     }
 

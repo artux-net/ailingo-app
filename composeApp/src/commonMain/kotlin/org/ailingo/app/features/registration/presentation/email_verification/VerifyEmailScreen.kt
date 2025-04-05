@@ -1,5 +1,7 @@
 package org.ailingo.app.features.registration.presentation.email_verification
 
+import ailingo.composeapp.generated.resources.Res
+import ailingo.composeapp.generated.resources.back
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +24,7 @@ import org.ailingo.app.core.presentation.ErrorScreen
 import org.ailingo.app.core.presentation.LoadingScreen
 import org.ailingo.app.core.presentation.UiState
 import org.ailingo.app.features.jwt.data.model.AuthResponse
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun VerifyEmailScreen(
@@ -31,6 +35,7 @@ fun VerifyEmailScreen(
     onAction: (OtpAction) -> Unit,
     onNavigateChatScreen: () -> Unit,
     modifier: Modifier = Modifier,
+    onNavigateBack:()->Unit
 ) {
     LaunchedEffect(key1 = registrationState) {
         if (registrationState is UiState.Success) {
@@ -93,6 +98,12 @@ fun VerifyEmailScreen(
             }
 
             else -> {}
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        ElevatedButton(onClick = {
+            onNavigateBack()
+        }) {
+            Text(stringResource(Res.string.back))
         }
     }
 }

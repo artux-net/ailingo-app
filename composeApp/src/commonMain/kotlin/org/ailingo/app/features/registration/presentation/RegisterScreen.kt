@@ -9,6 +9,7 @@ import ailingo.composeapp.generated.resources.enter_password
 import ailingo.composeapp.generated.resources.enter_your_email
 import ailingo.composeapp.generated.resources.enter_your_login
 import ailingo.composeapp.generated.resources.enter_your_name
+import ailingo.composeapp.generated.resources.log_in
 import ailingo.composeapp.generated.resources.login
 import ailingo.composeapp.generated.resources.login_invalid
 import ailingo.composeapp.generated.resources.name_invalid
@@ -20,8 +21,10 @@ import ailingo.composeapp.generated.resources.username
 import ailingo.composeapp.generated.resources.visibility
 import ailingo.composeapp.generated.resources.visibility_off
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,7 +37,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +48,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,10 +59,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import org.ailingo.app.core.presentation.SmallLoadingIndicator
 import org.ailingo.app.core.presentation.UiState
+import org.ailingo.app.core.presentation.snackbar.SnackbarController
+import org.ailingo.app.core.presentation.snackbar.SnackbarEvent
+import org.ailingo.app.features.registration.data.model.RegistrationRequest
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -68,9 +75,8 @@ import org.jetbrains.compose.resources.stringResource
 fun RegistrationScreen(
     onNavigateToLoginPage: () -> Unit,
     onNavigateToVerifyEmail: (email: String, password: String) -> Unit,
-    onRegisterUser: (login: String, password: String, email: String, name: String) -> Unit,
     pendingRegistrationState: UiState<Unit>,
-    onBackRegistrationState: () -> Unit
+    onEvent: (RegistrationEvent) -> Unit
 ) {
     var login by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
@@ -116,7 +122,7 @@ fun RegistrationScreen(
             isLoginValid = login.length in 4..16 && password.isNotBlank()
 
             if (isNameValid && isEmailValid && isPasswordValid && isLoginValid) {
-                onRegisterUser(login, password, email, name)
+                onEvent(RegistrationEvent.OnRegisterUser(RegistrationRequest(login, password, email, name)))
             }
         },
         pendingRegistrationState = pendingRegistrationState
@@ -125,14 +131,13 @@ fun RegistrationScreen(
     LaunchedEffect(key1 = pendingRegistrationState) {
         if (pendingRegistrationState is UiState.Success) {
             onNavigateToVerifyEmail(email, password)
-            onBackRegistrationState()
+            onEvent(RegistrationEvent.OnBackToEmptyState)
         }
     }
 }
 
 @Composable
 fun RegistrationContent(
-    modifier: Modifier = Modifier,
     login: String,
     name: String,
     email: String,
@@ -155,6 +160,18 @@ fun RegistrationContent(
     val focusRequesterName = remember { FocusRequester() }
     val focusRequesterEmail = remember { FocusRequester() }
     val focusRequesterPassword = remember { FocusRequester() }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(pendingRegistrationState) {
+        if (pendingRegistrationState is UiState.Error) {
+            scope.launch {
+                SnackbarController.sendEvent(
+                    event = SnackbarEvent(
+                        message = pendingRegistrationState.message
+                    )
+                )
+            }
+        }
+    }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -162,6 +179,7 @@ fun RegistrationContent(
     ) {
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
@@ -258,23 +276,27 @@ fun RegistrationContent(
                 )
                 if (pendingRegistrationState is UiState.Loading) {
                     Spacer(modifier = Modifier.width(16.dp))
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+                    SmallLoadingIndicator()
                 }
             }
-            if (pendingRegistrationState is UiState.Error) {
+
+            Spacer(modifier = Modifier.weight(1f))
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier.padding(bottom = 32.dp)
+            ) {
                 Text(
-                    text = pendingRegistrationState.message,
-                    color = MaterialTheme.colorScheme.error,
-                    textAlign = TextAlign.Center
+                    stringResource(Res.string.already_have_account)
+                )
+                Text(
+                    stringResource(Res.string.log_in),
+                    modifier = Modifier.clickable {
+                        onNavigateToLoginPage()
+                    },
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(stringResource(Res.string.already_have_account), modifier = Modifier
-                .padding(bottom = 16.dp)
-                .clickable {
-                    onNavigateToLoginPage()
-                }
-            )
         }
     }
 }

@@ -18,7 +18,7 @@
     <string name="get_started">Get Started</string>
     <string name="back_to_the_selection">Back to the selection</string>
     <string name="reset_your_password">Reset your password</string>
-    <string name="free_mode">Free mode</string>
+    <string name="chat">Chat</string>
     <string name="topics">Topics</string>
     <string name="dictionary">Dictionary</string>
     <string name="exit">Exit</string>
@@ -39,6 +39,7 @@
     <string name="business">BUSINESS</string>
     <string name="back">Back</string>
     <string name="message">Message</string>
+    <string name="send_message">Send</string>
     <string name="no_definitions">No definitions found for the word</string>
     <string name="usage_examples">Usage examples</string>
     <string name="definitions">Definitions</string>

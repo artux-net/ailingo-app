@@ -1,41 +1,39 @@
 [versions]
 
-googleAuthLibraryOauth2Http = "1.7.0"
-jlayer = "1.0.1"
-kotlin = "2.0.20"
-compose = "1.7.0"
-agp = "8.7.3"
-androidx-activityCompose = "1.9.3"
-androidx-uiTest = "1.7.4"
-kermit = "2.0.4"
-kotlinx-coroutines = "1.9.0"
-ktor = "3.0.0"
-androidx-lifecycle = "2.8.3"
-androidx-navigation = "2.8.0-alpha10"
-kotlinx-serialization = "1.7.3"
-koin = "3.6.0-Beta4"
-koinComposeMultiplatform = "1.2.0-Beta4"
-coil = "3.0.0-rc01"
-logbackClassic = "1.2.6"
-slf4jSimple = "2.0.9"
-sqlDelight = "2.0.2"
+kotlin = "2.1.20"
+compose = "1.8.0-beta01"
+agp = "8.6.1"
+androidx-activityCompose = "1.10.1"
+androidx-uiTest = "1.7.8"
+hotReload = "1.0.0-alpha03"
+kermit = "2.0.5"
+kotlinx-coroutines = "1.10.1"
+ktor = "3.1.2"
+androidx-lifecycle = "2.9.0-alpha05"
+androidx-navigation = "2.9.0-alpha15"
+kotlinx-serialization = "1.8.0"
+koin = "4.0.3"
+coil = "3.1.0"
+kotlinx-datetime = "0.6.2"
+ksp = "2.1.20-1.0.31"
 buildConfig = "5.4.0"
 composeIcons = "1.1.1"
-google-cloud-speech = "2.5.1"
+sqlDelight = "2.1.0-wasm"
+jlayer = "1.0.1"
+slf4jSimple = "2.0.9"
+compose-adaptive = "1.1.0-beta01"
+compose-m3-windowSizeClass = "1.7.3"
+detekt = "1.23.7"
+androidx-m3-adaptiveNavSuite = "1.4.0-alpha11"
+
 [libraries]
 
 androidx-activityCompose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
-google-auth-library-oauth2-http = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "googleAuthLibraryOauth2Http" }
-jlayer = { module = "javazoom:jlayer", version.ref = "jlayer" }
-kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
-ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
-composeIcons-featherIcons = { module = "br.com.devsrsouza.compose.icons:feather", version.ref = "composeIcons" }
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
-google-cloud-library = { group = "com.google.cloud", name = "google-cloud-speech", version.ref = "google-cloud-speech" }
 androidx-uitest-testManifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "androidx-uiTest" }
 androidx-uitest-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "androidx-uiTest" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -44,38 +42,47 @@ ktor-client-serialization = { module = "io.ktor:ktor-client-serialization", vers
 ktor-client-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-js = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
 ktor-client-curl = { module = "io.ktor:ktor-client-curl", version.ref = "ktor" }
 ktor-client-winhttp = { module = "io.ktor:ktor-client-winhttp", version.ref = "ktor" }
 androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 androidx-navigation-composee = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
-
+androidx-m3-adaptiveNavSuite = { module = "androidx.compose.material3:material3-adaptive-navigation-suite", version.ref = "androidx-m3-adaptiveNavSuite" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
-koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
-koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koinComposeMultiplatform" }
-koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koinComposeMultiplatform" }
-
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-compose-core = { module = "io.coil-kt.coil3:coil-compose-core", version.ref = "coil" }
 coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 coil-mp = { module = "io.coil-kt.coil3:coil", version.ref = "coil" }
-
-logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logbackClassic" }
-
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+composeIcons-featherIcons = { module = "br.com.devsrsouza.compose.icons:feather", version.ref = "composeIcons" }
+sqldelight-coroutines-extension = { module = "me.gulya.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
+sqldelight-driver = { module = "me.gulya.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
+sqldelight-android-driver = { module = "me.gulya.sqldelight:android-driver", version.ref = "sqlDelight" }
+sqldelight-webworker-driver = { module = "me.gulya.sqldelight:web-worker-driver", version.ref = "sqlDelight" }
+jlayer = { module = "javazoom:jlayer", version.ref = "jlayer" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4jSimple" }
-sqlDelight-driver-sqlite = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
-sqlDelight-driver-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
-sqlDelight-driver-native = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }
-sqlDelight-driver-js = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqlDelight" }
-sqlDelight-driver-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight"}
+compose-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "compose-adaptive" }
+compose-adaptive-layout = { module = "org.jetbrains.compose.material3.adaptive:adaptive-layout", version.ref = "compose-adaptive" }
+compose-adaptive-navigation = { module = "org.jetbrains.compose.material3.adaptive:adaptive-navigation", version.ref = "compose-adaptive" }
+compose-m3-windowSizeClass = { module = "org.jetbrains.compose.material3:material3-window-size-class", version.ref = "compose-m3-windowSizeClass" }
+detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 [plugins]
 
 multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose" }
 android-application = { id = "com.android.application", version.ref = "agp" }
+hotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "hotReload" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+sqlDelight = { id = "me.gulya.sqldelight", version.ref = "sqlDelight" }
 buildConfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildConfig" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }

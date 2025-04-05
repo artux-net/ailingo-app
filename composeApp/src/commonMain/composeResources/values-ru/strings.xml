@@ -17,7 +17,7 @@
     <string name="get_started">Выбери</string>
     <string name="back_to_the_selection">Вернуться к выбору</string>
     <string name="reset_your_password">Сбросить пароль</string>
-    <string name="free_mode">Чат</string>
+    <string name="chat">Чат</string>
     <string name="topics">Темы</string>
     <string name="dictionary">Словарь</string>
     <string name="exit">Выход</string>
@@ -38,6 +38,7 @@
     <string name="business">Бизнес</string>
     <string name="back">Назад</string>
     <string name="message">Сообщение</string>
+    <string name="send_message">Отправить</string>
     <string name="no_definitions">Нет определений для этого слова</string>
     <string name="usage_examples">Примеры использования</string>
     <string name="definitions">Определения</string>
@@ -79,7 +80,7 @@
     <string name="change_user_data">Изменить данные</string>
     <string name="favourite_words">Избранные слова</string>
     <string name="login_to_countinue">Войдите чтобы пользоваться приложением</string>
-    <string name="already_have_account">Уже есть аккаунт? Войти</string>
+    <string name="already_have_account">Уже есть аккаунт?</string>
     <string name="enter_your_email">Введите ваш email</string>
     <string name="enter_password">Введите пароль</string>
     <string name="name_invalid">Имя должно содержать от 2 до 24 символов</string>

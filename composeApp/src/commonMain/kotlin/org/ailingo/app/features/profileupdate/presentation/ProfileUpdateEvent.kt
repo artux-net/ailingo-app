@@ -8,4 +8,6 @@ sealed class ProfileUpdateEvent {
     ) : ProfileUpdateEvent()
 
     data object OnBackToEmptyState : ProfileUpdateEvent()
+
+    data class OnUploadAvatar(val imageBase64: String) : ProfileUpdateEvent()
 }

@@ -1,5 +1,7 @@
 package org.ailingo.app.di
 
+import org.ailingo.app.features.chat.data.repository.ChatRepositoryImpl
+import org.ailingo.app.features.chat.domain.repository.ChatRepository
 import org.ailingo.app.features.dictionary.examples.data.repository.DictionaryExampleRepositoryImpl
 import org.ailingo.app.features.dictionary.examples.domain.repository.DictionaryExampleRepository
 import org.ailingo.app.features.dictionary.main.data.repository.DictionaryRepositoryImpl
@@ -31,7 +33,7 @@ val repositoryModule = module {
     single<TopicRepository> {
         TopicRepositoryImpl(get(), get())
     }
-    single<LoginRepository>{
+    single<LoginRepository> {
         LoginRepositoryImpl(get(), get(), get(named("tokenRepository")))
     }
     single<FavouriteWordsRepository> {
@@ -48,5 +50,8 @@ val repositoryModule = module {
     }
     single<ProfileUpdateRepository> {
         ProfileUpdateRepositoryImpl(get(), get())
+    }
+    single<ChatRepository> {
+        ChatRepositoryImpl(get(), get())
     }
 }
