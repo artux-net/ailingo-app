@@ -77,6 +77,7 @@ import org.ailingo.app.features.profileupdate.data.model.imageuploader.ImageUplo
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun ProfileUpdateScreen(
@@ -91,10 +92,10 @@ fun ProfileUpdateScreen(
     avatar: String?,
     onUploadNewAvatar: (String) -> Unit
 ) {
-
     val newName = remember {
         mutableStateOf(name)
     }
+
     val newEmail = remember {
         mutableStateOf(email)
     }
@@ -435,3 +436,26 @@ fun InputProfileUpdateTextField(
 }
 
 expect suspend fun selectImage(): String?
+
+@Preview
+@Composable
+fun ProfileUpdateScreenPreview() {
+    val profileUpdateUiState = remember { mutableStateOf<UiState<ProfileUpdateResponse>>(UiState.Idle()) }
+    val uploadAvatarState = remember { mutableStateOf<UiState<ImageUploaderResponse>>(UiState.Idle()) }
+    val name = remember { mutableStateOf("John Doe") }
+    val email = remember { mutableStateOf("john.doe@example.com") }
+    val avatar = remember { mutableStateOf<String?>(null) }
+
+    ProfileUpdateScreen(
+        profileUpdateUiState = profileUpdateUiState.value,
+        uploadAvatarState = uploadAvatarState.value,
+        onProfileUpdate = { /*TODO*/ },
+        onReLoginUser = { _, _, _, _ -> /*TODO*/ },
+        onNavigateProfileScreen = { /*TODO*/ },
+        onBackToEmptyState = { /*TODO*/ },
+        name = name.value,
+        email = email.value,
+        avatar = avatar.value,
+        onUploadNewAvatar = {}
+    )
+}

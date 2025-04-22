@@ -2,8 +2,8 @@ package org.ailingo.app.features.dictionary.main.presentation
 
 import ailingo.composeapp.generated.resources.Res
 import ailingo.composeapp.generated.resources.definitions
+import ailingo.composeapp.generated.resources.history_of_search
 import ailingo.composeapp.generated.resources.loadingstate
-import ailingo.composeapp.generated.resources.no_definitions
 import ailingo.composeapp.generated.resources.usage_examples
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,21 +29,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.ailingo.app.core.presentation.ErrorScreen
 import org.ailingo.app.core.presentation.LoadingScreen
 import org.ailingo.app.core.presentation.UiState
-import org.ailingo.app.features.dictionary.examples.data.model.WordInfoItem
 import org.ailingo.app.features.dictionary.historysearch.data.model.DictionarySearchHistory
-import org.ailingo.app.features.dictionary.main.data.model.DictionaryResponse
+import org.ailingo.app.features.dictionary.main.data.model.DictionaryData
 import org.ailingo.app.features.dictionary.predictor.data.model.PredictorResponse
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DictionaryScreen(
-    dictionaryState: UiState<DictionaryResponse>,
-    examplesState: UiState<List<WordInfoItem>>,
+    dictionaryState: UiState<DictionaryData>,
     searchHistoryState: UiState<List<DictionarySearchHistory>>,
     favoriteDictionaryState: UiState<List<String>>,
     predictorState: UiState<PredictorResponse>,
@@ -95,28 +95,34 @@ fun DictionaryScreen(
                     }
 
                     is UiState.Success -> {
-                        items(searchHistoryState.data.reversed()) { searchHistoryItem ->
-                            SearchHistoryItem(
-                                searchHistoryItem = searchHistoryItem,
-                                onGetWordInfo = { searchWord ->
-                                    onEvent(DictionaryEvents.GetWordInfo(searchWord))
-                                },
-                                onTextFieldChange = { text ->
-                                    textFieldValue = text
-                                },
-                                onActiveChange = {
-                                    active.value = it
-                                }
-                            )
+                        if (searchHistoryState.data.isEmpty()) {
+                            item {
+                                Text(stringResource(Res.string.history_of_search), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                            }
+                        } else {
+                            items(searchHistoryState.data.reversed()) { searchHistoryItem ->
+                                SearchHistoryItem(
+                                    searchHistoryItem = searchHistoryItem,
+                                    onGetWordInfo = { searchWord ->
+                                        onEvent(DictionaryEvents.GetWordInfo(searchWord))
+                                    },
+                                    onTextFieldChange = { text ->
+                                        textFieldValue = text
+                                    },
+                                    onActiveChange = {
+                                        active.value = it
+                                    }
+                                )
+                            }
                         }
                     }
 
                     is UiState.Idle -> {}
                 }
             }
-            when (examplesState) {
+            when (dictionaryState) {
                 is UiState.Error -> {
-                    item { ErrorScreen(modifier = Modifier.fillMaxSize()) }
+                    item { ErrorScreen(errorMessage = dictionaryState.message, modifier = Modifier.fillMaxSize()) }
                 }
 
                 is UiState.Idle -> {}
@@ -125,59 +131,56 @@ fun DictionaryScreen(
                 }
 
                 is UiState.Success -> {
-                    val listOfExamples = examplesState.data.flatMap {
+                    val listOfExamples = dictionaryState.data.dictionaryApiDevResponses.flatMap {
                         it.meanings.flatMap { meaning ->
                             meaning.definitions.mapNotNull { def ->
                                 def.example
                             }
                         }
                     }
-                    val listOfDefinitions = examplesState.data.flatMap {
+                    val listOfDefinitions = dictionaryState.data.dictionaryApiDevResponses.flatMap {
                         it.meanings.flatMap { meaning ->
-                            meaning.definitions.mapNotNull { def ->
+                            meaning.definitions.map { def ->
                                 def.definition
                             }
                         }
                     }
-                    if (dictionaryState is UiState.Success) {
-                        if (dictionaryState.data.definitions.isNotEmpty()) {
-                            items(dictionaryState.data.definitions) { definition ->
-                                DefinitionRowInfo(
-                                    definition,
-                                    examplesState.data,
-                                    favoriteDictionaryState,
-                                    onEvent = onEvent
-                                )
-                            }
-                            item {
-                                if (listOfExamples.isNotEmpty()) {
-                                    Text(
-                                        stringResource(Res.string.usage_examples),
-                                        style = MaterialTheme.typography.titleLarge
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                }
-                            }
-                            item {
-                                ListOfExample(listOfExamples, textFieldValue)
-                            }
-                            item {
-                                if (listOfDefinitions.isNotEmpty()) {
-                                    Text(
-                                        stringResource(Res.string.definitions),
-                                        style = MaterialTheme.typography.titleLarge
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                }
-                            }
-                            item {
-                                ListOfDefinitions(listOfDefinitions)
-                            }
-                        } else {
-                            item {
-                                Text(stringResource(Res.string.no_definitions))
-                            }
+                    items(dictionaryState.data.yandexDictionaryResponse.def) { definition ->
+                        WordHeader(
+                            word = definition.text,
+                            trans = definition.tr.joinToString { it.text },
+                            audio = dictionaryState.data.dictionaryApiDevResponses.first().phonetics.first().audio,
+                            partOfSpeech = definition.pos,
+                            onEvent = onEvent,
+                            favoriteDictionaryState = favoriteDictionaryState
+                        )
+                        definition.tr.forEachIndexed { index, tr ->
+                            DefinitionEntry(index, tr)
                         }
+                    }
+                    item {
+                        if (listOfExamples.isNotEmpty()) {
+                            Text(
+                                stringResource(Res.string.usage_examples),
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                    }
+                    item {
+                        ListOfExample(listOfExamples, textFieldValue)
+                    }
+                    item {
+                        if (listOfDefinitions.isNotEmpty()) {
+                            Text(
+                                stringResource(Res.string.definitions),
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                    }
+                    item {
+                        ListOfDefinitions(listOfDefinitions)
                     }
                 }
             }

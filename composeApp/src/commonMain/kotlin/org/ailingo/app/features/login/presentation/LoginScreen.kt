@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -30,19 +31,16 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -52,9 +50,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.ailingo.app.core.presentation.SmallLoadingIndicator
+import org.ailingo.app.core.presentation.custom.CustomTextField
 import org.ailingo.app.core.presentation.snackbar.SnackbarController
 import org.ailingo.app.core.presentation.snackbar.SnackbarEvent
-import org.jetbrains.compose.resources.StringResource
+import org.ailingo.app.core.utils.deviceinfo.util.PlatformName
+import org.ailingo.app.getPlatformName
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -88,7 +88,7 @@ fun LoginScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center) {
         Column {
             Text(
                 stringResource(Res.string.login),
@@ -102,20 +102,26 @@ fun LoginScreen(
             )
             VerticalSpacer(16.dp)
 
-            InputLoginTextField(
+            CustomTextField(
                 labelResId = Res.string.email,
                 placeholderResId = Res.string.enter_your_email,
-                state = email,
+                value = email.value,
+                onValueChange = {
+                    email.value = it
+                },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(onNext = { focusRequesterPassword.requestFocus() }),
                 focusRequester = focusRequesterEmail
             )
             VerticalSpacer(16.dp)
 
-            InputLoginTextField(
+            CustomTextField(
                 labelResId = Res.string.password,
                 placeholderResId = Res.string.enter_password,
-                state = password,
+                value = password.value,
+                onValueChange = {
+                    password.value = it
+                },
                 visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = {
@@ -137,12 +143,11 @@ fun LoginScreen(
                 onClick = {
                     onEvent(LoginScreenEvent.OnLoginUser(email.value, password.value))
                 },
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(32.dp),
                 modifier = Modifier
                     .defaultMinSize(
                         minHeight = OutlinedTextFieldDefaults.MinHeight,
-                        minWidth = OutlinedTextFieldDefaults.MinWidth
-                    ),
+                    ).then(if (getPlatformName() == PlatformName.Android) Modifier.fillMaxWidth() else Modifier.defaultMinSize(minWidth = OutlinedTextFieldDefaults.MinWidth)),
                 enabled = loginState !is LoginUiState.Loading
             ) {
                 Text(
@@ -157,7 +162,7 @@ fun LoginScreen(
             VerticalSpacer(32.dp)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
-                modifier = Modifier.padding(bottom = 32.dp)
+                modifier = if (getPlatformName() == PlatformName.Android) Modifier.fillMaxWidth() else Modifier
             ) {
                 Text(
                     stringResource(Res.string.dont_have_an_account)
@@ -170,39 +175,9 @@ fun LoginScreen(
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
+            VerticalSpacer(32.dp)
         }
     }
-}
-
-@Composable
-fun InputLoginTextField(
-    labelResId: StringResource,
-    placeholderResId: StringResource,
-    state: MutableState<String>,
-    modifier: Modifier = Modifier,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    focusRequester: FocusRequester
-) {
-    Text(stringResource(labelResId), style = MaterialTheme.typography.titleMedium)
-    VerticalSpacer(4.dp)
-    OutlinedTextField(
-        value = state.value,
-        onValueChange = { state.value = it.trim() },
-        singleLine = true,
-        modifier = modifier
-            .focusRequester(focusRequester).width(OutlinedTextFieldDefaults.MinWidth),
-        shape = RoundedCornerShape(16.dp),
-        placeholder = {
-            Text(stringResource(placeholderResId), color = Color.Gray)
-        },
-        keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
-        visualTransformation = visualTransformation,
-        trailingIcon = trailingIcon
-    )
 }
 
 @Composable

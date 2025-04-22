@@ -10,5 +10,7 @@ data class Topic(
     val price: Int,
     val welcomePrompt: String,
     val systemPrompt: String,
-    val messageLimit: Int
+    val messageLimit: Int,
+    val isCompleted: Boolean,
+    val topicXp: Int
 )

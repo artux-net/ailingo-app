@@ -37,6 +37,16 @@ class LoginViewModel(
             is LoginScreenEvent.OnLoginUser -> {
                 loginUser(event.login, event.password)
             }
+
+            LoginScreenEvent.RefreshUserInfo -> refreshUserInfo()
+        }
+    }
+
+    private fun refreshUserInfo() {
+        viewModelScope.launch {
+            loginRepository.autoLogin().collect { state->
+                _loginState.update { state }
+            }
         }
     }
 

@@ -1,11 +1,15 @@
 package org.ailingo.app.core.presentation
 
+import ailingo.composeapp.generated.resources.Res
+import ailingo.composeapp.generated.resources.errorstate
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun ErrorScreen(
@@ -26,7 +32,8 @@ fun ErrorScreen(
     content: (@Composable () -> Unit)? = null,
     contentAlignment: Alignment = Alignment.TopCenter,
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    image: DrawableResource? = Res.drawable.errorstate
 ) {
     Box(modifier = modifier, contentAlignment = contentAlignment) {
         Column(
@@ -35,6 +42,9 @@ fun ErrorScreen(
             modifier = modifier
                 .padding(8.dp)
         ) {
+            if (image != null) {
+                Image(painter = painterResource(image), modifier = Modifier.size(150.dp), contentDescription = null)
+            }
             if (errorMessage != null) {
                 Text(
                     errorMessage,

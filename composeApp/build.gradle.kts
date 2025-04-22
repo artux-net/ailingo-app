@@ -226,10 +226,10 @@ allprojects {
 
 buildConfig {
 //    FOR PROD
-    buildConfigField("BASE_URL", "https://app.artux.net/ailingo")
+//    buildConfigField("BASE_URL", "https://app.artux.net/ailingo")
 
 //    FOR TESTING
-//    buildConfigField("BASE_URL", "http://localhost:8080/ailingo")
+    buildConfigField("BASE_URL", "http://localhost:8080/ailingo")
 
     buildConfigField("API_ENDPOINT_USER", "/api/v1/user")
     buildConfigField("API_ENDPOINT_TOPICS", "/api/v1/topics")

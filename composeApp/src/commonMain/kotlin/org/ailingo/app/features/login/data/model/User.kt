@@ -12,8 +12,9 @@ data class User(
     val xp: Int,
     val coins: Int,
     val streak: Int,
-    val registration: String,
+    val registration: String? = null,
     val lastLoginAt: String,
     val isEmailVerified: Boolean,
-    val role: String
+    val role: String,
+    val lastStreakAt: String
 )

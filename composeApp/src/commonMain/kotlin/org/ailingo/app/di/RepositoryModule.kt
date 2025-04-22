@@ -2,8 +2,6 @@ package org.ailingo.app.di
 
 import org.ailingo.app.features.chat.data.repository.ChatRepositoryImpl
 import org.ailingo.app.features.chat.domain.repository.ChatRepository
-import org.ailingo.app.features.dictionary.examples.data.repository.DictionaryExampleRepositoryImpl
-import org.ailingo.app.features.dictionary.examples.domain.repository.DictionaryExampleRepository
 import org.ailingo.app.features.dictionary.main.data.repository.DictionaryRepositoryImpl
 import org.ailingo.app.features.dictionary.main.domain.repository.DictionaryRepository
 import org.ailingo.app.features.dictionary.predictor.data.repository.PredictWordsRepositoryImpl
@@ -41,9 +39,6 @@ val repositoryModule = module {
     }
     single<PredictWordsRepository> {
         PredictWordsRepositoryImpl(get(), get())
-    }
-    single<DictionaryExampleRepository> {
-        DictionaryExampleRepositoryImpl(get(), get())
     }
     single<DictionaryRepository> {
         DictionaryRepositoryImpl(get(), get())

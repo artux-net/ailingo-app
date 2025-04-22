@@ -7,6 +7,8 @@ import ailingo.composeapp.generated.resources.coins
 import ailingo.composeapp.generated.resources.defaultProfilePhoto
 import ailingo.composeapp.generated.resources.topic_confirmation_message
 import ailingo.composeapp.generated.resources.topic_confirmation_title
+import ailingo.composeapp.generated.resources.topic_completed
+import ailingo.composeapp.generated.resources.loading_error
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -113,6 +115,10 @@ fun ContentTopics(
                     error = {
                         if (LocalInspectionMode.current) {
                             Image(painter = painterResource(Res.drawable.defaultProfilePhoto), null)
+                        } else {
+                            Box(modifier = Modifier.fillMaxSize().aspectRatio(1f), contentAlignment = Alignment.Center) {
+                                Text(stringResource(Res.string.loading_error))
+                            }
                         }
                     },
                 )
@@ -128,24 +134,46 @@ fun ContentTopics(
                     .padding(16.dp)
             )
         }
-        Box(
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.primary)
-                    .padding(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.CenterVertically
+        if (topic.isCompleted) {
+            Box(
+                modifier = Modifier.fillMaxWidth().padding(8.dp)
             ) {
-                Text(topic.price.toString(), style = MaterialTheme.typography.titleLarge, color = Color.White)
-                Image(
-                    painter = painterResource(Res.drawable.coins),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .padding(12.dp)
+                ) {
+                    Text(
+                        stringResource(Res.string.topic_completed),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.White,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        } else {
+            Box(
+                modifier = Modifier.fillMaxWidth().padding(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(topic.price.toString(), style = MaterialTheme.typography.titleLarge, color = Color.White)
+                    Image(
+                        painter = painterResource(Res.drawable.coins),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
         }
     }

@@ -107,4 +107,9 @@
     <string name="topic_confirmation_message">Вы действительно хотите начать тему "%1$s" за %2$s?</string>
     <string name="action_confirm">Подтвердить</string>
     <string name="action_cancel">Отмена</string>
+    <string name="verify_email_title">На вашу почту %1$s был отправлен код</string>
+    <string name="verify_email_subtitle">Введите его ниже</string>
+    <string name="verifying_code">Проверяем код..</string>
+    <string name="topic_completed">Топик пройден</string>
+    <string name="loading_error">Ошибка загрузки</string>
 </resources>

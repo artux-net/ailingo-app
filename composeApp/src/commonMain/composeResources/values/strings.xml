@@ -109,4 +109,9 @@
     <string name="topic_confirmation_message">Are you sure you want to start the topic "%1$s" for %2$s?</string>
     <string name="action_confirm">Confirm</string>
     <string name="action_cancel">Cancel</string>
+    <string name="verify_email_title">A code has been sent to your email: %1$s</string>
+    <string name="verify_email_subtitle">Enter it below</string>
+    <string name="verifying_code">Verifying code..</string>
+    <string name="topic_completed">Topic completed</string>
+    <string name="loading_error">Loading error</string>
 </resources>

@@ -7,5 +7,6 @@ import org.ailingo.app.features.login.data.model.User
 data class AuthResponse(
     val token: String,
     val refreshToken: String,
-    val user: User
+    val user: User,
+    val isStreakContinued: Boolean
 )

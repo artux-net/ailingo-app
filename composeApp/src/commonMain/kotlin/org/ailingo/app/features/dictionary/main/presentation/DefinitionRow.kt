@@ -14,6 +14,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -24,15 +25,15 @@ import androidx.compose.ui.unit.dp
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Volume2
 import org.ailingo.app.core.presentation.UiState
-import org.ailingo.app.features.dictionary.examples.data.model.WordInfoItem
-import org.ailingo.app.features.dictionary.main.data.model.Def
 import org.ailingo.app.features.dictionary.main.presentation.utils.getPartOfSpeechLabel
 import org.ailingo.app.playSound
 
 @Composable
-fun DefinitionRowInfo(
-    definition: Def,
-    responseForExamples: List<WordInfoItem>?,
+fun WordHeader(
+    word: String,
+    trans: String,
+    audio: String?,
+    partOfSpeech: String,
     favoriteDictionaryState: UiState<List<String>>,
     onEvent: (DictionaryEvents) -> Unit
 ) {
@@ -41,55 +42,41 @@ fun DefinitionRowInfo(
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            definition.text,
+            word,
             style = MaterialTheme.typography.titleLarge,
         )
         Spacer(modifier = Modifier.width(8.dp))
-        // val fontFamilyForTranscription: FontFamily = fontFamilyResource(SharedRes.fonts.NotoSans.light)
-        // Text("[" + definition.ts + "]", fontFamily = fontFamilyForTranscription, fontSize = 16.sp)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(getPartOfSpeechLabel(definition.partOfSpeech))
-        val listOfAllAudio = responseForExamples?.flatMap { wordInfoItem ->
-            wordInfoItem.phonetics
-                ?.mapNotNull {
-                    it.audio.takeIf { audio ->
-                        audio?.isNotBlank() ?: false
+        Text(getPartOfSpeechLabel(partOfSpeech))
+            if (audio != null) {
+                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+                    IconButton(onClick = {
+                        playSound(audio)
+                    }) {
+                        Icon(
+                            modifier = Modifier.size(20.dp),
+                            imageVector = FeatherIcons.Volume2,
+                            contentDescription = null
+                        )
                     }
-                } ?: emptyList()
-        }
-        val firstNonEmptyAudio = listOfAllAudio?.firstOrNull()
-        if (firstNonEmptyAudio != null) {
-            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-                IconButton(onClick = {
-                    playSound(firstNonEmptyAudio)
-                }) {
-                    Icon(
-                        modifier = Modifier.size(20.dp),
-                        imageVector = FeatherIcons.Volume2,
-                        contentDescription = null
-                    )
                 }
             }
-        }
-        if (favoriteDictionaryState is UiState.Success) {
-            if (favoriteDictionaryState.data.contains(definition.text)) {
-                IconButton(onClick = {
-                    onEvent(DictionaryEvents.RemoveFromFavorites(definition.text))
-                }) {
-                    Icon(imageVector = Icons.Filled.Favorite, contentDescription = null, tint = Color.Red)
+            if (favoriteDictionaryState is UiState.Success) {
+                if (favoriteDictionaryState.data.contains(word)) {
+                    IconButton(onClick = {
+                        onEvent(DictionaryEvents.RemoveFromFavorites(word))
+                    }) {
+                        Icon(imageVector = Icons.Filled.Favorite, contentDescription = null, tint = Color.Red)
+                    }
+                } else {
+                    IconButton(onClick = {
+                        onEvent(DictionaryEvents.AddToFavorites(word))
+                    }) {
+                        Icon(imageVector = Icons.Outlined.Favorite, contentDescription = null)
+                    }
                 }
             } else {
-                IconButton(onClick = {
-                    onEvent(DictionaryEvents.AddToFavorites(definition.text))
-                }) {
-                    Icon(imageVector = Icons.Outlined.Favorite, contentDescription = null)
-                }
+                Icon(imageVector = Icons.Filled.Favorite, contentDescription = null, tint = Color.Gray, modifier = Modifier.minimumInteractiveComponentSize())
             }
-        }
     }
     Spacer(modifier = Modifier.height(8.dp))
-
-    definition.translations.forEachIndexed { index, tr ->
-        DefinitionEntry(index, tr)
-    }
 }

@@ -4,13 +4,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Def(
-    @SerialName("pos")
-    val partOfSpeech: String,
+data class YandexDefinition(
     @SerialName("text")
     val text: String,
-    @SerialName("tr")
-    val translations: List<Tr>,
+    @SerialName("pos")
+    val pos: String,
     @SerialName("ts")
-    val transcription: String
+    val ts: String,
+    @SerialName("tr")
+    val tr: List<Translation>
 )

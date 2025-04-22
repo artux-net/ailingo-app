@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -64,9 +65,12 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.ailingo.app.core.presentation.SmallLoadingIndicator
 import org.ailingo.app.core.presentation.UiState
+import org.ailingo.app.core.presentation.custom.CustomTextField
 import org.ailingo.app.core.presentation.snackbar.SnackbarController
 import org.ailingo.app.core.presentation.snackbar.SnackbarEvent
+import org.ailingo.app.core.utils.deviceinfo.util.PlatformName
 import org.ailingo.app.features.registration.data.model.RegistrationRequest
+import org.ailingo.app.getPlatformName
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -195,7 +199,7 @@ fun RegistrationContent(
             )
             VerticalSpacer(8.dp)
 
-            InputTextField(
+            CustomTextField(
                 labelResId = Res.string.login,
                 placeholderResId = Res.string.enter_your_login,
                 value = login,
@@ -207,7 +211,7 @@ fun RegistrationContent(
                 errorMessage = if (!isLoginValid) stringResource(Res.string.login_invalid) else null
             )
             VerticalSpacer(8.dp)
-            InputTextField(
+            CustomTextField(
                 labelResId = Res.string.username,
                 placeholderResId = Res.string.enter_your_name,
                 value = name,
@@ -220,7 +224,7 @@ fun RegistrationContent(
             )
             VerticalSpacer(8.dp)
 
-            InputTextField(
+            CustomTextField(
                 labelResId = Res.string.email,
                 placeholderResId = Res.string.enter_your_email,
                 value = email,
@@ -233,7 +237,7 @@ fun RegistrationContent(
             )
             VerticalSpacer(8.dp)
 
-            InputTextField(
+            CustomTextField(
                 labelResId = Res.string.password,
                 placeholderResId = Res.string.enter_password,
                 value = password,
@@ -267,10 +271,11 @@ fun RegistrationContent(
                         onRegisterClick()
                     },
                     modifier = Modifier
-                        .width(OutlinedTextFieldDefaults.MinWidth)
-                        .defaultMinSize(minHeight = OutlinedTextFieldDefaults.MinHeight),
+                        .defaultMinSize(minHeight = OutlinedTextFieldDefaults.MinHeight).then(
+                            if (getPlatformName() == PlatformName.Android) Modifier.fillMaxWidth() else Modifier.defaultMinSize(minWidth = OutlinedTextFieldDefaults.MinWidth)
+                        ),
                     enabled = pendingRegistrationState !is UiState.Loading,
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(32.dp)
                 ) {
                     Text(
                         stringResource(Res.string.continue_app),
@@ -284,7 +289,7 @@ fun RegistrationContent(
                 VerticalSpacer(32.dp)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
-                    modifier = Modifier.padding(bottom = 32.dp)
+                    modifier = if (getPlatformName() == PlatformName.Android) Modifier.fillMaxWidth() else Modifier
                 ) {
                     Text(
                         stringResource(Res.string.already_have_account)
@@ -297,6 +302,7 @@ fun RegistrationContent(
                         color = MaterialTheme.colorScheme.primary,
                     )
                 }
+                VerticalSpacer(32.dp)
             }
         }
     }
@@ -305,50 +311,6 @@ fun RegistrationContent(
 @Composable
 fun VerticalSpacer(height: Dp) {
     Spacer(modifier = Modifier.height(height))
-}
-
-@Composable
-fun InputTextField(
-    labelResId: StringResource,
-    placeholderResId: StringResource,
-    value: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    focusRequester: FocusRequester,
-    isError: Boolean = false,
-    errorMessage: String? = null
-) {
-    Text(stringResource(labelResId), style = MaterialTheme.typography.titleMedium)
-    VerticalSpacer(4.dp)
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        singleLine = true,
-        modifier = modifier
-            .width(OutlinedTextFieldDefaults.MinWidth)
-            .focusRequester(focusRequester),
-        shape = RoundedCornerShape(16.dp),
-        placeholder = {
-            Text(stringResource(placeholderResId), color = Color.Gray)
-        },
-        keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
-        visualTransformation = visualTransformation,
-        trailingIcon = trailingIcon,
-        isError = isError
-    )
-    if (isError && errorMessage != null) {
-        Text(
-            text = errorMessage,
-            color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(start = 16.dp)
-        )
-    }
 }
 
 fun isValidEmail(email: String): Boolean {

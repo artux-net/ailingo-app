@@ -8,5 +8,6 @@ data class Conversation(
     val conversationId: String,
     val content: String,
     val timestamp: String,
-    val type: String
+    val type: String,
+    val suggestions: List<String>? = emptyList()
 )

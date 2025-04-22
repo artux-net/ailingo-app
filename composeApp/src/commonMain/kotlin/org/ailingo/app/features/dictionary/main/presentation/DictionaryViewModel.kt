@@ -11,11 +11,9 @@ import org.ailingo.app.core.presentation.UiState
 import org.ailingo.app.core.presentation.snackbar.SnackbarAction
 import org.ailingo.app.core.presentation.snackbar.SnackbarController
 import org.ailingo.app.core.presentation.snackbar.SnackbarEvent
-import org.ailingo.app.features.dictionary.examples.data.model.WordInfoItem
-import org.ailingo.app.features.dictionary.examples.domain.repository.DictionaryExampleRepository
 import org.ailingo.app.features.dictionary.historysearch.data.model.DictionarySearchHistory
 import org.ailingo.app.features.dictionary.historysearch.domain.repository.DictionarySearchHistoryRepository
-import org.ailingo.app.features.dictionary.main.data.model.DictionaryResponse
+import org.ailingo.app.features.dictionary.main.data.model.DictionaryData
 import org.ailingo.app.features.dictionary.main.domain.repository.DictionaryRepository
 import org.ailingo.app.features.dictionary.predictor.data.model.PredictorRequest
 import org.ailingo.app.features.dictionary.predictor.data.model.PredictorResponse
@@ -26,7 +24,6 @@ class DictionaryViewModel(
     private val historyDictionarySearchHistoryRepository: Deferred<DictionarySearchHistoryRepository>,
     private val favouriteWordsRepository: FavouriteWordsRepository,
     private val predictorRepository: PredictWordsRepository,
-    private val exampleRepository: DictionaryExampleRepository,
     private val dictionaryRepository: DictionaryRepository,
     word: String?
 ) : ViewModel() {
@@ -37,11 +34,8 @@ class DictionaryViewModel(
     private val _favoriteWordsState = MutableStateFlow<UiState<List<String>>>(UiState.Idle())
     val favouriteWordsState = _favoriteWordsState.asStateFlow()
 
-    private val _dictionaryUiState = MutableStateFlow<UiState<DictionaryResponse>>(UiState.Idle())
+    private val _dictionaryUiState = MutableStateFlow<UiState<DictionaryData>>(UiState.Idle())
     val dictionaryUiState = _dictionaryUiState.asStateFlow()
-
-    private val _examplesUiState = MutableStateFlow<UiState<List<WordInfoItem>>>(UiState.Idle())
-    val examplesUiState = _examplesUiState.asStateFlow()
 
     private var _predictorState = MutableStateFlow<UiState<PredictorResponse>>(UiState.Idle())
     val predictorState = _predictorState.asStateFlow()
@@ -93,11 +87,6 @@ class DictionaryViewModel(
     private fun getWordInfo(word: String?) {
         if (!word.isNullOrBlank()) {
             viewModelScope.launch {
-                launch {
-                    exampleRepository.getExamples(word).collect { state ->
-                        _examplesUiState.update { state }
-                    }
-                }
                 launch {
                     dictionaryRepository.getWordInfo(word).collect { state ->
                         _dictionaryUiState.update { state }

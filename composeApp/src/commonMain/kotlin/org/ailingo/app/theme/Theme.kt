@@ -27,8 +27,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.ailingo.app.core.utils.deviceinfo.util.PlatformName
-import org.ailingo.app.getPlatformName
 import org.jetbrains.compose.resources.Font
 
 private val lightScheme = lightColorScheme(
@@ -320,7 +318,7 @@ internal fun AppTheme(
         val isDark by isDarkState
         SystemAppearance(!isDark)
         MaterialTheme(
-            colorScheme = if (isDark && getPlatformName() != PlatformName.Web && getPlatformName() != PlatformName.Desktop) darkScheme else lightScheme,
+            colorScheme = lightScheme,
             typography = AppTypography,
             shapes = AppShapes,
             content = {

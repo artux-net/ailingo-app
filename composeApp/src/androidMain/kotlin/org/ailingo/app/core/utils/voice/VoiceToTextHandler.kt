@@ -26,7 +26,7 @@ actual class VoiceToTextHandler(
     actual var isAvailable: Boolean = SpeechRecognizer.isRecognitionAvailable(context)
     private var speechRecognizer: SpeechRecognizer? = null
 
-    actual fun startListening(languageCode: String) {
+    actual fun startListening() {
         if (!isAvailable) {
             _state.value = VoiceToTextState.Error("Speech recognition is not available.")
             return
@@ -70,7 +70,7 @@ actual class VoiceToTextHandler(
 
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageCode)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ru-en")
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
         }
         try {

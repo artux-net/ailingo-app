@@ -73,7 +73,7 @@ fun OtpInputField(
                     onNumberChanged(newNumber.toIntOrNull())
                 }
             },
-            cursorBrush = SolidColor(Color.White),
+            cursorBrush = SolidColor(Color.Black),
             singleLine = true,
             textStyle = TextStyle(
                 textAlign = TextAlign.Center,

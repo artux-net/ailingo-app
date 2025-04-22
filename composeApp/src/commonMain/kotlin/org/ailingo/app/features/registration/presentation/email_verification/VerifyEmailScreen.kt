@@ -2,6 +2,9 @@ package org.ailingo.app.features.registration.presentation.email_verification
 
 import ailingo.composeapp.generated.resources.Res
 import ailingo.composeapp.generated.resources.back
+import ailingo.composeapp.generated.resources.verify_email_subtitle
+import ailingo.composeapp.generated.resources.verify_email_title
+import ailingo.composeapp.generated.resources.verifying_code
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -51,13 +54,13 @@ fun VerifyEmailScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            "На вашу почту $email был отправлен код",
+            stringResource(Res.string.verify_email_title, email),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.headlineSmall
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            "Введите  его ниже",
+            stringResource(Res.string.verify_email_subtitle),
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -90,7 +93,7 @@ fun VerifyEmailScreen(
 
         when (registrationState) {
             is UiState.Loading -> {
-                LoadingScreen(loadingText = "Проверяем код..")
+                LoadingScreen(loadingText = stringResource(Res.string.verifying_code))
             }
 
             is UiState.Error -> {

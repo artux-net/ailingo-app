@@ -1,6 +1,7 @@
 package org.ailingo.app.features.topics.presentation
 
 import ailingo.composeapp.generated.resources.Res
+import ailingo.composeapp.generated.resources.emptystate
 import ailingo.composeapp.generated.resources.loadingstate
 import ailingo.composeapp.generated.resources.topic_list_empty
 import androidx.compose.foundation.layout.Arrangement
@@ -19,8 +20,6 @@ import org.ailingo.app.core.presentation.ErrorScreen
 import org.ailingo.app.core.presentation.LoadingScreen
 import org.ailingo.app.core.presentation.UiState
 import org.ailingo.app.features.topics.data.model.Topic
-import org.ailingo.app.theme.AppTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun TopicsScreen(
@@ -33,11 +32,11 @@ fun TopicsScreen(
         }
         is UiState.Idle -> {}
         is UiState.Loading -> {
-            LoadingScreen(modifier = Modifier.fillMaxSize(), image = Res.drawable.loadingstate, imageSize = 100.dp)
+            LoadingScreen(modifier = Modifier.fillMaxSize(), image = Res.drawable.loadingstate)
         }
         is UiState.Success -> {
             if (topicsUiState.data.isEmpty()) {
-                EmptyScreen(text = Res.string.topic_list_empty, modifier = Modifier.fillMaxSize())
+                EmptyScreen(text = Res.string.topic_list_empty, modifier = Modifier.fillMaxSize(), image = Res.drawable.emptystate)
             } else {
                 TopicsContent(topicsUiState.data, onTopicClick)
             }
@@ -62,26 +61,5 @@ fun TopicsContent(
         items(topics) { topic ->
             ContentTopics(topic, onTopicClick)
         }
-    }
-}
-
-fun createSampleTopics(): List<Topic> {
-    return listOf(
-        Topic(1, "Travel Adventures", "https://images.unsplash.com/photo-1503220718398-8a546943e773?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8dHJhdmVsfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80", 0, "Let's talk about your dream destinations!", "You are a travel expert.", 10),
-        Topic(2, "Culinary Delights", "https://images.unsplash.com/photo-1414235134978-e0729c044e02?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8Zm9vZHxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80", 5, "What's the most delicious thing you've ever eaten?", "You are a food critic.", 20),
-        Topic(3, "Tech Innovations", "https://images.unsplash.com/photo-1518770660439-4636190af475?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8dGVjaG5vbG9neXxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80", 0, "Discuss the latest gadgets and software.", "You are a tech enthusiast.", 15),
-        Topic(4, "Movie Buffs", "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8bW92aWV8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80", 10, "What's your all-time favorite movie?", "You are a film historian.", 5),
-        Topic(5, "Nature Escapes", "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8bmF0dXJlfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80", 0, "Share your favorite nature spots.", "You are a nature lover.", 10)
-    )
-}
-
-@Preview
-@Composable
-fun TopicsScreenPreview_Success() {
-    AppTheme {
-        TopicsScreen(
-            topicsUiState = UiState.Success(createSampleTopics()),
-            onTopicClick = { topicName, topicImage -> }
-        )
     }
 }

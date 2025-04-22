@@ -2,7 +2,6 @@ package org.ailingo.app
 
 import ailingo.composeapp.generated.resources.Res
 import ailingo.composeapp.generated.resources.exit
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
@@ -31,6 +30,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
@@ -39,7 +39,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.toRoute
 import androidx.window.core.layout.WindowWidthSizeClass
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.launch
+import org.ailingo.app.core.presentation.UiState
 import org.ailingo.app.core.presentation.navigation.NavigationHandler
 import org.ailingo.app.core.presentation.snackbar.ObserveAsEvents
 import org.ailingo.app.core.presentation.snackbar.SnackbarController
@@ -169,16 +171,15 @@ fun AiLingoNavGraph(
                                     contentDescription = null
                                 )
                             },
-                            label = { Text(stringResource(it.label)) },
-                            selected = it == currentDestination,
+                            label = { Text(stringResource(it.label), textAlign = TextAlign.Center) },
+                            selected = currentDestination?.hasRoute(it.route::class) == true,
                             onClick = {
                                 navController.navigate(it.route) {
                                     launchSingleTop = true
                                     restoreState = true
-                                    //TODO SINGLE LAUNCH SCREEN (status: web problems)
-                                    /*popUpTo(LoginPage) {
+                                    popUpTo(LoginPage) {
                                         saveState = true
-                                    }*/
+                                    }
                                 }
                             }
                         )
@@ -236,6 +237,12 @@ fun AiLingoNavGraph(
                         val chatUiState = chatViewModel.chatState.collectAsStateWithLifecycle().value
                         val messagesState = chatViewModel.messages.collectAsStateWithLifecycle().value
 
+                        LaunchedEffect(chatUiState) {
+                            if (chatUiState is UiState.Idle) {
+                                loginViewModel.onEvent(LoginScreenEvent.RefreshUserInfo)
+                            }
+                        }
+
                         ChatScreen(
                             topicName = args.topicName,
                             topicImage = args.topicImage,
@@ -243,8 +250,7 @@ fun AiLingoNavGraph(
                             messagesState = messagesState,
                             onEvent = { event ->
                                 chatViewModel.onEvent(event)
-                            },
-                            userAvatar = if (loginState is LoginUiState.Success) loginState.user.avatar else null
+                            }
                         )
                     }
                     composable<RegistrationPage> {
@@ -264,9 +270,9 @@ fun AiLingoNavGraph(
                     }
                     composable<ProfilePage> {
                         ProfileScreen(
-                            modifier = Modifier.fillMaxSize(),
                             loginState = loginState,
                             onExit = {
+                                loginViewModel.onEvent(LoginScreenEvent.OnBackToEmptyState)
                                 navController.navigate(LoginPage) {
                                     popUpTo(0)
                                 }
@@ -333,13 +339,11 @@ fun AiLingoNavGraph(
                         val args = backStackEntry.toRoute<DictionaryPage>()
                         val dictionaryViewModel: DictionaryViewModel = koinViewModel { parametersOf(args.word) }
                         val dictionaryState = dictionaryViewModel.dictionaryUiState.collectAsStateWithLifecycle().value
-                        val examplesState = dictionaryViewModel.examplesUiState.collectAsStateWithLifecycle().value
                         val searchHistoryState = dictionaryViewModel.historyOfDictionaryState.collectAsStateWithLifecycle().value
                         val favoriteDictionaryState = dictionaryViewModel.favouriteWordsState.collectAsStateWithLifecycle().value
                         val predictorState = dictionaryViewModel.predictorState.collectAsStateWithLifecycle().value
                         DictionaryScreen(
                             dictionaryState,
-                            examplesState,
                             searchHistoryState,
                             favoriteDictionaryState,
                             predictorState,

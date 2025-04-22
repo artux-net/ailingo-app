@@ -105,7 +105,7 @@ fun LoadingScreen(
                 )
             }
             if (image != null) {
-                Image(painter = painterResource(image), contentDescription = null, modifier = Modifier.size(imageSize ?: 100.dp))
+                Image(painter = painterResource(image), contentDescription = null, modifier = Modifier.size(imageSize ?: 150.dp))
             }
             if (loadingText != null) {
                 Text(loadingText, textAlign = textAlign)
